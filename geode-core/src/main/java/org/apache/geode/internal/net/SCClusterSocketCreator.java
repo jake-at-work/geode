@@ -102,6 +102,11 @@ class SCClusterSocketCreator extends ClusterSocketCreatorImpl {
       serverSocket.setSSLParameters(modifiedParams);
     }
 
+    {
+      final SSLParameters sslParameters = serverSocket.getSSLParameters();
+      sslParameters.setEndpointIdentificationAlgorithm("HTTPS");
+      serverSocket.setSSLParameters(sslParameters);
+    }
   }
 
 

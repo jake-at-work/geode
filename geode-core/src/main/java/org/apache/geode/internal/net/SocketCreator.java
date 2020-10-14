@@ -763,9 +763,9 @@ public class SocketCreator extends TcpSocketCreatorImpl {
       boolean updateSSLParameters =
           checkAndEnableHostnameValidation(parameters);
 
-      if (setServerNames(parameters, addr)) {
-        updateSSLParameters = true;
-      } ;
+       if (setServerNames(parameters, addr)) {
+         updateSSLParameters = true;
+       }
 
       SSLParameterExtension sslParameterExtension = this.sslConfig.getSSLParameterExtension();
       if (sslParameterExtension != null) {
@@ -821,6 +821,7 @@ public class SocketCreator extends TcpSocketCreatorImpl {
    * returns true if the SSLParameters are altered, false if not
    */
   private boolean setServerNames(SSLParameters modifiedParams, HostAndPort addr) {
+    logger.error("XXXXX WHY ARE WE HERE!!!");
     List<SNIServerName> oldNames = modifiedParams.getServerNames();
     oldNames = oldNames == null ? Collections.emptyList() : oldNames;
     final List<SNIServerName> serverNames = new ArrayList<>(oldNames);
