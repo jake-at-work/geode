@@ -45,7 +45,7 @@ public class SystemUtils {
 
   // Operating System Names
   public static final String LINUX_OS_NAME = "Linux";
-  public static final String MAC_OSX_NAME = "Mac";
+  public static final String MAC_OS_NAME = "Mac";
   public static final String WINDOWS_OS_NAME = "Windows";
   public static final String SOLARIS_OS_NAME = "SunOS";
 
@@ -151,8 +151,8 @@ public class SystemUtils {
    *         OSX.
    * @see #isOS(String)
    */
-  public static boolean isMacOSX() {
-    return isOS(MAC_OSX_NAME);
+  public static boolean isMacOS() {
+    return isOS(MAC_OS_NAME);
   }
 
   /**

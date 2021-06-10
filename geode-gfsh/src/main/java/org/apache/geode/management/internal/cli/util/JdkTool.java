@@ -31,7 +31,7 @@ public class JdkTool {
   protected static final String JAVA_HOME = System.getProperty("java.home");
 
   public static String getJVisualVMPathname() {
-    if (SystemUtils.isMacOSX()) {
+    if (SystemUtils.isMacOS()) {
       try {
         return IOUtils.verifyPathnameExists(
             "/System/Library/Java/Support/VisualVM.bundle/Contents/Home/bin/jvisualvm");

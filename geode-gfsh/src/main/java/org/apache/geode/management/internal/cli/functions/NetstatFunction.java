@@ -18,7 +18,7 @@ import static org.apache.geode.internal.lang.SystemUtils.getOsArchitecture;
 import static org.apache.geode.internal.lang.SystemUtils.getOsName;
 import static org.apache.geode.internal.lang.SystemUtils.getOsVersion;
 import static org.apache.geode.internal.lang.SystemUtils.isLinux;
-import static org.apache.geode.internal.lang.SystemUtils.isMacOSX;
+import static org.apache.geode.internal.lang.SystemUtils.isMacOS;
 import static org.apache.geode.internal.lang.SystemUtils.isSolaris;
 
 import java.io.BufferedReader;
@@ -163,7 +163,7 @@ public class NetstatFunction implements InternalFunction<NetstatFunction.Netstat
     existingNetstatInfo.append("################ ").append(LSOF_COMMAND)
         .append(" output ###################").append(lineSeparator);
 
-    if (isLinux() || isMacOSX() || isSolaris()) {
+    if (isLinux() || isMacOS() || isSolaris()) {
       List<String> cmdOptionsList = new ArrayList<>();
       cmdOptionsList.add(LSOF_COMMAND);
       cmdOptionsList.add("-n");
