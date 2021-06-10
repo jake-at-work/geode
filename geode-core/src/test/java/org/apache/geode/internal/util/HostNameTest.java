@@ -15,7 +15,7 @@
 package org.apache.geode.internal.util;
 
 import static org.apache.geode.internal.lang.SystemUtils.LINUX_OS_NAME;
-import static org.apache.geode.internal.lang.SystemUtils.MAC_OSX_NAME;
+import static org.apache.geode.internal.lang.SystemUtils.MAC_OS_NAME;
 import static org.apache.geode.internal.lang.SystemUtils.SOLARIS_OS_NAME;
 import static org.apache.geode.internal.lang.SystemUtils.WINDOWS_OS_NAME;
 import static org.apache.geode.internal.lang.SystemUtils.isWindows;
@@ -54,7 +54,7 @@ public class HostNameTest {
   }
 
   @Test
-  @Parameters({MAC_OSX_NAME, LINUX_OS_NAME, SOLARIS_OS_NAME, WINDOWS_OS_NAME})
+  @Parameters({MAC_OS_NAME, LINUX_OS_NAME, SOLARIS_OS_NAME, WINDOWS_OS_NAME})
   public void shouldExecHostNameIfEnvValueNotAvailableOnOS(String osName) throws IOException {
     setHostNamePropertiesNull(osName);
     String result = new HostName().determineHostName();
@@ -62,7 +62,7 @@ public class HostNameTest {
   }
 
   @Test
-  @Parameters({MAC_OSX_NAME, LINUX_OS_NAME, SOLARIS_OS_NAME, WINDOWS_OS_NAME})
+  @Parameters({MAC_OS_NAME, LINUX_OS_NAME, SOLARIS_OS_NAME, WINDOWS_OS_NAME})
   public void shouldUseComputerNameIfAvailableOnOS(String osName) throws IOException {
     setHostNameProperties(osName);
     String result = new HostName().determineHostName();
@@ -70,7 +70,7 @@ public class HostNameTest {
   }
 
   @Test
-  @Parameters({MAC_OSX_NAME, LINUX_OS_NAME, SOLARIS_OS_NAME, WINDOWS_OS_NAME})
+  @Parameters({MAC_OS_NAME, LINUX_OS_NAME, SOLARIS_OS_NAME, WINDOWS_OS_NAME})
   public void shouldBeNullIfEnvValueNotAvailableOnOS(String osName) throws IOException {
     setHostNamePropertiesNull(osName);
     String result = new HostName().getHostNameFromEnv();

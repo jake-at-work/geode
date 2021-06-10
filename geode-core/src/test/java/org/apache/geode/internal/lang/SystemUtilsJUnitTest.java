@@ -18,7 +18,7 @@ import static org.apache.geode.internal.lang.SystemUtils.APPLE_JVM_VENDOR_NAME;
 import static org.apache.geode.internal.lang.SystemUtils.IBM_J9_JVM_NAME;
 import static org.apache.geode.internal.lang.SystemUtils.JAVA_HOTSPOT_JVM_NAME;
 import static org.apache.geode.internal.lang.SystemUtils.LINUX_OS_NAME;
-import static org.apache.geode.internal.lang.SystemUtils.MAC_OSX_NAME;
+import static org.apache.geode.internal.lang.SystemUtils.MAC_OS_NAME;
 import static org.apache.geode.internal.lang.SystemUtils.ORACLE_JROCKIT_JVM_NAME;
 import static org.apache.geode.internal.lang.SystemUtils.ORACLE_JVM_VENDOR_NAME;
 import static org.apache.geode.internal.lang.SystemUtils.WINDOWS_OS_NAME;
@@ -32,7 +32,7 @@ import static org.apache.geode.internal.lang.SystemUtils.isHotSpotVM;
 import static org.apache.geode.internal.lang.SystemUtils.isJ9VM;
 import static org.apache.geode.internal.lang.SystemUtils.isJRockitVM;
 import static org.apache.geode.internal.lang.SystemUtils.isLinux;
-import static org.apache.geode.internal.lang.SystemUtils.isMacOSX;
+import static org.apache.geode.internal.lang.SystemUtils.isMacOS;
 import static org.apache.geode.internal.lang.SystemUtils.isOracleJVM;
 import static org.apache.geode.internal.lang.SystemUtils.isWindows;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -99,8 +99,8 @@ public class SystemUtilsJUnitTest {
   @Test
   public void testIsMacOSX() {
     final boolean expected =
-        ManagementFactory.getOperatingSystemMXBean().getName().contains(MAC_OSX_NAME);
-    assertEquals(expected, isMacOSX());
+        ManagementFactory.getOperatingSystemMXBean().getName().contains(MAC_OS_NAME);
+    assertEquals(expected, isMacOS());
   }
 
   @Test
