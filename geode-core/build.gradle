@@ -312,6 +312,9 @@ dependencies {
   //RMIIO is used for uploading jar files and copying them between locator an servers
   implementation('com.healthmarketscience.rmiio:rmiio')
 
+  // OSHI OS system stats
+  implementation('com.github.oshi:oshi-core:5.7.4')
+
   //Geode-common has annotations and other pieces used geode-core
   api(project(':geode-common'))
   implementation(project(':geode-logging'))
@@ -323,7 +326,6 @@ dependencies {
   //geode-management currently has pieces of the public API
   //copied into it, so it is an API dependency
   api(project(':geode-management'))
-
 
   jcaImplementation(sourceSets.main.output)
 
