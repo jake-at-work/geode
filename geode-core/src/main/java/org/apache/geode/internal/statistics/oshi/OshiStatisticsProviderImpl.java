@@ -2,6 +2,7 @@ package org.apache.geode.internal.statistics.oshi;
 
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
@@ -9,14 +10,17 @@ import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
 import oshi.hardware.VirtualMemory;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 
 import org.apache.geode.Statistics;
 import org.apache.geode.internal.statistics.platform.OsStatisticsFactory;
+import org.apache.geode.logging.internal.log4j.api.LogService;
 
 public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
+  private static final Logger log = LogService.getLogger();
 
   final SystemInfo systemInfo = new SystemInfo();
   
@@ -24,13 +28,16 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
   private CentralProcessor processor;
   private OperatingSystem operatingSystem;
   private HardwareAbstractionLayer hardware;
+  private List<NetworkIF> networkIFs;
+
   private long[] systemCpuLoadTicks;
   private long[][] processorCpuLoadTicks;
+  private OSProcess process;
 
   private Statistics processStats;
   private Statistics systemStats;
   private Statistics[] processorStats;
-  private OSProcess process;
+  private Statistics[] networkInterfaceStats;
 
   @Override
   public void init(final @NotNull OsStatisticsFactory osStatisticsFactory,
@@ -55,11 +62,20 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
     final List<LogicalProcessor> logicalProcessors = processor.getLogicalProcessors();
     processorCpuLoadTicks = new long[logicalProcessors.size()][TickType.values().length];
     processorStats = new Statistics[logicalProcessors.size()];
-    for (int i = 0, logicalProcessorsSize = logicalProcessors.size(); i < logicalProcessorsSize; i++) {
+    for (int i = 0, size = logicalProcessors.size(); i < size; i++) {
       final LogicalProcessor logicalProcessor = logicalProcessors.get(i);
       final String processorIdentity = logicalProcessor.toString();
       processorStats[i] = osStatisticsFactory.createOsStatistics(ProcessorStats.getType(),
           processorIdentity, id, 0);
+    }
+
+    networkIFs = hardware.getNetworkIFs();
+    networkInterfaceStats = new Statistics[networkIFs.size()];
+    for (int i = 0, size = networkIFs.size(); i < size; i++) {
+      final NetworkIF networkIF = networkIFs.get(i);
+      log.info("Creating network interfaces stats for {}", networkIF.getDisplayName());
+      networkInterfaceStats[i] = osStatisticsFactory.createOsStatistics(NetworkInterfaceStats.getType(),
+          networkIF.getDisplayName(), id, 0);
     }
   }
 
@@ -68,13 +84,14 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
     sampleProcess();
     sampleSystem();
     sampleProcessors();
+    sampleNetworkInterfaces();
   }
 
   @Override
   public void destroy() {
   }
 
-  public void sampleProcess() {
+  private void sampleProcess() {
     final OSProcess process = operatingSystem.getProcess(processId);
 
     final double processCpuLoadBetweenTicks = process.getProcessCpuLoadBetweenTicks(this.process);
@@ -95,7 +112,7 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
     processStats.setLong(ProcessStats.contextSwitches, process.getContextSwitches());
   }
 
-  public void sampleSystem() {
+  private void sampleSystem() {
     systemStats.setLong(OperatingSystemStats.processCount, operatingSystem.getProcessCount());
     systemStats.setLong(OperatingSystemStats.threadCount, operatingSystem.getThreadCount());
 
@@ -175,5 +192,26 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
           processorCpuLoadTick[TickType.STEAL.getIndex()]);
     }
   }
-  
+
+  private void sampleNetworkInterfaces() {
+    for (int i = 0, size = networkIFs.size(); i < size; i++) {
+      final NetworkIF networkIF = networkIFs.get(i);
+      if (!networkIF.updateAttributes()) {
+        continue;
+      }
+
+      final Statistics networkInterfaceStat = networkInterfaceStats[i];
+      networkInterfaceStat.setLong(NetworkInterfaceStats.mtu, networkIF.getMTU());
+      networkInterfaceStat.setLong(NetworkInterfaceStats.bytesReceived, networkIF.getBytesRecv());
+      networkInterfaceStat.setLong(NetworkInterfaceStats.bytesSent, networkIF.getBytesSent());
+      networkInterfaceStat.setLong(NetworkInterfaceStats.packetsReceived, networkIF.getPacketsRecv());
+      networkInterfaceStat.setLong(NetworkInterfaceStats.packetsSent, networkIF.getPacketsSent());
+      networkInterfaceStat.setLong(NetworkInterfaceStats.inErrors, networkIF.getInErrors());
+      networkInterfaceStat.setLong(NetworkInterfaceStats.outErrors, networkIF.getOutErrors());
+      networkInterfaceStat.setLong(NetworkInterfaceStats.inDrops, networkIF.getInDrops());
+      networkInterfaceStat.setLong(NetworkInterfaceStats.collisions, networkIF.getCollisions());
+      networkInterfaceStat.setLong(NetworkInterfaceStats.speed, networkIF.getSpeed());
+    }
+
+  }
 }
