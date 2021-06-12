@@ -298,7 +298,7 @@ public class MemberMBeanBridge {
 
   private Statistics fetchSystemStats() {
     if (osStatisticsProvider.osStatsSupported()) {
-      Statistics[] systemStats = system.findStatisticsByType(OsStatisticsProvider.getSystemStatType());
+      Statistics[] systemStats = system.findStatisticsByType(LinuxSystemStats.getType());
 
       if (systemStats != null) {
         return systemStats[0];

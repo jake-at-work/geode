@@ -35,6 +35,9 @@ import org.apache.geode.internal.GemFireVersion;
 import org.apache.geode.internal.admin.ListenerIdMap;
 import org.apache.geode.internal.admin.remote.StatListenerMessage;
 import org.apache.geode.internal.logging.log4j.LogMarker;
+import org.apache.geode.internal.statistics.oshi.OshiStatisticsProvider;
+import org.apache.geode.internal.statistics.oshi.OshiStatisticsProviderException;
+import org.apache.geode.internal.statistics.oshi.OshiStatisticsProviderImpl;
 import org.apache.geode.internal.statistics.platform.OsStatisticsFactory;
 import org.apache.geode.internal.statistics.platform.ProcessStats;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -66,7 +69,8 @@ public class GemFireStatSampler extends HostStatSampler {
   private int nextListenerId = 1;
   private ProcessStats processStats;
 
-  private OsStatisticsProvider osStatisticsProvider = OsStatisticsProvider.build();
+//  private OsStatisticsProvider osStatisticsProvider = OsStatisticsProvider.build();
+  private OshiStatisticsProvider oshiStatisticsProvider = new OshiStatisticsProviderImpl();
 
   public GemFireStatSampler(InternalDistributedSystem internalDistributedSystem) {
     this(internalDistributedSystem, null);
@@ -268,63 +272,59 @@ public class GemFireStatSampler extends HostStatSampler {
   }
 
   @Override
-  protected void initProcessStats(long id) {
-    if (osStatisticsProvider.osStatsSupported()) {
-      if (osStatsDisabled()) {
-        logger.info(LogMarker.STATISTICS_MARKER,
-            "OS statistic collection disabled by setting the osStatsDisabled system property to true.");
-      } else {
-        int retVal = osStatisticsProvider.initOSStats();
-        if (retVal != 0) {
-          logger.error(LogMarker.STATISTICS_MARKER,
-              "OS statistics failed to initialize properly, some stats may be missing. See bugnote #37160.");
-        }
-        osStatisticsProvider.newSystem(getOsStatisticsFactory(), id);
-        String statName = getStatisticsManager().getName();
-        if (statName == null || statName.length() == 0) {
-          statName = "javaApp" + getSystemId();
-        }
-        Statistics stats =
-            osStatisticsProvider.newProcess(getOsStatisticsFactory(), id, statName + "-proc");
-        processStats = osStatisticsProvider.newProcessStats(stats);
-      }
+  protected void initProcessStats(long pid) {
+    if (osStatsDisabled()) {
+      logger.info(LogMarker.STATISTICS_MARKER,
+          "OS statistic collection disabled by setting the osStatsDisabled system property to true.");
+      return;
     }
+
+    try {
+      oshiStatisticsProvider.init(getOsStatisticsFactory(), pid);
+    } catch (OshiStatisticsProviderException e) {
+      logger.error(LogMarker.STATISTICS_MARKER,"Failed to initialize OS statistics.", e);
+    }
+
+//    osStatisticsProvider.newSystem(getOsStatisticsFactory(), pid);
+//    String statName = getStatisticsManager().getName();
+//    if (statName == null || statName.length() == 0) {
+//      statName = "javaApp" + getSystemId();
+//    }
+//    Statistics stats =
+//        osStatisticsProvider.newProcess(getOsStatisticsFactory(), id, statName + "-proc");
+    processStats = null; //osStatisticsProvider.newProcessStats(stats);
+
   }
 
   @Override
   protected void sampleProcessStats(boolean prepareOnly) {
-    if (prepareOnly || osStatsDisabled() || !osStatisticsProvider.osStatsSupported()) {
+    if (prepareOnly || osStatsDisabled() || stopRequested()) {
       return;
     }
-    List<Statistics> statisticsList = getStatisticsManager().getStatsList();
-    if (statisticsList == null) {
-      return;
-    }
-    if (stopRequested()) {
-      return;
-    }
-    osStatisticsProvider.readyRefreshOSStats();
-    for (Statistics statistics : statisticsList) {
-      if (stopRequested()) {
-        return;
-      }
-      StatisticsImpl statisticsImpl = (StatisticsImpl) statistics;
-      if (statisticsImpl.usesSystemCalls()) {
-        osStatisticsProvider.refresh((LocalStatisticsImpl) statisticsImpl);
-      }
-    }
+    oshiStatisticsProvider.sample();
+//    List<Statistics> statisticsList = getStatisticsManager().getStatsList();
+//    for (Statistics statistics : statisticsList) {
+//      if (stopRequested()) {
+//        return;
+//      }
+//      StatisticsImpl statisticsImpl = (StatisticsImpl) statistics;
+//      if (statisticsImpl.usesSystemCalls()) {
+//        osStatisticsProvider.refresh((LocalStatisticsImpl) statisticsImpl);
+//      }
+//    }
   }
 
   @Override
   protected void closeProcessStats() {
-    if (osStatisticsProvider.osStatsSupported()) {
-      if (!osStatsDisabled()) {
-        if (processStats != null) {
-          processStats.close();
-        }
-        osStatisticsProvider.closeOSStats();
-      }
-    }
+    oshiStatisticsProvider.destroy();
+//    if (osStatisticsProvider.osStatsSupported()) {
+//      if (!osStatsDisabled()) {
+//        if (processStats != null) {
+//          processStats.close();
+//        }
+//        osStatisticsProvider.closeOSStats();
+//      }
+//    }
   }
 
   private void checkLocalListeners() {

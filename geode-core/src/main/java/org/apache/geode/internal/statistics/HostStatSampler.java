@@ -437,7 +437,11 @@ public abstract class HostStatSampler
     return null;
   }
 
-  protected void initProcessStats(long id) {
+  /**
+   *
+   * @param pid process id if this process
+   */
+  protected void initProcessStats(long pid) {
     // do nothing by default
   }
 

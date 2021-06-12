@@ -14,24 +14,15 @@
  */
 package org.apache.geode.internal.statistics;
 
-import static org.apache.geode.internal.lang.SystemUtils.isLinux;
-import static org.apache.geode.internal.lang.SystemUtils.isMacOS;
-
 import java.net.UnknownHostException;
 
-import org.jetbrains.annotations.NotNull;
-
 import org.apache.geode.Statistics;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.lang.SystemUtils;
 import org.apache.geode.internal.statistics.platform.LinuxProcFsStatistics;
 import org.apache.geode.internal.statistics.platform.LinuxProcessStats;
 import org.apache.geode.internal.statistics.platform.LinuxSystemStats;
 import org.apache.geode.internal.statistics.platform.OsStatisticsFactory;
-import org.apache.geode.internal.statistics.platform.OshiProcessStats;
-import org.apache.geode.internal.statistics.platform.OshiStatistics;
-import org.apache.geode.internal.statistics.platform.OshiSystemStats;
 import org.apache.geode.internal.statistics.platform.ProcessStats;
 
 /**
@@ -48,7 +39,7 @@ public class OsStatisticsProvider {
   }
 
   private OsStatisticsProvider() {
-    osStatsSupported = isLinux() || SystemUtils.isMacOS();
+    osStatsSupported = SystemUtils.isLinux();
   }
 
   public static OsStatisticsProvider build() {
@@ -56,12 +47,7 @@ public class OsStatisticsProvider {
   }
 
   int initOSStats() {
-    if (isLinux()) {
-      return LinuxProcFsStatistics.init();
-    } else if (isMacOS()) {
-      return OshiStatistics.init();
-    }
-    return 1;
+    return LinuxProcFsStatistics.init();
   }
 
   void closeOSStats() {
@@ -69,11 +55,7 @@ public class OsStatisticsProvider {
   }
 
   void readyRefreshOSStats() {
-    if (isLinux()) {
-      LinuxProcFsStatistics.readyRefresh();
-    } else if (isMacOS()) {
-      OshiStatistics.readyRefresh();
-    }
+    LinuxProcFsStatistics.readyRefresh();
   }
 
   /**
@@ -82,11 +64,7 @@ public class OsStatisticsProvider {
    */
   private void refreshProcess(LocalStatisticsImpl statistics) {
     int pid = (int) statistics.getNumericId();
-    if (isLinux()) {
-      LinuxProcFsStatistics.refreshProcess(pid, statistics);
-    } else if (isMacOS()) {
-      OshiStatistics.refreshProcess(pid, statistics);
-    }
+    LinuxProcFsStatistics.refreshProcess(pid, statistics);
   }
 
   /**
@@ -94,11 +72,7 @@ public class OsStatisticsProvider {
    * machine and storing them in the instance.
    */
   private void refreshSystem(LocalStatisticsImpl statistics) {
-    if (isLinux()) {
-      LinuxProcFsStatistics.refreshSystem(statistics);
-    } else if (isMacOS()) {
-      OshiStatistics.refreshSystem(statistics);
-    }
+    LinuxProcFsStatistics.refreshSystem(statistics);
   }
 
   /**
@@ -121,17 +95,10 @@ public class OsStatisticsProvider {
    */
   Statistics newProcess(OsStatisticsFactory osStatisticsFactory, long pid, String name) {
     Statistics statistics;
-    statistics = osStatisticsFactory.createOsStatistics(getProcessStatType(), name, pid,
+    statistics = osStatisticsFactory.createOsStatistics(LinuxProcessStats.getType(), name, pid,
         PROCESS_STAT_FLAG);
     // Note we don't call refreshProcess since we only want the manager to do that
     return statistics;
-  }
-
-  private static StatisticsType getProcessStatType() {
-    if (isLinux()) {
-      return LinuxProcessStats.getType();
-    }
-    return OshiProcessStats.getType();
   }
 
   /**
@@ -144,29 +111,20 @@ public class OsStatisticsProvider {
     if (statistics instanceof LocalStatisticsImpl) {
       refresh((LocalStatisticsImpl) statistics);
     } // otherwise its a Dummy implementation so do nothing
-    if (isLinux()) {
-      return LinuxProcessStats.createProcessStats(statistics);
-    }
-    return OshiProcessStats.createProcessStats(statistics);
+    return LinuxProcessStats.createProcessStats(statistics);
   }
 
   /**
    * Creates a {@link Statistics} with the current machine's stats. The resource's stats
    * will contain a snapshot of the current statistic values for the local machine.
    */
-  void newSystem(final @NotNull OsStatisticsFactory osStatisticsFactory, long id) {
-    final Statistics statistics = osStatisticsFactory.createOsStatistics(getSystemStatType(),
+  void newSystem(OsStatisticsFactory osStatisticsFactory, long id) {
+    Statistics statistics;
+    statistics = osStatisticsFactory.createOsStatistics(LinuxSystemStats.getType(),
         getHostSystemName(), id, SYSTEM_STAT_FLAG);
     if (statistics instanceof LocalStatisticsImpl) {
       refreshSystem((LocalStatisticsImpl) statistics);
     } // otherwise its a Dummy implementation so do nothing
-  }
-
-  public static StatisticsType getSystemStatType() {
-    if (isLinux()) {
-      return LinuxSystemStats.getType();
-    }
-    return OshiSystemStats.getType();
   }
 
   /**
