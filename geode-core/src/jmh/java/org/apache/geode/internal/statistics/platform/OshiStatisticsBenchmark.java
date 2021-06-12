@@ -22,14 +22,11 @@ import java.util.function.LongSupplier;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.Warmup;
 import oshi.SystemInfo;
 
 import org.apache.geode.StatisticDescriptor;
@@ -44,25 +41,25 @@ public class OshiStatisticsBenchmark {
   private final int pid = new SystemInfo().getOperatingSystem().getProcessId();
   private final SuppliableStatistics noopStatistics = new NoopStatistics();
 
-  @Setup
-  public void setup() {
-    OshiStatistics.init();
-  }
-
-  @Benchmark
-  public void noop() {
-
-  }
-
-  @Benchmark
-  public void refreshProcess() {
-    OshiStatistics.refreshProcess(pid, noopStatistics);
-  }
-
-  @Benchmark
-  public void refreshSystem() {
-    OshiStatistics.refreshSystem(noopStatistics);
-  }
+//  @Setup
+//  public void setup() {
+//    OshiStatistics.init();
+//  }
+//
+//  @Benchmark
+//  public void noop() {
+//
+//  }
+//
+//  @Benchmark
+//  public void refreshProcess() {
+//    OshiStatistics.refreshProcess(pid, noopStatistics);
+//  }
+//
+//  @Benchmark
+//  public void refreshSystem() {
+//    OshiStatistics.refreshSystem(noopStatistics);
+//  }
 
   private static class NoopStatistics implements SuppliableStatistics {
     @Override

@@ -13,23 +13,30 @@
  * the License.
  */
 
-package org.apache.geode.internal.statistics.platform;
+package org.apache.geode.internal.statistics.oshi;
 
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.StatisticDescriptor;
-import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsType;
 import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 
-public class OshiProcessStats {
+public class ProcessStats {
   static final int virtualSize;
   static final int residentSetSize;
   static final int threadCount;
   static final int kernelTime;
   static final int userTime;
+  static final int bytesRead;
+  static final int bytesWritten;
+  static final int openFiles;
+  static final int cpuLoadCumulative;
+  static final int cpuLoad;
+  static final int minorFaults;
+  static final int majorFaults;
+  static final int contextSwitches;
 
   @Immutable
   private static final StatisticsType statisticsType;
@@ -37,7 +44,7 @@ public class OshiProcessStats {
   static {
     final StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
 
-    statisticsType = f.createType("OSProcessStats", "Statistics on a OS process.",
+    statisticsType = f.createType("ProcessStats", "Statistics on a process.",
         new StatisticDescriptor[]{
             f.createLongGauge("virtualSize",
                 "Gets the Virtual Memory Size (VSZ). Includes all memory that the process can access, including memory that is swapped out and memory that is from shared libraries.",
@@ -53,7 +60,31 @@ public class OshiProcessStats {
                 "milliseconds"),
             f.createLongCounter("userTime",
                 "Gets user time used by the process.",
-                "milliseconds")
+                "milliseconds"),
+            f.createLongCounter("bytesRead",
+                "The number of bytes the process has written to disk",
+                "bytes"),
+            f.createLongCounter("bytesWritten",
+                "The number of bytes the process has written to disk.",
+                "bytes"),
+            f.createLongGauge("openFiles",
+                "Gets the number of open file handles (or network connections) that belongs to the process.",
+                "files"),
+            f.createDoubleGauge("cpuLoadCumulative",
+                "Gets cumulative CPU usage of this process.",
+                "percent"),
+            f.createDoubleGauge("cpuLoad",
+                "CPU usage of this process.",
+                "percent"),
+            f.createLongCounter("minorFaults",
+                "Gets the number of minor (soft) faults the process has made which have not required loading a memory page from disk. Sometimes called reclaims.",
+                "faults"),
+            f.createLongCounter("majorFaults",
+                "Gets the number of major (hard) faults the process has made which have required loading a memory page from disk.",
+                "faults"),
+            f.createLongCounter("contextSwitches",
+                "A snapshot of the context switches the process has done. Since the context switches could be voluntary and non-voluntary, this gives the sum of both.",
+                "switches"),
         });
 
     virtualSize = statisticsType.nameToId("virtualSize");
@@ -61,9 +92,17 @@ public class OshiProcessStats {
     threadCount = statisticsType.nameToId("threadCount");
     kernelTime = statisticsType.nameToId("kernelTime");
     userTime = statisticsType.nameToId("userTime");
+    bytesRead = statisticsType.nameToId("bytesRead");
+    bytesWritten = statisticsType.nameToId("bytesWritten");
+    openFiles = statisticsType.nameToId("openFiles");
+    cpuLoadCumulative = statisticsType.nameToId("cpuLoadCumulative");
+    cpuLoad = statisticsType.nameToId("cpuLoad");
+    minorFaults = statisticsType.nameToId("minorFaults");
+    majorFaults = statisticsType.nameToId("majorFaults");
+    contextSwitches = statisticsType.nameToId("contextSwitches");
   }
 
-  private OshiProcessStats() {
+  private ProcessStats() {
     // no instances allowed
   }
 
@@ -71,12 +110,4 @@ public class OshiProcessStats {
     return statisticsType;
   }
 
-  public static ProcessStats createProcessStats(final @NotNull Statistics stats) {
-    return new ProcessStats(stats) {
-      @Override
-      public long getProcessSize() {
-        return stats.getLong(residentSetSize);
-      }
-    };
-  }
 }

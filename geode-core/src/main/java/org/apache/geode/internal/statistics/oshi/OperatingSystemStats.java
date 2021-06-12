@@ -13,7 +13,7 @@
  * the License.
  */
 
-package org.apache.geode.internal.statistics.platform;
+package org.apache.geode.internal.statistics.oshi;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +23,7 @@ import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 
-public class OshiSystemStats {
+public class OperatingSystemStats {
   static final int processCount;
   static final int threadCount;
   static final int contextSwitches;
@@ -42,6 +42,16 @@ public class OshiSystemStats {
   static final int systemCpuLoadTicksIRQ;
   static final int systemCpuLoadTicksSOFTIRQ;
   static final int systemCpuLoadTicksSTEAL;
+  static final int systemCpuLoad;
+  static final int memoryTotal;
+  static final int memoryAvailable;
+  static final int memoryPageSize;
+  static final int swapTotal;
+  static final int swapUsed;
+  static final int virtualMax;
+  static final int virtualInUse;
+  static final int swapPagesIn;
+  static final int swapPagesOut;
 
   @Immutable
   private static final StatisticsType statisticsType;
@@ -95,15 +105,45 @@ public class OshiSystemStats {
             f.createLongCounter("systemCpuLoadTicksSTEAL",
                 "Time spent in Steal",
                 "milliseconds"),
+            f.createDoubleGauge("systemCpuLoad",
+                "Time spent in Steal",
+                "percent"),
             f.createDoubleGauge("systemLoadAverage1",
                 "The system load average is the sum of the number of runnable entities queued to the available processors and the number of runnable entities running on the available processors averaged over 1 minute.",
-                "processors"),
+                "load"),
             f.createDoubleGauge("systemLoadAverage5",
                 "The system load average is the sum of the number of runnable entities queued to the available processors and the number of runnable entities running on the available processors averaged over 5 minutes.",
-                "processors"),
+                "load"),
             f.createDoubleGauge("systemLoadAverage15",
                 "The system load average is the sum of the number of runnable entities queued to the available processors and the number of runnable entities running on the available processors averaged over 15 minutes.",
-                "processors"),
+                "load"),
+            f.createLongGauge("memoryTotal",
+                "The amount of actual physical memory, in bytes.",
+                "bytes"),
+            f.createLongGauge("memoryAvailable",
+                "The amount of physical memory currently available, in bytes.",
+                "bytes"),
+            f.createLongGauge("memoryPageSize",
+                "The number of bytes in a memory page",
+                "bytes"),
+            f.createLongGauge("swapTotal",
+                "The current size of the paging/swap file(s), in bytes. If the paging/swap file can be extended, this is a soft limit.",
+                "bytes"),
+            f.createLongGauge("swapUsed",
+                "The current memory committed to the paging/swap file(s), in bytes.",
+                "bytes"),
+            f.createLongGauge("virtualMax",
+                "The maximum memory that can be committed by the system without extending the paging file(s), in bytes. Also called the Commit Limit. If the paging/swap file can be extended, this is a soft limit. This is generally equal to the sum of the sizes of physical memory and paging/swap file(s).",
+                "bytes"),
+            f.createLongGauge("virtualInUse",
+                "The memory currently committed by the system, in bytes. Also called the Commit Total. This is generally equal to the sum of the bytes used of physical memory and paging/swap file(s).",
+                "bytes"),
+            f.createLongCounter("swapPagesIn",
+                "Number of pages read from paging/swap file(s) to resolve hard page faults.",
+                "pages"),
+            f.createLongCounter("swapPagesOut",
+                "Number of pages read from paging/swap file(s) to resolve hard page faults.",
+                "pages"),
     });
 
     processCount = statisticsType.nameToId("processCount");
@@ -124,9 +164,20 @@ public class OshiSystemStats {
     systemCpuLoadTicksIRQ = statisticsType.nameToId("systemCpuLoadTicksIRQ");
     systemCpuLoadTicksSOFTIRQ = statisticsType.nameToId("systemCpuLoadTicksSOFTIRQ");
     systemCpuLoadTicksSTEAL = statisticsType.nameToId("systemCpuLoadTicksSTEAL");
+    systemCpuLoad = statisticsType.nameToId("systemCpuLoad");
+    memoryTotal = statisticsType.nameToId("memoryTotal");
+    memoryAvailable = statisticsType.nameToId("memoryAvailable");
+    memoryPageSize = statisticsType.nameToId("memoryPageSize");
+    swapTotal = statisticsType.nameToId("swapTotal");
+    swapUsed = statisticsType.nameToId("swapUsed");
+    virtualMax = statisticsType.nameToId("virtualMax");
+    virtualInUse = statisticsType.nameToId("virtualInUse");
+    swapPagesIn = statisticsType.nameToId("swapPagesIn");
+    swapPagesOut = statisticsType.nameToId("swapPagesOut");
+
   }
 
-  private OshiSystemStats() {
+  private OperatingSystemStats() {
     // no instances allowed
   }
 
