@@ -181,19 +181,24 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
         tcPv4Stats.getConnectionFailures());
     systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsReset,
         tcPv4Stats.getConnectionsReset());
-    systemStats.setLong(OperatingSystemStats.tcpv4SegmentsSent, tcPv4Stats.getSegmentsSent());
+    systemStats.setLong(OperatingSystemStats.tcpv4SegmentsSent,
+        tcPv4Stats.getSegmentsSent());
     systemStats.setLong(OperatingSystemStats.tcpv4SegmentsReceived,
         tcPv4Stats.getSegmentsReceived());
     systemStats.setLong(OperatingSystemStats.tcpv4SegmentsRetransmitted,
         tcPv4Stats.getSegmentsRetransmitted());
-    systemStats.setLong(OperatingSystemStats.tcpv4InErrors, tcPv4Stats.getInErrors());
-    systemStats.setLong(OperatingSystemStats.tcpv4OutResets, tcPv4Stats.getOutResets());
+    systemStats.setLong(OperatingSystemStats.tcpv4InErrors,
+        tcPv4Stats.getInErrors());
+    systemStats.setLong(OperatingSystemStats.tcpv4OutResets,
+        tcPv4Stats.getOutResets());
 
     final UdpStats udPv4Stats = internetProtocolStats.getUDPv4Stats();
-    systemStats.setLong(OperatingSystemStats.udpv4DatagramsSent, udPv4Stats.getDatagramsSent());
+    systemStats.setLong(OperatingSystemStats.udpv4DatagramsSent,
+        udPv4Stats.getDatagramsSent());
     systemStats.setLong(OperatingSystemStats.udpv4DatagramsReceived,
         udPv4Stats.getDatagramsReceived());
-    systemStats.setLong(OperatingSystemStats.udpv4DatagramsNoPort, udPv4Stats.getDatagramsNoPort());
+    systemStats.setLong(OperatingSystemStats.udpv4DatagramsNoPort,
+        udPv4Stats.getDatagramsNoPort());
     systemStats.setLong(OperatingSystemStats.udpv4DatagramsReceivedErrors,
         udPv4Stats.getDatagramsReceivedErrors());
 
@@ -208,26 +213,31 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
         tcPv6Stats.getConnectionFailures());
     systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsReset,
         tcPv6Stats.getConnectionsReset());
-    systemStats.setLong(OperatingSystemStats.tcpv6SegmentsSent, tcPv6Stats.getSegmentsSent());
+    systemStats.setLong(OperatingSystemStats.tcpv6SegmentsSent,
+        tcPv6Stats.getSegmentsSent());
     systemStats.setLong(OperatingSystemStats.tcpv6SegmentsReceived,
         tcPv6Stats.getSegmentsReceived());
     systemStats.setLong(OperatingSystemStats.tcpv6SegmentsRetransmitted,
         tcPv6Stats.getSegmentsRetransmitted());
-    systemStats.setLong(OperatingSystemStats.tcpv6InErrors, tcPv6Stats.getInErrors());
-    systemStats.setLong(OperatingSystemStats.tcpv6OutResets, tcPv6Stats.getOutResets());
+    systemStats.setLong(OperatingSystemStats.tcpv6InErrors,
+        tcPv6Stats.getInErrors());
+    systemStats.setLong(OperatingSystemStats.tcpv6OutResets,
+        tcPv6Stats.getOutResets());
 
     final UdpStats udPv6Stats = internetProtocolStats.getUDPv6Stats();
-    systemStats.setLong(OperatingSystemStats.udpv6DatagramsSent, udPv6Stats.getDatagramsSent());
+    systemStats.setLong(OperatingSystemStats.udpv6DatagramsSent,
+        udPv6Stats.getDatagramsSent());
     systemStats.setLong(OperatingSystemStats.udpv6DatagramsReceived,
         udPv6Stats.getDatagramsReceived());
-    systemStats.setLong(OperatingSystemStats.udpv6DatagramsNoPort, udPv6Stats.getDatagramsNoPort());
+    systemStats.setLong(OperatingSystemStats.udpv6DatagramsNoPort,
+        udPv6Stats.getDatagramsNoPort());
     systemStats.setLong(OperatingSystemStats.udpv6DatagramsReceivedErrors,
         udPv6Stats.getDatagramsReceivedErrors());
 
     final FileSystem fileSystem = operatingSystem.getFileSystem();
     systemStats.setLong(OperatingSystemStats.openFileDescriptors,
         fileSystem.getOpenFileDescriptors());
-    systemStats.setLong(OperatingSystemStats.openFileDescriptors,
+    systemStats.setLong(OperatingSystemStats.maxFileDescriptors,
         fileSystem.getMaxFileDescriptors());
 
   }
