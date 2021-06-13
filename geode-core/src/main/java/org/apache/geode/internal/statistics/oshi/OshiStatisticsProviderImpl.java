@@ -12,6 +12,10 @@ import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.VirtualMemory;
+import oshi.software.os.FileSystem;
+import oshi.software.os.InternetProtocolStats;
+import oshi.software.os.InternetProtocolStats.TcpStats;
+import oshi.software.os.InternetProtocolStats.UdpStats;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 
@@ -161,6 +165,48 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
     systemStats.setLong(OperatingSystemStats.virtualInUse, virtualMemory.getVirtualInUse());
     systemStats.setLong(OperatingSystemStats.swapPagesIn, virtualMemory.getSwapPagesIn());
     systemStats.setLong(OperatingSystemStats.swapPagesOut, virtualMemory.getSwapPagesOut());
+
+    final InternetProtocolStats internetProtocolStats = operatingSystem.getInternetProtocolStats();
+    final TcpStats tcPv4Stats = internetProtocolStats.getTCPv4Stats();
+    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsEstablished, tcPv4Stats.getConnectionsEstablished());
+    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsActive, tcPv4Stats.getConnectionsActive());
+    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsPassive, tcPv4Stats.getConnectionsPassive());
+    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionFailures, tcPv4Stats.getConnectionFailures());
+    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsReset, tcPv4Stats.getConnectionsReset());
+    systemStats.setLong(OperatingSystemStats.tcpv4SegmentsSent, tcPv4Stats.getSegmentsSent());
+    systemStats.setLong(OperatingSystemStats.tcpv4SegmentsReceived, tcPv4Stats.getSegmentsReceived());
+    systemStats.setLong(OperatingSystemStats.tcpv4SegmentsRetransmitted, tcPv4Stats.getSegmentsRetransmitted());
+    systemStats.setLong(OperatingSystemStats.tcpv4InErrors, tcPv4Stats.getInErrors());
+    systemStats.setLong(OperatingSystemStats.tcpv4OutResets, tcPv4Stats.getOutResets());
+
+    final UdpStats udPv4Stats = internetProtocolStats.getUDPv4Stats();
+    systemStats.setLong(OperatingSystemStats.udpv4DatagramsSent, udPv4Stats.getDatagramsSent());
+    systemStats.setLong(OperatingSystemStats.udpv4DatagramsReceived, udPv4Stats.getDatagramsReceived());
+    systemStats.setLong(OperatingSystemStats.udpv4DatagramsNoPort, udPv4Stats.getDatagramsNoPort());
+    systemStats.setLong(OperatingSystemStats.udpv4DatagramsReceivedErrors, udPv4Stats.getDatagramsReceivedErrors());
+
+    final TcpStats tcPv6Stats = internetProtocolStats.getTCPv6Stats();
+    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsEstablished, tcPv6Stats.getConnectionsEstablished());
+    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsActive, tcPv6Stats.getConnectionsActive());
+    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsPassive, tcPv6Stats.getConnectionsPassive());
+    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionFailures, tcPv6Stats.getConnectionFailures());
+    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsReset, tcPv6Stats.getConnectionsReset());
+    systemStats.setLong(OperatingSystemStats.tcpv6SegmentsSent, tcPv6Stats.getSegmentsSent());
+    systemStats.setLong(OperatingSystemStats.tcpv6SegmentsReceived, tcPv6Stats.getSegmentsReceived());
+    systemStats.setLong(OperatingSystemStats.tcpv6SegmentsRetransmitted, tcPv6Stats.getSegmentsRetransmitted());
+    systemStats.setLong(OperatingSystemStats.tcpv6InErrors, tcPv6Stats.getInErrors());
+    systemStats.setLong(OperatingSystemStats.tcpv6OutResets, tcPv6Stats.getOutResets());
+
+    final UdpStats udPv6Stats = internetProtocolStats.getUDPv6Stats();
+    systemStats.setLong(OperatingSystemStats.udpv6DatagramsSent, udPv6Stats.getDatagramsSent());
+    systemStats.setLong(OperatingSystemStats.udpv6DatagramsReceived, udPv6Stats.getDatagramsReceived());
+    systemStats.setLong(OperatingSystemStats.udpv6DatagramsNoPort, udPv6Stats.getDatagramsNoPort());
+    systemStats.setLong(OperatingSystemStats.udpv6DatagramsReceivedErrors, udPv6Stats.getDatagramsReceivedErrors());
+
+    final FileSystem fileSystem = operatingSystem.getFileSystem();
+    systemStats.setLong(OperatingSystemStats.openFileDescriptors, fileSystem.getOpenFileDescriptors());
+    systemStats.setLong(OperatingSystemStats.openFileDescriptors, fileSystem.getMaxFileDescriptors());
+
   }
 
   private void sampleProcessors() {

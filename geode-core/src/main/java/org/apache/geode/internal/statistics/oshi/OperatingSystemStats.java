@@ -52,6 +52,36 @@ public class OperatingSystemStats {
   static final int virtualInUse;
   static final int swapPagesIn;
   static final int swapPagesOut;
+  static final int tcpv4ConnectionsEstablished;
+  static final int tcpv4ConnectionsActive;
+  static final int tcpv4ConnectionsPassive;
+  static final int tcpv4ConnectionFailures;
+  static final int tcpv4ConnectionsReset;
+  static final int tcpv4SegmentsSent;
+  static final int tcpv4SegmentsReceived;
+  static final int tcpv4SegmentsRetransmitted;
+  static final int tcpv4InErrors;
+  static final int tcpv4OutResets;
+  static final int udpv4DatagramsSent;
+  static final int udpv4DatagramsReceived;
+  static final int udpv4DatagramsNoPort;
+  static final int udpv4DatagramsReceivedErrors;
+  static final int tcpv6ConnectionsEstablished;
+  static final int tcpv6ConnectionsActive;
+  static final int tcpv6ConnectionsPassive;
+  static final int tcpv6ConnectionFailures;
+  static final int tcpv6ConnectionsReset;
+  static final int tcpv6SegmentsSent;
+  static final int tcpv6SegmentsReceived;
+  static final int tcpv6SegmentsRetransmitted;
+  static final int tcpv6InErrors;
+  static final int tcpv6OutResets;
+  static final int udpv6DatagramsSent;
+  static final int udpv6DatagramsReceived;
+  static final int udpv6DatagramsNoPort;
+  static final int udpv6DatagramsReceivedErrors;
+  static final int openFileDescriptors;
+  static final int maxFileDescriptors;
 
   @Immutable
   private static final StatisticsType statisticsType;
@@ -144,6 +174,96 @@ public class OperatingSystemStats {
             f.createLongCounter("swapPagesOut",
                 "Number of pages read from paging/swap file(s) to resolve hard page faults.",
                 "pages"),
+            f.createLongGauge("tcpv4ConnectionsEstablished",
+                "Connection Failures is the number of times TCP connections have made a direct transition to the CLOSED state from the SYN-SENT state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the LISTEN state from the SYN-RCVD state.",
+                "connections"),
+            f.createLongCounter("tcpv4ConnectionsActive",
+                "Connections Active is the number of times TCP connections have made a direct transition to the SYN-SENT state from the CLOSED state. In other words, it shows a number of connections which are initiated by the local computer. The value is a cumulative total.",
+                "connections"),
+            f.createLongCounter("tcpv4ConnectionsPassive",
+                "Connections Passive is the number of times TCP connections have made a direct transition to the SYN-RCVD state from the LISTEN state. In other words, it shows a number of connections to the local computer, which are initiated by remote computers. The value is a cumulative total.",
+                "connections"),
+            f.createLongCounter("tcpv4ConnectionFailures",
+                "Connections Established is the number of TCP connections for which the current state is either ESTABLISHED or CLOSE-WAIT.",
+                "connections"),
+            f.createLongCounter("tcpv4ConnectionsReset",
+                "Connections Reset is the number of times TCP connections have made a direct transition to the CLOSED state from either the ESTABLISHED state or the CLOSE-WAIT state.",
+                "connections"),
+            f.createLongCounter("tcpv4SegmentsSent",
+                "Segments Sent is the number of segments sent, including those on current connections, but excluding those containing only retransmitted bytes.",
+                "segments"),
+            f.createLongCounter("tcpv4SegmentsReceived",
+                "Segments Received is the number of segments received, including those received in error. This count includes segments received on currently established connections.",
+                "segments"),
+            f.createLongCounter("tcpv4SegmentsRetransmitted",
+                "Segments Retransmitted is the number of segments retransmitted, that is, segments transmitted containing one or more previously transmitted bytes.",
+                "segments"),
+            f.createLongCounter("tcpv4InErrors",
+                "The number of errors received.",
+                "errors"),
+            f.createLongCounter("tcpv4OutResets",
+                "The number of segments transmitted with the reset flag set.",
+                "segments"),
+            f.createLongCounter("udpv4DatagramsSent",
+                "Datagrams Sent is the number of UDP datagrams sent from the entity.",
+                "datagrams"),
+            f.createLongCounter("udpv4DatagramsReceived",
+                "Datagrams Received is the number of UDP datagrams delivered to UDP users",
+                "datagrams"),
+            f.createLongCounter("udpv4DatagramsNoPort",
+                "Datagrams No Port is the number of received UDP datagrams for which there was no application at the destination port.",
+                "datagrams"),
+            f.createLongCounter("udpv4DatagramsReceivedErrors",
+                "Datagrams Received Errors is the number of received UDP datagrams that could not be delivered for reasons other than the lack of an application at the destination port.",
+                "datagrams"),
+            f.createLongGauge("tcpv6ConnectionsEstablished",
+                "Connection Failures is the number of times TCP connections have made a direct transition to the CLOSED state from the SYN-SENT state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the LISTEN state from the SYN-RCVD state.",
+                "connections"),
+            f.createLongCounter("tcpv6ConnectionsActive",
+                "Connections Active is the number of times TCP connections have made a direct transition to the SYN-SENT state from the CLOSED state. In other words, it shows a number of connections which are initiated by the local computer. The value is a cumulative total.",
+                "connections"),
+            f.createLongCounter("tcpv6ConnectionsPassive",
+                "Connections Passive is the number of times TCP connections have made a direct transition to the SYN-RCVD state from the LISTEN state. In other words, it shows a number of connections to the local computer, which are initiated by remote computers. The value is a cumulative total.",
+                "connections"),
+            f.createLongCounter("tcpv6ConnectionFailures",
+                "Connections Established is the number of TCP connections for which the current state is either ESTABLISHED or CLOSE-WAIT.",
+                "connections"),
+            f.createLongCounter("tcpv6ConnectionsReset",
+                "Connections Reset is the number of times TCP connections have made a direct transition to the CLOSED state from either the ESTABLISHED state or the CLOSE-WAIT state.",
+                "connections"),
+            f.createLongCounter("tcpv6SegmentsSent",
+                "Segments Sent is the number of segments sent, including those on current connections, but excluding those containing only retransmitted bytes.",
+                "segments"),
+            f.createLongCounter("tcpv6SegmentsReceived",
+                "Segments Received is the number of segments received, including those received in error. This count includes segments received on currently established connections.",
+                "segments"),
+            f.createLongCounter("tcpv6SegmentsRetransmitted",
+                "Segments Retransmitted is the number of segments retransmitted, that is, segments transmitted containing one or more previously transmitted bytes.",
+                "segments"),
+            f.createLongCounter("tcpv6InErrors",
+                "The number of errors received.",
+                "errors"),
+            f.createLongCounter("tcpv6OutResets",
+                "The number of segments transmitted with the reset flag set.",
+                "segments"),
+            f.createLongCounter("udpv6DatagramsSent",
+                "Datagrams Sent is the number of UDP datagrams sent from the entity.",
+                "datagrams"),
+            f.createLongCounter("udpv6DatagramsReceived",
+                "Datagrams Received is the number of UDP datagrams delivered to UDP users",
+                "datagrams"),
+            f.createLongCounter("udpv6DatagramsNoPort",
+                "Datagrams No Port is the number of received UDP datagrams for which there was no application at the destination port.",
+                "datagrams"),
+            f.createLongCounter("udpv6DatagramsReceivedErrors",
+                "Datagrams Received Errors is the number of received UDP datagrams that could not be delivered for reasons other than the lack of an application at the destination port.",
+                "datagrams"),
+            f.createLongGauge("openFileDescriptors",
+                "The current number of open file descriptors",
+                "files"),
+            f.createLongGauge("maxFileDescriptors",
+                "The maximum number of open file descriptors.",
+                "files"),
     });
 
     processCount = statisticsType.nameToId("processCount");
@@ -174,6 +294,36 @@ public class OperatingSystemStats {
     virtualInUse = statisticsType.nameToId("virtualInUse");
     swapPagesIn = statisticsType.nameToId("swapPagesIn");
     swapPagesOut = statisticsType.nameToId("swapPagesOut");
+    tcpv4ConnectionsEstablished = statisticsType.nameToId("tcpv4ConnectionsEstablished");
+    tcpv4ConnectionsActive = statisticsType.nameToId("tcpv4ConnectionsActive");
+    tcpv4ConnectionsPassive = statisticsType.nameToId("tcpv4ConnectionsPassive");
+    tcpv4ConnectionFailures = statisticsType.nameToId("tcpv4ConnectionFailures");
+    tcpv4ConnectionsReset = statisticsType.nameToId("tcpv4ConnectionsReset");
+    tcpv4SegmentsSent = statisticsType.nameToId("tcpv4SegmentsSent");
+    tcpv4SegmentsReceived = statisticsType.nameToId("tcpv4SegmentsReceived");
+    tcpv4SegmentsRetransmitted = statisticsType.nameToId("tcpv4SegmentsRetransmitted");
+    tcpv4InErrors = statisticsType.nameToId("tcpv4InErrors");
+    tcpv4OutResets = statisticsType.nameToId("tcpv4OutResets");
+    udpv4DatagramsSent = statisticsType.nameToId("udpv4DatagramsSent");
+    udpv4DatagramsReceived = statisticsType.nameToId("udpv4DatagramsReceived");
+    udpv4DatagramsNoPort = statisticsType.nameToId("udpv4DatagramsNoPort");
+    udpv4DatagramsReceivedErrors = statisticsType.nameToId("udpv4DatagramsReceivedErrors");
+    tcpv6ConnectionsEstablished = statisticsType.nameToId("tcpv6ConnectionsEstablished");
+    tcpv6ConnectionsActive = statisticsType.nameToId("tcpv6ConnectionsActive");
+    tcpv6ConnectionsPassive = statisticsType.nameToId("tcpv6ConnectionsPassive");
+    tcpv6ConnectionFailures = statisticsType.nameToId("tcpv6ConnectionFailures");
+    tcpv6ConnectionsReset = statisticsType.nameToId("tcpv6ConnectionsReset");
+    tcpv6SegmentsSent = statisticsType.nameToId("tcpv6SegmentsSent");
+    tcpv6SegmentsReceived = statisticsType.nameToId("tcpv6SegmentsReceived");
+    tcpv6SegmentsRetransmitted = statisticsType.nameToId("tcpv6SegmentsRetransmitted");
+    tcpv6InErrors = statisticsType.nameToId("tcpv6InErrors");
+    tcpv6OutResets = statisticsType.nameToId("tcpv6OutResets");
+    udpv6DatagramsSent = statisticsType.nameToId("udpv6DatagramsSent");
+    udpv6DatagramsReceived = statisticsType.nameToId("udpv6DatagramsReceived");
+    udpv6DatagramsNoPort = statisticsType.nameToId("udpv6DatagramsNoPort");
+    udpv6DatagramsReceivedErrors = statisticsType.nameToId("udpv6DatagramsReceivedErrors");
+    openFileDescriptors = statisticsType.nameToId("openFileDescriptors");
+    maxFileDescriptors = statisticsType.nameToId("maxFileDescriptors");
 
   }
 
