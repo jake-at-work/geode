@@ -42,7 +42,7 @@ public class NetworkInterfaceStats {
     final StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
 
     statisticsType = f.createType("NetworkInterfaceStats", "Stats for a network interface.",
-        new StatisticDescriptor[]{
+        new StatisticDescriptor[] {
             f.createLongGauge("mtu",
                 "The interface Maximum Transmission Unit (MTU).",
                 "bytes"),

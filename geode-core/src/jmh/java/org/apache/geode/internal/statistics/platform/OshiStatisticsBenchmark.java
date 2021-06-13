@@ -20,12 +20,10 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 
-import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import oshi.SystemInfo;
 
@@ -41,25 +39,25 @@ public class OshiStatisticsBenchmark {
   private final int pid = new SystemInfo().getOperatingSystem().getProcessId();
   private final SuppliableStatistics noopStatistics = new NoopStatistics();
 
-//  @Setup
-//  public void setup() {
-//    OshiStatistics.init();
-//  }
-//
-//  @Benchmark
-//  public void noop() {
-//
-//  }
-//
-//  @Benchmark
-//  public void refreshProcess() {
-//    OshiStatistics.refreshProcess(pid, noopStatistics);
-//  }
-//
-//  @Benchmark
-//  public void refreshSystem() {
-//    OshiStatistics.refreshSystem(noopStatistics);
-//  }
+  // @Setup
+  // public void setup() {
+  // OshiStatistics.init();
+  // }
+  //
+  // @Benchmark
+  // public void noop() {
+  //
+  // }
+  //
+  // @Benchmark
+  // public void refreshProcess() {
+  // OshiStatistics.refreshProcess(pid, noopStatistics);
+  // }
+  //
+  // @Benchmark
+  // public void refreshSystem() {
+  // OshiStatistics.refreshSystem(noopStatistics);
+  // }
 
   private static class NoopStatistics implements SuppliableStatistics {
     @Override
@@ -279,7 +277,7 @@ public class OshiStatisticsBenchmark {
 
     @Override
     public IntSupplier setIntSupplier(final StatisticDescriptor descriptor,
-                                      final IntSupplier supplier) {
+        final IntSupplier supplier) {
       return null;
     }
 
@@ -295,7 +293,7 @@ public class OshiStatisticsBenchmark {
 
     @Override
     public LongSupplier setLongSupplier(final StatisticDescriptor descriptor,
-                                        final LongSupplier supplier) {
+        final LongSupplier supplier) {
       return null;
     }
 
@@ -311,7 +309,7 @@ public class OshiStatisticsBenchmark {
 
     @Override
     public DoubleSupplier setDoubleSupplier(final StatisticDescriptor descriptor,
-                                            final DoubleSupplier supplier) {
+        final DoubleSupplier supplier) {
       return null;
     }
   }

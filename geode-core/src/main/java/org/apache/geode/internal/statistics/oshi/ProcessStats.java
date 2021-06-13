@@ -45,7 +45,7 @@ public class ProcessStats {
     final StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
 
     statisticsType = f.createType("ProcessStats", "Statistics on a process.",
-        new StatisticDescriptor[]{
+        new StatisticDescriptor[] {
             f.createLongGauge("virtualSize",
                 "Gets the Virtual Memory Size (VSZ). Includes all memory that the process can access, including memory that is swapped out and memory that is from shared libraries.",
                 "bytes"),

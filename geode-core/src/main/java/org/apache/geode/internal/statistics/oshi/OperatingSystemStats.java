@@ -264,7 +264,7 @@ public class OperatingSystemStats {
             f.createLongGauge("maxFileDescriptors",
                 "The maximum number of open file descriptors.",
                 "files"),
-    });
+        });
 
     processCount = statisticsType.nameToId("processCount");
     threadCount = statisticsType.nameToId("threadCount");

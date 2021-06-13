@@ -27,7 +27,7 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
   private static final Logger log = LogService.getLogger();
 
   final SystemInfo systemInfo = new SystemInfo();
-  
+
   private int processId;
   private CentralProcessor processor;
   private OperatingSystem operatingSystem;
@@ -45,7 +45,7 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
 
   @Override
   public void init(final @NotNull OsStatisticsFactory osStatisticsFactory,
-                   final long id) throws OshiStatisticsProviderException {
+      final long id) throws OshiStatisticsProviderException {
 
     operatingSystem = systemInfo.getOperatingSystem();
     processId = operatingSystem.getProcessId();
@@ -60,7 +60,7 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
     final String systemIdentity = operatingSystem.toString();
     systemCpuLoadTicks = new long[TickType.values().length];
     systemStats = osStatisticsFactory.createOsStatistics(OperatingSystemStats.getType(),
-         systemIdentity, id, 0);
+        systemIdentity, id, 0);
 
 
     final List<LogicalProcessor> logicalProcessors = processor.getLogicalProcessors();
@@ -78,8 +78,9 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
     for (int i = 0, size = networkIFs.size(); i < size; i++) {
       final NetworkIF networkIF = networkIFs.get(i);
       log.info("Creating network interfaces stats for {}", networkIF.getDisplayName());
-      networkInterfaceStats[i] = osStatisticsFactory.createOsStatistics(NetworkInterfaceStats.getType(),
-          networkIF.getDisplayName(), id, 0);
+      networkInterfaceStats[i] =
+          osStatisticsFactory.createOsStatistics(NetworkInterfaceStats.getType(),
+              networkIF.getDisplayName(), id, 0);
     }
   }
 
@@ -92,8 +93,7 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
   }
 
   @Override
-  public void destroy() {
-  }
+  public void destroy() {}
 
   private void sampleProcess() {
     final OSProcess process = operatingSystem.getProcess(processId);
@@ -123,8 +123,10 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
     final CentralProcessor processor = hardware.getProcessor();
     systemStats.setLong(OperatingSystemStats.contextSwitches, processor.getContextSwitches());
     systemStats.setLong(OperatingSystemStats.interrupts, processor.getInterrupts());
-    systemStats.setLong(OperatingSystemStats.physicalProcessorCount, processor.getPhysicalProcessorCount());
-    systemStats.setLong(OperatingSystemStats.logicalProcessorCount, processor.getLogicalProcessorCount());
+    systemStats.setLong(OperatingSystemStats.physicalProcessorCount,
+        processor.getPhysicalProcessorCount());
+    systemStats.setLong(OperatingSystemStats.logicalProcessorCount,
+        processor.getLogicalProcessorCount());
     systemStats.setLong(OperatingSystemStats.maxFreq, processor.getMaxFreq());
 
     final double[] systemLoadAverage = processor.getSystemLoadAverage(3);
@@ -132,7 +134,8 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
     systemStats.setDouble(OperatingSystemStats.systemLoadAverage5, systemLoadAverage[1]);
     systemStats.setDouble(OperatingSystemStats.systemLoadAverage15, systemLoadAverage[2]);
 
-    final double systemCpuLoadBetweenTicks = processor.getSystemCpuLoadBetweenTicks(systemCpuLoadTicks);
+    final double systemCpuLoadBetweenTicks =
+        processor.getSystemCpuLoadBetweenTicks(systemCpuLoadTicks);
     systemStats.setDouble(OperatingSystemStats.systemCpuLoad, systemCpuLoadBetweenTicks);
 
     systemCpuLoadTicks = processor.getSystemCpuLoadTicks();
@@ -168,50 +171,71 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
 
     final InternetProtocolStats internetProtocolStats = operatingSystem.getInternetProtocolStats();
     final TcpStats tcPv4Stats = internetProtocolStats.getTCPv4Stats();
-    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsEstablished, tcPv4Stats.getConnectionsEstablished());
-    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsActive, tcPv4Stats.getConnectionsActive());
-    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsPassive, tcPv4Stats.getConnectionsPassive());
-    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionFailures, tcPv4Stats.getConnectionFailures());
-    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsReset, tcPv4Stats.getConnectionsReset());
+    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsEstablished,
+        tcPv4Stats.getConnectionsEstablished());
+    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsActive,
+        tcPv4Stats.getConnectionsActive());
+    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsPassive,
+        tcPv4Stats.getConnectionsPassive());
+    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionFailures,
+        tcPv4Stats.getConnectionFailures());
+    systemStats.setLong(OperatingSystemStats.tcpv4ConnectionsReset,
+        tcPv4Stats.getConnectionsReset());
     systemStats.setLong(OperatingSystemStats.tcpv4SegmentsSent, tcPv4Stats.getSegmentsSent());
-    systemStats.setLong(OperatingSystemStats.tcpv4SegmentsReceived, tcPv4Stats.getSegmentsReceived());
-    systemStats.setLong(OperatingSystemStats.tcpv4SegmentsRetransmitted, tcPv4Stats.getSegmentsRetransmitted());
+    systemStats.setLong(OperatingSystemStats.tcpv4SegmentsReceived,
+        tcPv4Stats.getSegmentsReceived());
+    systemStats.setLong(OperatingSystemStats.tcpv4SegmentsRetransmitted,
+        tcPv4Stats.getSegmentsRetransmitted());
     systemStats.setLong(OperatingSystemStats.tcpv4InErrors, tcPv4Stats.getInErrors());
     systemStats.setLong(OperatingSystemStats.tcpv4OutResets, tcPv4Stats.getOutResets());
 
     final UdpStats udPv4Stats = internetProtocolStats.getUDPv4Stats();
     systemStats.setLong(OperatingSystemStats.udpv4DatagramsSent, udPv4Stats.getDatagramsSent());
-    systemStats.setLong(OperatingSystemStats.udpv4DatagramsReceived, udPv4Stats.getDatagramsReceived());
+    systemStats.setLong(OperatingSystemStats.udpv4DatagramsReceived,
+        udPv4Stats.getDatagramsReceived());
     systemStats.setLong(OperatingSystemStats.udpv4DatagramsNoPort, udPv4Stats.getDatagramsNoPort());
-    systemStats.setLong(OperatingSystemStats.udpv4DatagramsReceivedErrors, udPv4Stats.getDatagramsReceivedErrors());
+    systemStats.setLong(OperatingSystemStats.udpv4DatagramsReceivedErrors,
+        udPv4Stats.getDatagramsReceivedErrors());
 
     final TcpStats tcPv6Stats = internetProtocolStats.getTCPv6Stats();
-    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsEstablished, tcPv6Stats.getConnectionsEstablished());
-    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsActive, tcPv6Stats.getConnectionsActive());
-    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsPassive, tcPv6Stats.getConnectionsPassive());
-    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionFailures, tcPv6Stats.getConnectionFailures());
-    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsReset, tcPv6Stats.getConnectionsReset());
+    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsEstablished,
+        tcPv6Stats.getConnectionsEstablished());
+    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsActive,
+        tcPv6Stats.getConnectionsActive());
+    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsPassive,
+        tcPv6Stats.getConnectionsPassive());
+    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionFailures,
+        tcPv6Stats.getConnectionFailures());
+    systemStats.setLong(OperatingSystemStats.tcpv6ConnectionsReset,
+        tcPv6Stats.getConnectionsReset());
     systemStats.setLong(OperatingSystemStats.tcpv6SegmentsSent, tcPv6Stats.getSegmentsSent());
-    systemStats.setLong(OperatingSystemStats.tcpv6SegmentsReceived, tcPv6Stats.getSegmentsReceived());
-    systemStats.setLong(OperatingSystemStats.tcpv6SegmentsRetransmitted, tcPv6Stats.getSegmentsRetransmitted());
+    systemStats.setLong(OperatingSystemStats.tcpv6SegmentsReceived,
+        tcPv6Stats.getSegmentsReceived());
+    systemStats.setLong(OperatingSystemStats.tcpv6SegmentsRetransmitted,
+        tcPv6Stats.getSegmentsRetransmitted());
     systemStats.setLong(OperatingSystemStats.tcpv6InErrors, tcPv6Stats.getInErrors());
     systemStats.setLong(OperatingSystemStats.tcpv6OutResets, tcPv6Stats.getOutResets());
 
     final UdpStats udPv6Stats = internetProtocolStats.getUDPv6Stats();
     systemStats.setLong(OperatingSystemStats.udpv6DatagramsSent, udPv6Stats.getDatagramsSent());
-    systemStats.setLong(OperatingSystemStats.udpv6DatagramsReceived, udPv6Stats.getDatagramsReceived());
+    systemStats.setLong(OperatingSystemStats.udpv6DatagramsReceived,
+        udPv6Stats.getDatagramsReceived());
     systemStats.setLong(OperatingSystemStats.udpv6DatagramsNoPort, udPv6Stats.getDatagramsNoPort());
-    systemStats.setLong(OperatingSystemStats.udpv6DatagramsReceivedErrors, udPv6Stats.getDatagramsReceivedErrors());
+    systemStats.setLong(OperatingSystemStats.udpv6DatagramsReceivedErrors,
+        udPv6Stats.getDatagramsReceivedErrors());
 
     final FileSystem fileSystem = operatingSystem.getFileSystem();
-    systemStats.setLong(OperatingSystemStats.openFileDescriptors, fileSystem.getOpenFileDescriptors());
-    systemStats.setLong(OperatingSystemStats.openFileDescriptors, fileSystem.getMaxFileDescriptors());
+    systemStats.setLong(OperatingSystemStats.openFileDescriptors,
+        fileSystem.getOpenFileDescriptors());
+    systemStats.setLong(OperatingSystemStats.openFileDescriptors,
+        fileSystem.getMaxFileDescriptors());
 
   }
 
   private void sampleProcessors() {
     final long[] currentFreq = processor.getCurrentFreq();
-    final double[] processorCpuLoad = processor.getProcessorCpuLoadBetweenTicks(processorCpuLoadTicks);
+    final double[] processorCpuLoad =
+        processor.getProcessorCpuLoadBetweenTicks(processorCpuLoadTicks);
     processorCpuLoadTicks = processor.getProcessorCpuLoadTicks();
 
     for (int i = 0; i < processorStats.length; i++) {
@@ -250,7 +274,8 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
       networkInterfaceStat.setLong(NetworkInterfaceStats.mtu, networkIF.getMTU());
       networkInterfaceStat.setLong(NetworkInterfaceStats.bytesReceived, networkIF.getBytesRecv());
       networkInterfaceStat.setLong(NetworkInterfaceStats.bytesSent, networkIF.getBytesSent());
-      networkInterfaceStat.setLong(NetworkInterfaceStats.packetsReceived, networkIF.getPacketsRecv());
+      networkInterfaceStat.setLong(NetworkInterfaceStats.packetsReceived,
+          networkIF.getPacketsRecv());
       networkInterfaceStat.setLong(NetworkInterfaceStats.packetsSent, networkIF.getPacketsSent());
       networkInterfaceStat.setLong(NetworkInterfaceStats.inErrors, networkIF.getInErrors());
       networkInterfaceStat.setLong(NetworkInterfaceStats.outErrors, networkIF.getOutErrors());

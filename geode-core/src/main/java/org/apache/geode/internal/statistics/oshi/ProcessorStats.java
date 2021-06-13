@@ -73,7 +73,7 @@ public class ProcessorStats {
             f.createDoubleGauge("processorCpuLoad",
                 "CPU usage",
                 "percent"),
-    });
+        });
 
     currentFreq = statisticsType.nameToId("currentFreq");
     processorCpuLoadTicksUSER = statisticsType.nameToId("processorCpuLoadTicksUSER");
