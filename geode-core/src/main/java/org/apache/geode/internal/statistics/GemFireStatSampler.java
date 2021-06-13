@@ -69,7 +69,7 @@ public class GemFireStatSampler extends HostStatSampler {
   private int nextListenerId = 1;
   private ProcessStats processStats;
 
-//  private OsStatisticsProvider osStatisticsProvider = OsStatisticsProvider.build();
+  // private OsStatisticsProvider osStatisticsProvider = OsStatisticsProvider.build();
   private OshiStatisticsProvider oshiStatisticsProvider = new OshiStatisticsProviderImpl();
 
   public GemFireStatSampler(InternalDistributedSystem internalDistributedSystem) {
@@ -282,17 +282,17 @@ public class GemFireStatSampler extends HostStatSampler {
     try {
       oshiStatisticsProvider.init(getOsStatisticsFactory(), pid);
     } catch (OshiStatisticsProviderException e) {
-      logger.error(LogMarker.STATISTICS_MARKER,"Failed to initialize OS statistics.", e);
+      logger.error(LogMarker.STATISTICS_MARKER, "Failed to initialize OS statistics.", e);
     }
 
-//    osStatisticsProvider.newSystem(getOsStatisticsFactory(), pid);
-//    String statName = getStatisticsManager().getName();
-//    if (statName == null || statName.length() == 0) {
-//      statName = "javaApp" + getSystemId();
-//    }
-//    Statistics stats =
-//        osStatisticsProvider.newProcess(getOsStatisticsFactory(), id, statName + "-proc");
-    processStats = null; //osStatisticsProvider.newProcessStats(stats);
+    // osStatisticsProvider.newSystem(getOsStatisticsFactory(), pid);
+    // String statName = getStatisticsManager().getName();
+    // if (statName == null || statName.length() == 0) {
+    // statName = "javaApp" + getSystemId();
+    // }
+    // Statistics stats =
+    // osStatisticsProvider.newProcess(getOsStatisticsFactory(), id, statName + "-proc");
+    processStats = null; // osStatisticsProvider.newProcessStats(stats);
 
   }
 
@@ -302,29 +302,29 @@ public class GemFireStatSampler extends HostStatSampler {
       return;
     }
     oshiStatisticsProvider.sample();
-//    List<Statistics> statisticsList = getStatisticsManager().getStatsList();
-//    for (Statistics statistics : statisticsList) {
-//      if (stopRequested()) {
-//        return;
-//      }
-//      StatisticsImpl statisticsImpl = (StatisticsImpl) statistics;
-//      if (statisticsImpl.usesSystemCalls()) {
-//        osStatisticsProvider.refresh((LocalStatisticsImpl) statisticsImpl);
-//      }
-//    }
+    // List<Statistics> statisticsList = getStatisticsManager().getStatsList();
+    // for (Statistics statistics : statisticsList) {
+    // if (stopRequested()) {
+    // return;
+    // }
+    // StatisticsImpl statisticsImpl = (StatisticsImpl) statistics;
+    // if (statisticsImpl.usesSystemCalls()) {
+    // osStatisticsProvider.refresh((LocalStatisticsImpl) statisticsImpl);
+    // }
+    // }
   }
 
   @Override
   protected void closeProcessStats() {
     oshiStatisticsProvider.destroy();
-//    if (osStatisticsProvider.osStatsSupported()) {
-//      if (!osStatsDisabled()) {
-//        if (processStats != null) {
-//          processStats.close();
-//        }
-//        osStatisticsProvider.closeOSStats();
-//      }
-//    }
+    // if (osStatisticsProvider.osStatsSupported()) {
+    // if (!osStatsDisabled()) {
+    // if (processStats != null) {
+    // processStats.close();
+    // }
+    // osStatisticsProvider.closeOSStats();
+    // }
+    // }
   }
 
   private void checkLocalListeners() {
