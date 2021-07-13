@@ -74,6 +74,7 @@ import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.util.Breadcrumbs;
+import org.apache.geode.internal.util.Functional;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.security.AuthenticationFailedException;
 import org.apache.geode.security.AuthenticationRequiredException;
@@ -865,7 +866,7 @@ public class ServerConnection implements Runnable {
         if (securityService.isIntegratedSecurity()
             && !isInternalMessage(requestMessage, allowInternalMessagesWithoutCredentials)
             && !communicationMode.isWAN()) {
-          long uniqueId = getUniqueId();
+          final Long uniqueId = getUniqueId();
           String messageType = MessageType.getString(requestMessage.getMessageType());
           Subject subject = clientUserAuths.getSubject(uniqueId);
           if (subject != null) {
@@ -1033,14 +1034,7 @@ public class ServerConnection implements Runnable {
   }
 
   static ClientUserAuths getClientUserAuths(ClientProxyMembershipID proxyId) {
-    ClientUserAuths clientUserAuths = new ClientUserAuths(proxyId.hashCode());
-    ClientUserAuths returnedClientUserAuths =
-        proxyIdVsClientUserAuths.putIfAbsent(proxyId, clientUserAuths);
-
-    if (returnedClientUserAuths == null) {
-      return clientUserAuths;
-    }
-    return returnedClientUserAuths;
+    return proxyIdVsClientUserAuths.computeIfAbsent(proxyId, k -> new ClientUserAuths());
   }
 
   void initializeCommands() {
@@ -1075,12 +1069,14 @@ public class ServerConnection implements Runnable {
       }
 
       try {
+        final long uniqueId = aIds.getUniqueId();
+
         // first try integrated security
-        boolean removed = clientUserAuths.removeSubject(aIds.getUniqueId());
+        boolean removed = clientUserAuths.removeSubject(uniqueId);
 
         // if not successful, try the old way
         if (!removed) {
-          clientUserAuths.removeUserId(aIds.getUniqueId(), keepAlive);
+          clientUserAuths.removeUserId(uniqueId, keepAlive);
         }
       } catch (NullPointerException exception) {
         logger.debug("Exception", exception);
@@ -1487,9 +1483,8 @@ public class ServerConnection implements Runnable {
       // Background threads are used in case the close() operation on the socket hangs.
       final String closerName =
           communicationMode.isWAN() ? "WANSocketCloser" : "CacheServerSocketCloser";
-      acceptor.getSocketCloser().asyncClose(theSocket, closerName, () -> {
-      },
-          () -> cleanupAfterSocketClose());
+      acceptor.getSocketCloser().asyncClose(theSocket, closerName, Functional::noop,
+          this::cleanupAfterSocketClose);
       return true;
     }
     cleanupAfterSocketClose();
@@ -1722,10 +1717,10 @@ public class ServerConnection implements Runnable {
   }
 
   // this is for old client before(<6.5), from 6.5 userAuthId comes in user request
-  private long userAuthId;
+  private Long userAuthId;
 
   // this is for old client before(<6.5), from 6.5 userAuthId comes in user request
-  void setUserAuthId(long uniqueId) {
+  void setUserAuthId(Long uniqueId) {
     userAuthId = uniqueId;
   }
 
@@ -1740,18 +1735,15 @@ public class ServerConnection implements Runnable {
     }
   }
 
-  public long getUniqueId() {
-    long uniqueId;
-
+  public Long getUniqueId() {
     if (communicationMode.isWAN()) {
-      uniqueId = userAuthId;
+      return userAuthId;
     } else if (requestMessage.isSecureMode()) {
-      uniqueId = messageIdExtractor.getUniqueIdFromMessage(requestMessage,
-          handshake.getEncryptor(), connectionId);
+      return messageIdExtractor.getUniqueIdFromMessage(requestMessage, handshake.getEncryptor(),
+          connectionId);
     } else {
       throw new AuthenticationRequiredException("No security credentials are provided");
     }
-    return uniqueId;
   }
 
   /**
