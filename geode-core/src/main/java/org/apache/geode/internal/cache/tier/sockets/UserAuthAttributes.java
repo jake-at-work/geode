@@ -18,7 +18,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.AuthorizeRequestPP;
+import org.apache.geode.security.SecurityManager;
 
+/**
+ * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+ */
+@Deprecated
 public class UserAuthAttributes {
   private AtomicInteger numberOfDurableCQ;
 

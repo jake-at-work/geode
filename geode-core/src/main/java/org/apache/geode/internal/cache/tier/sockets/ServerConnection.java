@@ -79,6 +79,7 @@ import org.apache.geode.security.AuthenticationFailedException;
 import org.apache.geode.security.AuthenticationRequiredException;
 import org.apache.geode.security.GemFireSecurityException;
 import org.apache.geode.security.NotAuthorizedException;
+import org.apache.geode.security.SecurityManager;
 
 /**
  * Provides an implementation for the server socket end of the hierarchical cache connection. Each
@@ -520,6 +521,10 @@ public class ServerConnection implements Runnable {
     this.principal = principal;
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   private long setUserAuthorizeAndPostAuthorizeRequest(AuthorizeRequest authzRequest,
       AuthorizeRequestPP postAuthzRequest) throws IOException {
     UserAuthAttributes userAuthAttr = new UserAuthAttributes(authzRequest, postAuthzRequest);
@@ -1749,6 +1754,10 @@ public class ServerConnection implements Runnable {
     return uniqueId;
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   private UserAuthAttributes getUserAuthAttributes() throws IOException {
     // look client version and return authzrequest
     // for backward client it will be store in member variable userAuthId
@@ -1779,6 +1788,10 @@ public class ServerConnection implements Runnable {
     return uaa;
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   public AuthorizeRequest getAuthzRequest() throws AuthenticationRequiredException, IOException {
     UserAuthAttributes uaa = getUserAuthAttributes();
     if (uaa == null) {
@@ -1793,6 +1806,10 @@ public class ServerConnection implements Runnable {
     return authReq;
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   public AuthorizeRequestPP getPostAuthzRequest()
       throws AuthenticationRequiredException, IOException {
     if (!AcceptorImpl.isAuthenticationRequired()) {
@@ -1846,10 +1863,8 @@ public class ServerConnection implements Runnable {
   private void setAuthAttributes()
       throws AuthenticationRequiredException, AuthenticationFailedException, ClassNotFoundException,
       NoSuchMethodException, InvocationTargetException, IOException, IllegalAccessException {
-    logger.debug("setAttributes()");
-    Object principal = getHandshake().verifyCredentials();
-
-    long uniqueId;
+    final Object principal = getHandshake().verifyCredentials();
+    final long uniqueId;
     if (principal instanceof Subject) {
       uniqueId = getClientUserAuths(getProxyID()).putSubject((Subject) principal);
     } else {
@@ -1861,8 +1876,9 @@ public class ServerConnection implements Runnable {
   }
 
   /**
-   * For legacy auth?
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
    */
+  @Deprecated
   private long getUniqueId(Principal principal)
       throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
       InvocationTargetException, NotAuthorizedException, IOException {

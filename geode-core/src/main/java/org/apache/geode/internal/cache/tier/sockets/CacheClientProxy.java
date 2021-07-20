@@ -82,6 +82,7 @@ import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.security.AccessControl;
+import org.apache.geode.security.SecurityManager;
 import org.apache.geode.util.internal.GeodeGlossary;
 
 /**
@@ -351,6 +352,10 @@ public class CacheClientProxy implements ClientSession {
     }
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   private void reinitializeClientAuths() {
     if (clientUserAuths != null && AcceptorImpl.isPostAuthzCallbackPresent()) {
       synchronized (clientUserAuthsLock) {
@@ -361,8 +366,11 @@ public class CacheClientProxy implements ClientSession {
     }
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   public void setPostAuthzCallback(AccessControl authzCallback) {
-    // TODO:hitesh synchronization
     synchronized (clientUserAuthsLock) {
       if (postAuthzCallback != null) {
         postAuthzCallback.close();
@@ -372,7 +380,6 @@ public class CacheClientProxy implements ClientSession {
   }
 
   public void setSubject(Subject subject) {
-    // TODO:hitesh synchronization
     synchronized (clientUserAuthsLock) {
       if (this.subject != null) {
         this.subject.logout();
@@ -381,6 +388,10 @@ public class CacheClientProxy implements ClientSession {
     }
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   public void setCQVsUserAuth(String cqName, long uniqueId, boolean isDurable) {
     if (postAuthzCallback == null) // only for multiuser
     {

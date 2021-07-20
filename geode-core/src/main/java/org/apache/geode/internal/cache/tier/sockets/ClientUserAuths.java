@@ -28,12 +28,21 @@ import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.AuthorizeRequestPP;
 import org.apache.geode.logging.internal.log4j.api.LogService;
+import org.apache.geode.security.SecurityManager;
 
 public class ClientUserAuths {
   private static final Logger logger = LogService.getLogger();
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   private final ConcurrentMap<Long, UserAuthAttributes> uniqueIdVsUserAuth =
       new ConcurrentHashMap<>();
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   private final ConcurrentMap<String, UserAuthAttributes> cqNameVsUserAuth =
       new ConcurrentHashMap<>();
   private final ConcurrentMap<Long, Subject> uniqueIdVsSubject = new ConcurrentHashMap<>();
@@ -43,6 +52,10 @@ public class ClientUserAuths {
   private Random uniqueIdGenerator;
   private long m_firstId;
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   public Long putUserAuth(UserAuthAttributes userAuthAttr) {
     final Long newId = getNextID();
     uniqueIdVsUserAuth.put(newId, userAuthAttr);
@@ -75,6 +88,10 @@ public class ClientUserAuths {
     return uniqueId;
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   public UserAuthAttributes getUserAuthAttributes(final Long userId) {
     return uniqueIdVsUserAuth.get(userId);
   }
@@ -99,10 +116,18 @@ public class ClientUserAuths {
     return true;
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   public UserAuthAttributes getUserAuthAttributes(final String cqName) {
     return cqNameVsUserAuth.get(cqName);
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   public void setUserAuthAttributesForCq(final String cqName, final Long uniqueId,
       final boolean isDurable) {
     final UserAuthAttributes uaa = uniqueIdVsUserAuth.get(uniqueId);
@@ -124,6 +149,10 @@ public class ClientUserAuths {
     }
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   public void removeUserAuthAttributesForCq(final String cqName, final boolean isDurable) {
     final UserAuthAttributes uaa = cqNameVsUserAuth.remove(cqName);
     if (uaa != null && isDurable) {
@@ -131,6 +160,10 @@ public class ClientUserAuths {
     }
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   public void removeUserId(final Long userId, final boolean keepAlive) {
     UserAuthAttributes uaa = uniqueIdVsUserAuth.get(userId);
     if (uaa != null && !(uaa.isDurable() && keepAlive)) {
@@ -142,7 +175,11 @@ public class ClientUserAuths {
     }
   }
 
-  public void cleanUserAuth(final UserAuthAttributes userAuth) {
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
+  private void cleanUserAuth(final UserAuthAttributes userAuth) {
     if (userAuth != null) {
       final AuthorizeRequest authReq = userAuth.getAuthzRequest();
       try {
@@ -180,6 +217,10 @@ public class ClientUserAuths {
     }
   }
 
+  /**
+   * @deprecated since Geode 1.0, use {@link SecurityManager} instead
+   */
+  @Deprecated
   public void fillPreviousCQAuth(ClientUserAuths previousClientUserAuths) {
     for (Map.Entry<String, UserAuthAttributes> ent : previousClientUserAuths.cqNameVsUserAuth
         .entrySet()) {
