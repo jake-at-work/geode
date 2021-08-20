@@ -34,7 +34,7 @@ import org.apache.geode.internal.cache.UpdateAttributesProcessor;
 import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.GatewaySenderAdvisor.GatewaySenderProfile;
-import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
+import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
 import org.apache.geode.internal.cache.wan.GatewaySenderConfigurationException;
 import org.apache.geode.internal.cache.wan.serial.SerialGatewaySenderQueue;
 import org.apache.geode.internal.monitoring.ThreadsMonitoring;
@@ -49,7 +49,7 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender {
   private static final Logger logger = LogService.getLogger();
 
   public SerialGatewaySenderImpl(InternalCache cache, StatisticsClock statisticsClock,
-      GatewaySenderAttributes attrs) {
+      GatewaySenderAttributesImpl attrs) {
     super(cache, statisticsClock, attrs);
   }
 

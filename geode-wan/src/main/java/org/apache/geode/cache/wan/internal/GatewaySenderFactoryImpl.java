@@ -14,10 +14,13 @@
  */
 package org.apache.geode.cache.wan.internal;
 
+import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.StreamSupport;
 
 import org.apache.logging.log4j.Logger;
 
+import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.client.internal.LocatorDiscoveryCallback;
 import org.apache.geode.cache.wan.GatewayEventFilter;
@@ -28,11 +31,12 @@ import org.apache.geode.cache.wan.GatewaySenderFactory;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.cache.wan.internal.parallel.ParallelGatewaySenderImpl;
 import org.apache.geode.cache.wan.internal.serial.SerialGatewaySenderImpl;
+import org.apache.geode.cache.wan.internal.spi.GatewaySenderTypeFactory;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.wan.AsyncEventQueueConfigurationException;
-import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
+import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
 import org.apache.geode.internal.cache.wan.GatewaySenderException;
 import org.apache.geode.internal.cache.wan.InternalGatewaySenderFactory;
 import org.apache.geode.internal.cache.xmlcache.CacheCreation;
@@ -55,7 +59,7 @@ public class GatewaySenderFactoryImpl implements InternalGatewaySenderFactory {
    * Used internally to pass the attributes from this factory to the real GatewaySender it is
    * creating.
    */
-  private final GatewaySenderAttributes attrs = new GatewaySenderAttributes();
+  private final GatewaySenderAttributesImpl attrs = new GatewaySenderAttributesImpl();
 
   private final InternalCache cache;
 
@@ -333,14 +337,18 @@ public class GatewaySenderFactoryImpl implements InternalGatewaySenderFactory {
                 id, this.attrs.getOrderPolicy()));
       }
 
+      final GatewaySenderTypeFactory factory =
+          findGatewaySenderTypeFactory("ParallelGatewaySender");
       if (this.cache instanceof GemFireCacheImpl) {
-        sender = new ParallelGatewaySenderImpl(cache, statisticsClock, attrs);
+        sender = factory.createInstance(cache, statisticsClock, attrs);
+        // sender = new ParallelGatewaySenderImpl(cache, statisticsClock, attrs);
         this.cache.addGatewaySender(sender);
         if (!this.attrs.isManualStart()) {
           sender.start();
         }
       } else if (this.cache instanceof CacheCreation) {
-        sender = new ParallelGatewaySenderCreation(this.cache, this.attrs);
+        sender = factory.createCreation(cache, attrs);
+        // sender = new ParallelGatewaySenderCreation(this.cache, this.attrs);
         this.cache.addGatewaySender(sender);
       }
     } else {
@@ -406,5 +414,26 @@ public class GatewaySenderFactoryImpl implements InternalGatewaySenderFactory {
     this.attrs.setGroupTransactionEvents(senderCreation.mustGroupTransactionEvents());
     this.attrs.setEnforceThreadsConnectSameReceiver(
         senderCreation.getEnforceThreadsConnectSameReceiver());
+  }
+
+  /**
+   * Finds an implementation {@link GatewaySenderTypeFactory} for named type.
+   *
+   * @param gatewayTypeName named type to find.
+   * @return Implementation {@link GatewaySenderTypeFactory} for named type.
+   * @throws AsyncEventQueueConfigurationException if {@link GatewaySenderTypeFactory} for named
+   *         type not found.
+   */
+  @VisibleForTesting
+  static GatewaySenderTypeFactory findGatewaySenderTypeFactory(final String gatewayTypeName)
+      throws AsyncEventQueueConfigurationException {
+    final ServiceLoader<GatewaySenderTypeFactory> serviceLoader =
+        ServiceLoader.load(GatewaySenderTypeFactory.class);
+    return StreamSupport.stream(serviceLoader.spliterator(), false)
+        .filter(factory -> factory.getName().equals(gatewayTypeName)
+            || factory.getClass().getName().startsWith(gatewayTypeName))
+        .findFirst()
+        .orElseThrow(() -> new AsyncEventQueueConfigurationException(
+            "No factory found for " + gatewayTypeName));
   }
 }

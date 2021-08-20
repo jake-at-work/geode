@@ -22,7 +22,7 @@ import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
-import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
+import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
 
 public class AsyncEventQueueCreation implements AsyncEventQueue {
 
@@ -46,7 +46,7 @@ public class AsyncEventQueueCreation implements AsyncEventQueue {
 
   public AsyncEventQueueCreation() {}
 
-  public AsyncEventQueueCreation(String id, GatewaySenderAttributes senderAttrs,
+  public AsyncEventQueueCreation(String id, GatewaySenderAttributesImpl senderAttrs,
       AsyncEventListener eventListener) {
     this.id = id;
     this.batchSize = senderAttrs.getBatchSize();

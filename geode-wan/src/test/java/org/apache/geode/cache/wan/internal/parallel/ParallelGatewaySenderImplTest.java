@@ -32,7 +32,7 @@ import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.RegionQueue;
-import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
+import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
 import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySenderQueue;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.pdx.internal.TypeRegistry;
@@ -43,14 +43,14 @@ import org.apache.geode.test.junit.categories.WanTest;
 public class ParallelGatewaySenderImplTest {
   private InternalCache cache;
   private StatisticsClock statisticsClock;
-  private GatewaySenderAttributes attrs;
+  private GatewaySenderAttributesImpl attrs;
   private ParallelGatewaySenderImpl gatewaysender;
 
   @Before
   public void setUp() {
     cache = mock(InternalCache.class, RETURNS_DEEP_STUBS);
     statisticsClock = mock(StatisticsClock.class);
-    attrs = new GatewaySenderAttributes();
+    attrs = new GatewaySenderAttributesImpl();
     attrs.setParallel(true);
     attrs.setId("sender");
     InternalDistributedSystem system = mock(InternalDistributedSystem.class);

@@ -34,7 +34,7 @@ import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.GatewaySenderAdvisor.GatewaySenderProfile;
-import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
+import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
 import org.apache.geode.internal.cache.wan.GatewaySenderConfigurationException;
 import org.apache.geode.internal.cache.wan.serial.ConcurrentSerialGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.serial.SerialGatewaySenderEventProcessor;
@@ -49,7 +49,7 @@ public class SerialAsyncEventQueueImpl extends AbstractGatewaySender {
   private static final Logger logger = LogService.getLogger();
 
   public SerialAsyncEventQueueImpl(InternalCache cache, StatisticsFactory statisticsFactory,
-      StatisticsClock statisticsClock, GatewaySenderAttributes attrs) {
+      StatisticsClock statisticsClock, GatewaySenderAttributesImpl attrs) {
     super(cache, statisticsClock, attrs);
     if (!(this.cache instanceof CacheCreation)) {
       // this sender lies underneath the AsyncEventQueue. Need to have

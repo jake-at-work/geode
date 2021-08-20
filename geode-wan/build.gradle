@@ -16,15 +16,14 @@
  */
 
 apply from: "${rootDir}/${scriptDir}/standard-subproject-configuration.gradle"
-
-apply from: "${project.projectDir}/../gradle/publish-java.gradle"
+apply from: "${rootDir}/${scriptDir}/publish-java.gradle"
 
 
 dependencies {
   api(platform(project(':boms:geode-all-bom')))
   compileOnly(platform(project(':boms:geode-all-bom')))
 
-
+  implementation(project(':geode-wan-spi'))
   implementation(project(':geode-logging'))
   implementation(project(':geode-membership'))
   implementation(project(':geode-serialization'))

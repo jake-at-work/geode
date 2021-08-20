@@ -35,7 +35,7 @@ import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.RegionQueue;
-import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
+import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
 import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySenderQueue;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.pdx.internal.TypeRegistry;
@@ -46,7 +46,7 @@ public class ParallelAsyncEventQueueImplTest {
   private InternalCache cache;
   private StatisticsClock statisticsClock;
   private StatisticsFactory statsFactory;
-  private GatewaySenderAttributes attrs;
+  private GatewaySenderAttributesImpl attrs;
   private ParallelAsyncEventQueueImpl asyncEventQueue;
 
   @Before
@@ -54,7 +54,7 @@ public class ParallelAsyncEventQueueImplTest {
     cache = mock(InternalCache.class, RETURNS_DEEP_STUBS);
     statisticsClock = mock(StatisticsClock.class);
     statsFactory = mock(StatisticsFactory.class);
-    attrs = new GatewaySenderAttributes();
+    attrs = new GatewaySenderAttributesImpl();
     attrs.setParallel(true);
     attrs.setId("AsyncEventQueue_");
 

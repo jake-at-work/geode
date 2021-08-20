@@ -35,7 +35,7 @@ import org.apache.geode.internal.admin.remote.DistributionLocatorId;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PoolFactoryImpl;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
-import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
+import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
 import org.apache.geode.internal.cache.wan.GatewaySenderConfigurationException;
 import org.apache.geode.internal.net.SocketCreatorFactory;
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
@@ -49,7 +49,7 @@ public abstract class AbstractRemoteGatewaySender extends AbstractGatewaySender 
   protected int proxyFailureTries = 0;
 
   public AbstractRemoteGatewaySender(InternalCache cache, StatisticsClock statisticsClock,
-      GatewaySenderAttributes attrs) {
+      GatewaySenderAttributesImpl attrs) {
     super(cache, statisticsClock, attrs);
   }
 

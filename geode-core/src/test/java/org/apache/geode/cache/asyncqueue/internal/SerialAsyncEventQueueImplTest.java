@@ -37,7 +37,7 @@ import org.apache.geode.internal.cache.InternalRegionFactory;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.GatewaySenderAdvisor;
-import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
+import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.test.fake.Fakes;
 import org.apache.geode.test.junit.categories.AEQTest;
@@ -52,7 +52,7 @@ public class SerialAsyncEventQueueImplTest {
 
   private SerialAsyncEventQueueImpl serialAsyncEventQueue;
   private StatisticsFactory statisticsFactory;
-  private GatewaySenderAttributes gatewaySenderAttributes;
+  private GatewaySenderAttributesImpl gatewaySenderAttributes;
   private StatisticsClock statisticsClock;
   private InternalRegionFactory regionFactory;
 
@@ -70,7 +70,7 @@ public class SerialAsyncEventQueueImplTest {
     statisticsFactory = mock(StatisticsFactory.class);
     when(statisticsFactory.createAtomicStatistics(any(), any())).thenReturn(mock(Statistics.class));
 
-    gatewaySenderAttributes = mock(GatewaySenderAttributes.class);
+    gatewaySenderAttributes = mock(GatewaySenderAttributesImpl.class);
     when(gatewaySenderAttributes.getId()).thenReturn("sender");
     when(gatewaySenderAttributes.getRemoteDSId()).thenReturn(DEFAULT_DISTRIBUTED_SYSTEM_ID);
     when(gatewaySenderAttributes.getMaximumQueueMemory()).thenReturn(10);

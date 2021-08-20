@@ -33,7 +33,7 @@ import org.apache.geode.internal.cache.UpdateAttributesProcessor;
 import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.GatewaySenderAdvisor.GatewaySenderProfile;
-import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
+import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
 import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySenderQueue;
 import org.apache.geode.internal.cache.xmlcache.CacheCreation;
@@ -46,7 +46,7 @@ public class ParallelAsyncEventQueueImpl extends AbstractGatewaySender {
   private static final Logger logger = LogService.getLogger();
 
   public ParallelAsyncEventQueueImpl(InternalCache cache, StatisticsFactory statisticsFactory,
-      StatisticsClock statisticsClock, GatewaySenderAttributes attrs) {
+      StatisticsClock statisticsClock, GatewaySenderAttributesImpl attrs) {
     super(cache, statisticsClock, attrs);
     if (!(this.cache instanceof CacheCreation)) {
       // this sender lies underneath the AsyncEventQueue. Need to have
