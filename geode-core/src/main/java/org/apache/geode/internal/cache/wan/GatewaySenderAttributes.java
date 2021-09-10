@@ -77,4 +77,12 @@ public interface GatewaySenderAttributes {
   boolean isForwardExpirationDestroy();
 
   boolean getEnforceThreadsConnectSameReceiver();
+
+  // TODO refactor out
+  @Deprecated
+  boolean mustGroupTransactionEvents();
+
+  // TODO refactor out
+  @Deprecated
+  boolean isParallel();
 }

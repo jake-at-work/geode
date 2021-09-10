@@ -29,7 +29,6 @@ import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
 import org.apache.geode.cache.wan.GatewaySenderFactory;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
-import org.apache.geode.cache.wan.internal.parallel.ParallelGatewaySenderImpl;
 import org.apache.geode.cache.wan.internal.serial.SerialGatewaySenderImpl;
 import org.apache.geode.cache.wan.internal.spi.GatewaySenderTypeFactory;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -40,7 +39,6 @@ import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
 import org.apache.geode.internal.cache.wan.GatewaySenderException;
 import org.apache.geode.internal.cache.wan.InternalGatewaySenderFactory;
 import org.apache.geode.internal.cache.xmlcache.CacheCreation;
-import org.apache.geode.internal.cache.xmlcache.ParallelGatewaySenderCreation;
 import org.apache.geode.internal.cache.xmlcache.SerialGatewaySenderCreation;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -270,6 +268,9 @@ public class GatewaySenderFactoryImpl implements InternalGatewaySenderFactory {
     }
 
     if (this.attrs.isParallel()) {
+      final GatewaySenderTypeFactory factory =
+          findGatewaySenderTypeFactory("ParallelGatewaySender");
+
       if ((this.attrs.getOrderPolicy() != null)
           && this.attrs.getOrderPolicy().equals(OrderPolicy.THREAD)) {
         throw new GatewaySenderException(
@@ -277,14 +278,14 @@ public class GatewaySenderFactoryImpl implements InternalGatewaySenderFactory {
                 id, this.attrs.getOrderPolicy()));
       }
       if (this.cache instanceof GemFireCacheImpl) {
-        sender = new ParallelGatewaySenderImpl(cache, statisticsClock, attrs);
+        sender = factory.createInstance(cache, statisticsClock, attrs);
         this.cache.addGatewaySender(sender);
 
         if (!this.attrs.isManualStart()) {
           sender.start();
         }
       } else if (this.cache instanceof CacheCreation) {
-        sender = new ParallelGatewaySenderCreation(this.cache, this.attrs);
+        sender = factory.createCreation(this.cache, this.attrs);
         this.cache.addGatewaySender(sender);
       }
     } else {

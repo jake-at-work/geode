@@ -16,9 +16,9 @@ package org.apache.geode.cache.wan.internal.parallel;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.cache.EntryOperation;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.wan.GatewayEventFilter;
+import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.cache.wan.internal.AbstractRemoteGatewaySender;
 import org.apache.geode.distributed.internal.DistributionAdvisor.Profile;
@@ -33,7 +33,7 @@ import org.apache.geode.internal.cache.PartitionedRegionHelper;
 import org.apache.geode.internal.cache.UpdateAttributesProcessor;
 import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 import org.apache.geode.internal.cache.wan.GatewaySenderAdvisor.GatewaySenderProfile;
-import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
+import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
 import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySenderQueue;
 import org.apache.geode.internal.monitoring.ThreadsMonitoring;
 import org.apache.geode.internal.statistics.StatisticsClock;
@@ -42,12 +42,13 @@ import org.apache.geode.logging.internal.log4j.api.LogService;
 /**
  * @since GemFire 7.0
  */
-public class ParallelGatewaySenderImpl extends AbstractRemoteGatewaySender {
+public class ParallelGatewaySenderImpl extends AbstractRemoteGatewaySender implements
+    org.apache.geode.cache.wan.internal.spi.GatewaySender {
 
   private static final Logger logger = LogService.getLogger();
 
   public ParallelGatewaySenderImpl(InternalCache cache, StatisticsClock statisticsClock,
-      GatewaySenderAttributesImpl attrs) {
+      GatewaySenderAttributes attrs) {
     super(cache, statisticsClock, attrs);
   }
 
@@ -69,7 +70,7 @@ public class ParallelGatewaySenderImpl extends AbstractRemoteGatewaySender {
         return;
       }
 
-      if (this.remoteDSId != DEFAULT_DISTRIBUTED_SYSTEM_ID) {
+      if (this.remoteDSId != GatewaySender.DEFAULT_DISTRIBUTED_SYSTEM_ID) {
         String locators = this.cache.getInternalDistributedSystem().getConfig().getLocators();
         if (locators.length() == 0) {
           throw new IllegalStateException(
@@ -184,12 +185,11 @@ public class ParallelGatewaySenderImpl extends AbstractRemoteGatewaySender {
   @Override
   public void setModifiedEventId(EntryEventImpl clonedEvent) {
     int bucketId = -1;
-    // merged from 42004
     if (clonedEvent.getRegion() instanceof DistributedRegion) {
       bucketId = PartitionedRegionHelper.getHashKey(clonedEvent.getKey(),
           getMaxParallelismForReplicatedRegion());
     } else {
-      bucketId = PartitionedRegionHelper.getHashKey((EntryOperation) clonedEvent);
+      bucketId = PartitionedRegionHelper.getHashKey(clonedEvent);
     }
     EventID originalEventId = clonedEvent.getEventId();
     long originatingThreadId = ThreadIdentifier.getRealThreadID(originalEventId.getThreadID());

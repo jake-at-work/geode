@@ -12,7 +12,8 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.apache.geode.internal.cache.xmlcache;
+
+package org.apache.geode.cache.wan.internal.parallel;
 
 import static org.apache.geode.internal.statistics.StatisticsClockFactory.disabledClock;
 
@@ -20,7 +21,7 @@ import java.util.List;
 
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
-import org.apache.geode.cache.wan.GatewaySender;
+import org.apache.geode.cache.wan.internal.spi.GatewaySender;
 import org.apache.geode.distributed.internal.DistributionAdvisee;
 import org.apache.geode.distributed.internal.DistributionAdvisor;
 import org.apache.geode.distributed.internal.DistributionAdvisor.Profile;
@@ -30,11 +31,11 @@ import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EnumListenerEvent;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
-import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
+import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
 
 public class ParallelGatewaySenderCreation extends AbstractGatewaySender implements GatewaySender {
 
-  public ParallelGatewaySenderCreation(InternalCache cache, GatewaySenderAttributesImpl attrs) {
+  public ParallelGatewaySenderCreation(InternalCache cache, GatewaySenderAttributes attrs) {
     super(cache, disabledClock(), attrs);
   }
 

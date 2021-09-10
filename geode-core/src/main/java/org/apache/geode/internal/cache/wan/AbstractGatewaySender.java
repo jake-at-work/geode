@@ -241,7 +241,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
   }
 
   public AbstractGatewaySender(InternalCache cache, StatisticsClock statisticsClock,
-      GatewaySenderAttributesImpl attrs) {
+      GatewaySenderAttributes attrs) {
     this.cache = cache;
     this.statisticsClock = statisticsClock;
     id = attrs.getId();

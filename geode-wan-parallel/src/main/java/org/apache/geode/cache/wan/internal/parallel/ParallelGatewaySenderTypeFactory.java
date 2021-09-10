@@ -13,21 +13,35 @@
  * the License.
  */
 
-package org.apache.geode.cache.wan.internal.spi;
+package org.apache.geode.cache.wan.internal.parallel;
 
+import org.apache.geode.cache.wan.internal.spi.GatewaySender;
+import org.apache.geode.cache.wan.internal.spi.GatewaySenderTypeFactory;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
 import org.apache.geode.internal.statistics.StatisticsClock;
 
-public interface GatewaySenderTypeFactory {
-  String getName();
+public class ParallelGatewaySenderTypeFactory implements GatewaySenderTypeFactory {
+  @Override
+  public String getName() {
+    return "ParallelGatewaySender";
+  }
 
-  void check();
+  @Override
+  public void check() {
 
-  GatewaySender createInstance(InternalCache cache,
-      StatisticsClock statisticsClock,
-      GatewaySenderAttributes gatewaySenderAttributes);
+  }
 
-  GatewaySender createCreation(InternalCache cache,
-      GatewaySenderAttributes gatewaySenderAttributes);
+  @Override
+  public GatewaySender createInstance(final InternalCache cache,
+      final StatisticsClock statisticsClock,
+      final GatewaySenderAttributes gatewaySenderAttributes) {
+    return new ParallelGatewaySenderImpl(cache, statisticsClock, gatewaySenderAttributes);
+  }
+
+  @Override
+  public GatewaySender createCreation(final InternalCache cache,
+      final GatewaySenderAttributes gatewaySenderAttributes) {
+    return new ParallelGatewaySenderCreation(cache, gatewaySenderAttributes);
+  }
 }

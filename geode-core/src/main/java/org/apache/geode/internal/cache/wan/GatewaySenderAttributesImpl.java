@@ -263,10 +263,14 @@ public class GatewaySenderAttributesImpl implements GatewaySenderAttributes {
     return manualStart;
   }
 
+  @Override
+  @Deprecated
   public boolean isParallel() {
     return isParallel;
   }
 
+  @Override
+  @Deprecated
   public boolean mustGroupTransactionEvents() {
     return groupTransactionEvents;
   }
