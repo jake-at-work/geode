@@ -15,17 +15,18 @@
 package org.apache.geode.cache.wan.internal.serial;
 
 import static org.apache.geode.cache.wan.GatewaySender.DEFAULT_DISTRIBUTED_SYSTEM_ID;
+import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.mockito.Mockito;
 
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
@@ -61,7 +62,7 @@ public class SerialGatewaySenderImplTest {
     when(cache.getRegion(any())).thenReturn(null);
     regionFactory = mock(InternalRegionFactory.class);
     when(regionFactory.create(any())).thenReturn(mock(LocalRegion.class));
-    when(cache.createInternalRegionFactory(any())).thenReturn(regionFactory);
+    when(cache.createInternalRegionFactory(any())).thenReturn(uncheckedCast(regionFactory));
 
     statisticsFactory = mock(StatisticsFactory.class);
     when(statisticsFactory.createAtomicStatistics(any(), any())).thenReturn(mock(Statistics.class));
@@ -95,7 +96,7 @@ public class SerialGatewaySenderImplTest {
 
     SerialGatewaySenderImpl serialGatewaySender =
         new SerialGatewaySenderImpl(cache, statisticsClock, gatewaySenderAttributes);
-    SerialGatewaySenderImpl spySerialGatewaySender = spy(serialGatewaySender);
+    SerialGatewaySenderImpl spySerialGatewaySender = Mockito.spy(serialGatewaySender);
     doReturn(gatewaySenderAdvisor).when(spySerialGatewaySender).getSenderAdvisor();
     doReturn(eventProcessor1).when(spySerialGatewaySender).createEventProcessor(false);
     doReturn(eventProcessor2).when(spySerialGatewaySender).createEventProcessor(true);

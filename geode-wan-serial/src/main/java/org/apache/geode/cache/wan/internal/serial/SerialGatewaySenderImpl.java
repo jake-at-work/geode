@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.cache.wan.internal.AbstractRemoteGatewaySender;
+import org.apache.geode.cache.wan.internal.spi.GatewaySender;
 import org.apache.geode.distributed.DistributedLockService;
 import org.apache.geode.distributed.internal.DistributionAdvisor.Profile;
 import org.apache.geode.distributed.internal.DistributionManager;
@@ -34,7 +35,7 @@ import org.apache.geode.internal.cache.UpdateAttributesProcessor;
 import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.GatewaySenderAdvisor.GatewaySenderProfile;
-import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
+import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
 import org.apache.geode.internal.cache.wan.GatewaySenderConfigurationException;
 import org.apache.geode.internal.cache.wan.serial.SerialGatewaySenderQueue;
 import org.apache.geode.internal.monitoring.ThreadsMonitoring;
@@ -44,12 +45,12 @@ import org.apache.geode.logging.internal.log4j.api.LogService;
 /**
  * @since GemFire 7.0
  */
-public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender {
+public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender implements GatewaySender {
 
   private static final Logger logger = LogService.getLogger();
 
   public SerialGatewaySenderImpl(InternalCache cache, StatisticsClock statisticsClock,
-      GatewaySenderAttributesImpl attrs) {
+      GatewaySenderAttributes attrs) {
     super(cache, statisticsClock, attrs);
   }
 
