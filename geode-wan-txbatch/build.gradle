@@ -31,8 +31,7 @@ dependencies {
   // TODO remove this, move all deps into SPI?
   compileOnly(project(':geode-wan'))
 
-  implementation(project(':geode-wan-parallel'))
-  implementation(project(':geode-wan-serial'))
+  implementation(project(':geode-wan-default'))
 
   testImplementation(project(':geode-junit'))
   testImplementation('junit:junit')

@@ -131,7 +131,6 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
       final @Nullable Object substituteValue,
       final boolean isLastEventInTransaction,
       final @NotNull EventID eventID) throws IOException {
-    // TODO jbarrett remove isLastEventInTransaction
     return new GatewaySenderEventImpl(operation, event, substituteValue, true,
         eventID.getBucketID(), isLastEventInTransaction);
   }

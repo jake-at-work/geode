@@ -34,8 +34,7 @@ dependencies {
   compileOnly('org.apache.logging.log4j:log4j-api')
   compileOnly('org.jetbrains:annotations')
 
-  runtimeOnly(project(':geode-wan-parallel'))
-  runtimeOnly(project(':geode-wan-serial'))
+  runtimeOnly(project(':geode-wan-default'))
 
   testImplementation(project(':geode-junit'))
   testImplementation('org.assertj:assertj-core')
@@ -50,8 +49,7 @@ dependencies {
   distributedTestImplementation(project(':geode-gfsh'))
   distributedTestImplementation(project(':geode-dunit'))
   distributedTestImplementation(project(':geode-junit'))
-  distributedTestImplementation(project(':geode-wan-parallel'))
-  distributedTestImplementation(project(':geode-wan-serial'))
+  distributedTestImplementation(project(':geode-wan-default'))
 
   distributedTestImplementation('mx4j:mx4j')
   distributedTestImplementation('org.awaitility:awaitility')
