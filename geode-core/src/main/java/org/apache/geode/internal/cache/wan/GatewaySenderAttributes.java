@@ -79,8 +79,8 @@ public interface GatewaySenderAttributes {
   boolean getEnforceThreadsConnectSameReceiver();
 
   // TODO refactor out
-  @Deprecated
-  boolean mustGroupTransactionEvents();
+  // @Deprecated
+  // boolean mustGroupTransactionEvents();
 
   // TODO refactor out
   @Deprecated

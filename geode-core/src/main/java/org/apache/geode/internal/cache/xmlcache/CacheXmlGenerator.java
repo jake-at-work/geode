@@ -1450,14 +1450,15 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     }
 
     // group-transaction-events
-    if (version.compareTo(CacheXmlVersion.GEODE_1_0) >= 0) {
-      if (generateDefaults()
-          || sender
-              .mustGroupTransactionEvents() != GatewaySender.DEFAULT_MUST_GROUP_TRANSACTION_EVENTS) {
-        atts.addAttribute("", "", GROUP_TRANSACTION_EVENTS, "",
-            String.valueOf(sender.mustGroupTransactionEvents()));
-      }
-    }
+    // TODO type/class attribute
+    // if (version.compareTo(CacheXmlVersion.GEODE_1_0) >= 0) {
+    // if (generateDefaults()
+    // || sender
+    // .mustGroupTransactionEvents() != GatewaySender.DEFAULT_MUST_GROUP_TRANSACTION_EVENTS) {
+    // atts.addAttribute("", "", GROUP_TRANSACTION_EVENTS, "",
+    // String.valueOf(sender.mustGroupTransactionEvents()));
+    // }
+    // }
 
     // enforce-threads-connect-same-receiver
     if (version.compareTo(CacheXmlVersion.GEODE_1_0) >= 0) {

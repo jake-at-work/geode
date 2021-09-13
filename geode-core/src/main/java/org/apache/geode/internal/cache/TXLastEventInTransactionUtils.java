@@ -71,9 +71,10 @@ public class TXLastEventInTransactionUtils {
       Cache cache) throws ServiceConfigurationError {
     for (String senderId : getSenderIdsForEvents(callbacks)) {
       GatewaySender sender = cache.getGatewaySender(senderId);
-      if (sender != null && sender.mustGroupTransactionEvents()) {
-        return false;
-      }
+      // TODO check the type of the sender
+      // if (sender != null && sender.mustGroupTransactionEvents()) {
+      // return false;
+      // }
     }
     return true;
   }
@@ -105,7 +106,9 @@ public class TXLastEventInTransactionUtils {
     if (sender == null) {
       throw new ServiceConfigurationError("No information for senderId: " + senderId);
     }
-    return sender.mustGroupTransactionEvents();
+    // TODO check the type of sender
+    // return sender.mustGroupTransactionEvents();
+    return false;
   }
 
   static boolean isLastTransactionEvent(boolean isConfigError,

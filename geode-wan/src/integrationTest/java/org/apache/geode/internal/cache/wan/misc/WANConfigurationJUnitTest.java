@@ -334,7 +334,8 @@ public class WANConfigurationJUnitTest {
         gatewaySender.getGatewayEventFilters().size());
     assertEquals(sender1.getGatewayTransportFilters().size(),
         gatewaySender.getGatewayTransportFilters().size());
-    assertEquals(sender1.mustGroupTransactionEvents(), gatewaySender.mustGroupTransactionEvents());
+    // assertEquals(sender1.mustGroupTransactionEvents(),
+    // gatewaySender.mustGroupTransactionEvents());
   }
 
   /**

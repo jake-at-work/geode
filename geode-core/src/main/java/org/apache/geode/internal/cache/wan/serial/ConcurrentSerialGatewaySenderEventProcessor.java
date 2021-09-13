@@ -27,6 +27,8 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import org.apache.geode.GemFireException;
 import org.apache.geode.InternalGemFireException;
@@ -64,9 +66,9 @@ public class ConcurrentSerialGatewaySenderEventProcessor
 
   private final Set<RegionQueue> queues;
 
-  public ConcurrentSerialGatewaySenderEventProcessor(AbstractGatewaySender sender,
-      ThreadsMonitoring tMonitoring, boolean cleanQueues) {
-    super("Event Processor for GatewaySender_" + sender.getId(), sender, tMonitoring);
+  public ConcurrentSerialGatewaySenderEventProcessor(final @NotNull AbstractGatewaySender sender,
+      final @Nullable ThreadsMonitoring threadsMonitoring, final boolean cleanQueues) {
+    super("Event Processor for GatewaySender_" + sender.getId(), sender, threadsMonitoring);
     this.sender = sender;
 
     initializeMessageQueue(sender.getId(), cleanQueues);

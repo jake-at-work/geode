@@ -62,7 +62,7 @@ public class ParallelGatewaySenderHelper {
   public static ParallelGatewaySenderEventProcessor createParallelGatewaySenderEventProcessor(
       AbstractGatewaySender sender) {
     ParallelGatewaySenderEventProcessor processor =
-        new ParallelGatewaySenderEventProcessor(sender, null, false);
+        new ParallelGatewaySenderEventProcessor(sender, 0, 1, null, false);
     ConcurrentParallelGatewaySenderQueue queue = new ConcurrentParallelGatewaySenderQueue(sender,
         new ParallelGatewaySenderEventProcessor[] {processor});
     Set<RegionQueue> queues = new HashSet<>();

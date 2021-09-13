@@ -21,6 +21,9 @@ apply from: "${rootDir}/${scriptDir}/publish-java.gradle"
 
 dependencies {
   api(platform(project(':boms:geode-all-bom')))
-
   api(project(':geode-core'))
+
+  compileOnly(platform(project(':boms:geode-all-bom')))
+  compileOnly('org.jetbrains:annotations')
+
 }

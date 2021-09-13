@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.EntryEvent;
@@ -46,19 +48,13 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
   final int index;
   final int nDispatcher;
 
-  protected ParallelGatewaySenderEventProcessor(AbstractGatewaySender sender,
-      ThreadsMonitoring tMonitoring, boolean cleanQueues) {
-    super("Event Processor for GatewaySender_" + sender.getId(), sender, tMonitoring);
-    index = 0;
-    nDispatcher = 1;
-    initializeMessageQueue(sender.getId(), cleanQueues);
-  }
-
   /**
    * use in concurrent scenario where queue is to be shared among all the processors.
    */
-  protected ParallelGatewaySenderEventProcessor(AbstractGatewaySender sender, int index,
-      int nDispatcher, ThreadsMonitoring tMonitoring, boolean cleanQueues) {
+  protected ParallelGatewaySenderEventProcessor(final @NotNull AbstractGatewaySender sender,
+      final int index,
+      final int nDispatcher, final @Nullable ThreadsMonitoring tMonitoring,
+      final boolean cleanQueues) {
     super("Event Processor for GatewaySender_" + sender.getId() + "_" + index, sender, tMonitoring);
     this.index = index;
     this.nDispatcher = nDispatcher;
@@ -77,8 +73,8 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
       logger.debug("The target Regions are(PGSEP) {}", targetRs);
     }
 
-    ParallelGatewaySenderQueue queue =
-        new ParallelGatewaySenderQueue(sender, targetRs, index, nDispatcher, cleanQueues);
+    final ParallelGatewaySenderQueue queue =
+        createParallelGatewaySenderQueue(sender, targetRs, index, nDispatcher, cleanQueues);
 
     queue.start();
     this.queue = queue;
@@ -86,6 +82,13 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
     if (queue.localSize() > 0) {
       queue.notifyEventProcessorIfRequired();
     }
+  }
+
+  protected @NotNull ParallelGatewaySenderQueue createParallelGatewaySenderQueue(
+      @NotNull final AbstractGatewaySender sender,
+      @NotNull final Set<Region<?, ?>> targetRegions,
+      final int index, final int nDispatcher, final boolean cleanQueues) {
+    return new ParallelGatewaySenderQueue(sender, targetRegions, index, nDispatcher, cleanQueues);
   }
 
   @Override
@@ -116,10 +119,21 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
     EventID eventID = ((EntryEventImpl) event).getEventId();
 
     final GatewaySenderEventImpl gatewayQueueEvent =
-        new GatewaySenderEventImpl(operation, event, substituteValue, true, eventID.getBucketID(),
-            isLastEventInTransaction);
+        createGatewaySenderEvent(operation, event, substituteValue, isLastEventInTransaction,
+            eventID);
 
     enqueueEvent(gatewayQueueEvent);
+  }
+
+  protected @NotNull GatewaySenderEventImpl createGatewaySenderEvent(
+      final @NotNull EnumListenerEvent operation,
+      final @NotNull EntryEvent<?, ?> event,
+      final @Nullable Object substituteValue,
+      final boolean isLastEventInTransaction,
+      final @NotNull EventID eventID) throws IOException {
+    // TODO jbarrett remove isLastEventInTransaction
+    return new GatewaySenderEventImpl(operation, event, substituteValue, true,
+        eventID.getBucketID(), isLastEventInTransaction);
   }
 
   @Override

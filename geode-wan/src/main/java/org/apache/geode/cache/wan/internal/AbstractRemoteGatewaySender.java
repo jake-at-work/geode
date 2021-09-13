@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
@@ -48,8 +49,9 @@ public abstract class AbstractRemoteGatewaySender extends AbstractGatewaySender 
   /** used to reduce warning logs in case remote locator is down (#47634) */
   protected int proxyFailureTries = 0;
 
-  public AbstractRemoteGatewaySender(InternalCache cache, StatisticsClock statisticsClock,
-      GatewaySenderAttributes attrs) {
+  public AbstractRemoteGatewaySender(final @NotNull InternalCache cache,
+      final @NotNull StatisticsClock statisticsClock,
+      final @NotNull GatewaySenderAttributes attrs) {
     super(cache, statisticsClock, attrs);
   }
 

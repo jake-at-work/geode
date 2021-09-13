@@ -90,10 +90,10 @@ public class AlterGatewaySenderFunction implements InternalFunction<GatewaySende
       gateway.setBatchTimeInterval(batchTimeInterval.intValue());
     }
 
-    Boolean groupTransactionEvents = gatewaySenderCreateArgs.mustGroupTransactionEvents();
-    if (groupTransactionEvents != null) {
-      gateway.setGroupTransactionEvents(groupTransactionEvents.booleanValue());
-    }
+    // Boolean groupTransactionEvents = gatewaySenderCreateArgs.mustGroupTransactionEvents();
+    // if (groupTransactionEvents != null) {
+    // gateway.setGroupTransactionEvents(groupTransactionEvents.booleanValue());
+    // }
 
     List<String> gatewayEventFilters = gatewaySenderCreateArgs.getGatewayEventFilter();
     if (gatewayEventFilters != null) {

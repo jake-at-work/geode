@@ -26,6 +26,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import org.apache.geode.GemFireException;
 import org.apache.geode.InternalGemFireException;
@@ -69,8 +71,9 @@ public class ConcurrentParallelGatewaySenderEventProcessor
 
   final int nDispatcher;
 
-  public ConcurrentParallelGatewaySenderEventProcessor(AbstractGatewaySender sender,
-      ThreadsMonitoring tMonitoring, boolean cleanQueues) {
+  public ConcurrentParallelGatewaySenderEventProcessor(final @NotNull AbstractGatewaySender sender,
+      final @Nullable ThreadsMonitoring tMonitoring,
+      final boolean cleanQueues) {
     super("Event Processor for GatewaySender_" + sender.getId(), sender, tMonitoring);
     logger.info("ConcurrentParallelGatewaySenderEventProcessor: dispatcher threads {}",
         sender.getDispatcherThreads());
@@ -105,8 +108,9 @@ public class ConcurrentParallelGatewaySenderEventProcessor
     queue = new ConcurrentParallelGatewaySenderQueue(sender, processors);
   }
 
-  protected void createProcessors(int dispatcherThreads, Set<Region<?, ?>> targetRs,
-      boolean cleanQueues) {
+  protected void createProcessors(final int dispatcherThreads,
+      final @NotNull Set<Region<?, ?>> targetRegions,
+      final boolean cleanQueues) {
     processors = new ParallelGatewaySenderEventProcessor[sender.getDispatcherThreads()];
     if (logger.isDebugEnabled()) {
       logger.debug("Creating AsyncEventProcessor");

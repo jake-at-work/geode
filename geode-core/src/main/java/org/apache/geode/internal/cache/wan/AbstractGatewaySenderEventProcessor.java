@@ -31,6 +31,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import org.apache.geode.CancelException;
 import org.apache.geode.GemFireException;
@@ -148,13 +150,14 @@ public abstract class AbstractGatewaySenderEventProcessor extends LoggingThread
   private int batchSize;
   private int batchTimeInterval;
 
-  public AbstractGatewaySenderEventProcessor(String string,
-      GatewaySender sender, ThreadsMonitoring tMonitoring) {
+  public AbstractGatewaySenderEventProcessor(final @NotNull String string,
+      final @NotNull GatewaySender sender,
+      final @Nullable ThreadsMonitoring threadsMonitoring) {
     super(string);
     this.sender = (AbstractGatewaySender) sender;
     batchSize = sender.getBatchSize();
     batchTimeInterval = sender.getBatchTimeInterval();
-    threadMonitoring = tMonitoring;
+    threadMonitoring = threadsMonitoring;
   }
 
   public void setExpectedReceiverUniqueId(String uniqueId) {

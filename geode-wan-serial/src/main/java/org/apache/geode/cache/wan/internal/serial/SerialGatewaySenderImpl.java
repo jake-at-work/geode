@@ -17,6 +17,7 @@ package org.apache.geode.cache.wan.internal.serial;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
@@ -49,8 +50,9 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender impleme
 
   private static final Logger logger = LogService.getLogger();
 
-  public SerialGatewaySenderImpl(InternalCache cache, StatisticsClock statisticsClock,
-      GatewaySenderAttributes attrs) {
+  public SerialGatewaySenderImpl(final @NotNull InternalCache cache,
+      final @NotNull StatisticsClock statisticsClock,
+      final @NotNull GatewaySenderAttributes attrs) {
     super(cache, statisticsClock, attrs);
   }
 
@@ -118,7 +120,7 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender impleme
     }
   }
 
-  protected AbstractGatewaySenderEventProcessor createEventProcessor(boolean cleanQueues) {
+  protected @NotNull AbstractGatewaySenderEventProcessor createEventProcessor(boolean cleanQueues) {
     AbstractGatewaySenderEventProcessor eventProcessor;
     if (getDispatcherThreads() > 1) {
       eventProcessor = new RemoteConcurrentSerialGatewaySenderEventProcessor(
@@ -256,7 +258,7 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender impleme
     clonedEvent.setEventId(newEventId);
   }
 
-  private ThreadsMonitoring getThreadMonitorObj() {
+  protected ThreadsMonitoring getThreadMonitorObj() {
     DistributionManager distributionManager = this.cache.getDistributionManager();
     if (distributionManager != null) {
       return distributionManager.getThreadMonitoring();

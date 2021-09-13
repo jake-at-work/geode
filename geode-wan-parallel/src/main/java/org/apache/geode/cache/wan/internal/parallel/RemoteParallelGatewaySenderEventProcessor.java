@@ -17,6 +17,8 @@ package org.apache.geode.cache.wan.internal.parallel;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.wan.GatewaySender;
@@ -33,8 +35,9 @@ public class RemoteParallelGatewaySenderEventProcessor extends ParallelGatewaySe
   /**
    * use in concurrent scenario where queue is to be shared among all the processors.
    */
-  protected RemoteParallelGatewaySenderEventProcessor(AbstractGatewaySender sender,
-      Set<Region<?, ?>> userRegions, int id, int nDispatcher, ThreadsMonitoring tMonitoring,
+  protected RemoteParallelGatewaySenderEventProcessor(final @NotNull AbstractGatewaySender sender,
+      final @NotNull Set<Region<?, ?>> userRegions, final int id, final int nDispatcher,
+      final @Nullable ThreadsMonitoring tMonitoring,
       boolean cleanQueues) {
     super(sender, id, nDispatcher, tMonitoring, cleanQueues);
   }

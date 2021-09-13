@@ -26,6 +26,7 @@ dependencies {
   compileOnly(platform(project(':boms:geode-all-bom')))
   compileOnly(project(':geode-logging'))
   compileOnly(project(':geode-serialization'))
+  compileOnly('org.jetbrains:annotations')
 
   // TODO remove this, move all deps into SPI?
   compileOnly(project(':geode-wan'))

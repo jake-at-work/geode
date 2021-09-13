@@ -58,13 +58,13 @@ public class TXLastEventInTransactionUtilsTest {
   @Before
   public void setUp() {
     sender1 = mock(GatewaySender.class);
-    when(sender1.mustGroupTransactionEvents()).thenReturn(false);
+    // when(sender1.mustGroupTransactionEvents()).thenReturn(false);
     sender2 = mock(GatewaySender.class);
-    when(sender2.mustGroupTransactionEvents()).thenReturn(false);
+    // when(sender2.mustGroupTransactionEvents()).thenReturn(false);
     sender3 = mock(GatewaySender.class);
-    when(sender3.mustGroupTransactionEvents()).thenReturn(true);
+    // when(sender3.mustGroupTransactionEvents()).thenReturn(true);
     sender4 = mock(GatewaySender.class);
-    when(sender4.mustGroupTransactionEvents()).thenReturn(true);
+    // when(sender4.mustGroupTransactionEvents()).thenReturn(true);
 
     cache = mock(Cache.class);
     when(cache.getGatewaySender(SENDER_1)).thenReturn(sender1);

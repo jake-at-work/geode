@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import org.apache.geode.CancelException;
@@ -108,9 +109,11 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
   private int uncheckedCount = 0;
 
 
-  public SerialGatewaySenderEventProcessor(AbstractGatewaySender sender, String id,
-      ThreadsMonitoring tMonitoring, boolean cleanQueues) {
-    super("Event Processor for GatewaySender_" + id, sender, tMonitoring);
+  public SerialGatewaySenderEventProcessor(final @NotNull AbstractGatewaySender sender,
+      final @NotNull String id,
+      final @Nullable ThreadsMonitoring threadsMonitoring,
+      final boolean cleanQueues) {
+    super("Event Processor for GatewaySender_" + id, sender, threadsMonitoring);
     synchronized (unprocessedEventsLock) {
       initializeMessageQueue(id, cleanQueues);
       unprocessedEvents = new LinkedHashMap<>();
@@ -126,11 +129,19 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
     final CacheListener<?, ?> listener = getAndIntializeCacheListener();
 
     // Create the region queue
-    queue = new SerialGatewaySenderQueue(sender, regionName, listener, cleanQueues);
+    queue = createQueue(sender, regionName, listener, cleanQueues);
 
     if (logger.isDebugEnabled()) {
       logger.debug("Created queue: {}", queue);
     }
+  }
+
+  protected @NotNull SerialGatewaySenderQueue createQueue(
+      final @NotNull AbstractGatewaySender sender,
+      final @NotNull String regionName,
+      final @Nullable CacheListener<?, ?> listener,
+      final boolean cleanQueues) {
+    return new SerialGatewaySenderQueue(sender, regionName, listener, cleanQueues);
   }
 
   @Nullable

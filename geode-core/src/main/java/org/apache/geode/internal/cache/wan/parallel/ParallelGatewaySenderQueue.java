@@ -16,7 +16,6 @@ package org.apache.geode.internal.cache.wan.parallel;
 
 import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.cache.wan.GatewaySender.DEFAULT_BATCH_SIZE;
-import static org.apache.geode.cache.wan.GatewaySender.GET_TRANSACTION_EVENTS_FROM_QUEUE_RETRIES;
 import static org.apache.geode.internal.cache.LocalRegion.InitializationLevel.BEFORE_INITIAL_IMAGE;
 
 import java.util.ArrayList;
@@ -35,10 +34,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.CancelException;
 import org.apache.geode.SystemFailure;
@@ -57,7 +56,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.TransactionId;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueImpl;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -162,14 +160,14 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
    * The peekedEventsProcessing queue is used when the batch size is reduced due to a
    * MessageTooLargeException
    */
-  private BlockingQueue<GatewaySenderEventImpl> peekedEventsProcessing =
+  protected BlockingQueue<GatewaySenderEventImpl> peekedEventsProcessing =
       new LinkedBlockingQueue<GatewaySenderEventImpl>();
 
   /**
    * The peekedEventsProcessingInProgress boolean denotes that processing existing peeked events is
    * in progress
    */
-  private boolean peekedEventsProcessingInProgress = false;
+  protected boolean peekedEventsProcessingInProgress = false;
 
   public final AbstractGatewaySender sender;
 
@@ -244,14 +242,16 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
 
   private MetaRegionFactory metaRegionFactory;
 
-  public ParallelGatewaySenderQueue(AbstractGatewaySender sender, Set<Region<?, ?>> userRegions,
-      int idx,
-      int nDispatcher, boolean cleanQueues) {
+  public ParallelGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
+      final @NotNull Set<Region<?, ?>> userRegions,
+      final int idx, final int nDispatcher, final boolean cleanQueues) {
     this(sender, userRegions, idx, nDispatcher, new MetaRegionFactory(), cleanQueues);
   }
 
-  ParallelGatewaySenderQueue(AbstractGatewaySender sender, Set<Region<?, ?>> userRegions, int idx,
-      int nDispatcher, MetaRegionFactory metaRegionFactory, boolean cleanQueues) {
+  @VisibleForTesting
+  ParallelGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
+      final @NotNull Set<Region<?, ?>> userRegions, final int idx,
+      final int nDispatcher, final MetaRegionFactory metaRegionFactory, final boolean cleanQueues) {
 
     this.metaRegionFactory = metaRegionFactory;
 
@@ -1332,10 +1332,7 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
       }
     }
 
-    if (batch.size() > 0) {
-      peekEventsFromIncompleteTransactions(batch, prQ);
-    }
-
+    postProcessBatch(batch, prQ);
 
     if (isDebugEnabled) {
       logger.debug("{}: Peeked a batch of {} entries. The size of the queue is {}. localSize is {}",
@@ -1347,6 +1344,9 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
     }
     return batch;
   }
+
+  protected void postProcessBatch(final @NotNull List<GatewaySenderEventImpl> batch,
+      final @NotNull PartitionedRegion partitionedRegion) {}
 
   private boolean stopPeekingDueToTime(int timeToWait, long end) {
     final boolean isDebugEnabled = logger.isDebugEnabled();
@@ -1362,72 +1362,6 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
       return true;
     }
     return false;
-  }
-
-  protected boolean mustGroupTransactionEvents() {
-    return sender.mustGroupTransactionEvents();
-  }
-
-  @VisibleForTesting
-  void peekEventsFromIncompleteTransactions(List<GatewaySenderEventImpl> batch,
-      PartitionedRegion prQ) {
-    if (!mustGroupTransactionEvents()) {
-      return;
-    }
-
-    Map<TransactionId, Integer> incompleteTransactionIdsInBatch =
-        getIncompleteTransactionsInBatch(batch);
-    if (incompleteTransactionIdsInBatch.size() == 0) {
-      return;
-    }
-
-    int retries = 0;
-    while (true) {
-      for (Iterator<Map.Entry<TransactionId, Integer>> iter =
-          incompleteTransactionIdsInBatch.entrySet().iterator(); iter.hasNext();) {
-        Map.Entry<TransactionId, Integer> pendingTransaction = iter.next();
-        TransactionId transactionId = pendingTransaction.getKey();
-        int bucketId = pendingTransaction.getValue();
-        List<Object> events = peekEventsWithTransactionId(prQ, bucketId, transactionId);
-        for (Object object : events) {
-          GatewaySenderEventImpl event = (GatewaySenderEventImpl) object;
-          batch.add(event);
-          peekedEvents.add(event);
-          if (logger.isDebugEnabled()) {
-            logger.debug(
-                "Peeking extra event: {}, bucketId: {}, isLastEventInTransaction: {}, batch size: {}",
-                event.getKey(), bucketId, event.isLastEventInTransaction(), batch.size());
-          }
-          if (event.isLastEventInTransaction()) {
-            iter.remove();
-          }
-        }
-      }
-      if (incompleteTransactionIdsInBatch.size() == 0 ||
-          retries++ == GET_TRANSACTION_EVENTS_FROM_QUEUE_RETRIES) {
-        break;
-      }
-    }
-    if (incompleteTransactionIdsInBatch.size() > 0) {
-      logger.warn("Not able to retrieve all events for transactions: {} after {} retries",
-          incompleteTransactionIdsInBatch, retries);
-      stats.incBatchesWithIncompleteTransactions();
-    }
-  }
-
-  private Map<TransactionId, Integer> getIncompleteTransactionsInBatch(
-      List<GatewaySenderEventImpl> batch) {
-    Map<TransactionId, Integer> incompleteTransactionsInBatch = new HashMap<>();
-    for (GatewaySenderEventImpl event : batch) {
-      if (event.getTransactionId() != null) {
-        if (event.isLastEventInTransaction()) {
-          incompleteTransactionsInBatch.remove(event.getTransactionId());
-        } else {
-          incompleteTransactionsInBatch.put(event.getTransactionId(), event.getBucketId());
-        }
-      }
-    }
-    return incompleteTransactionsInBatch;
   }
 
   @VisibleForTesting
@@ -1504,20 +1438,10 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
     }
   }
 
-  private void addPreviouslyPeekedEvents(List<GatewaySenderEventImpl> batch, int batchSize) {
-    Set<TransactionId> incompleteTransactionsInBatch = new HashSet<>();
-    for (int i = 0; i < batchSize || incompleteTransactionsInBatch.size() != 0; i++) {
-      GatewaySenderEventImpl event = peekedEventsProcessing.remove();
-      batch.add(event);
-      if (mustGroupTransactionEvents()) {
-        if (event.getTransactionId() != null) {
-          if (event.isLastEventInTransaction()) {
-            incompleteTransactionsInBatch.remove(event.getTransactionId());
-          } else {
-            incompleteTransactionsInBatch.add(event.getTransactionId());
-          }
-        }
-      }
+  protected void addPreviouslyPeekedEvents(final @NotNull List<GatewaySenderEventImpl> batch,
+      int batchSize) {
+    for (int i = 0; i < batchSize; i++) {
+      batch.add(peekedEventsProcessing.remove());
       if (peekedEventsProcessing.isEmpty()) {
         resetLastPeeked = false;
         peekedEventsProcessingInProgress = false;
@@ -1574,38 +1498,6 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
     }
     return object; // OFFHEAP: ok since callers are careful to do destroys on region queue after
                    // finished with peeked object.
-  }
-
-  protected List<Object> peekEventsWithTransactionId(PartitionedRegion prQ, int bucketId,
-      TransactionId transactionId) throws CacheException {
-    List<Object> objects;
-    BucketRegionQueue brq = getBucketRegionQueueByBucketId(prQ, bucketId);
-
-    try {
-      Predicate<GatewaySenderEventImpl> hasTransactionIdPredicate =
-          getHasTransactionIdPredicate(transactionId);
-      Predicate<GatewaySenderEventImpl> isLastEventInTransactionPredicate =
-          getIsLastEventInTransactionPredicate();
-      objects =
-          brq.getElementsMatching(hasTransactionIdPredicate, isLastEventInTransactionPredicate);
-    } catch (BucketRegionQueueUnavailableException e) {
-      // BucketRegionQueue unavailable. Can be due to the BucketRegionQueue being destroyed.
-      return Collections.emptyList();
-    }
-
-    return objects; // OFFHEAP: ok since callers are careful to do destroys on region queue after
-    // finished with peeked objects.
-  }
-
-  @VisibleForTesting
-  public static Predicate<GatewaySenderEventImpl> getIsLastEventInTransactionPredicate() {
-    return x -> x.isLastEventInTransaction();
-  }
-
-  @VisibleForTesting
-  public static Predicate<GatewaySenderEventImpl> getHasTransactionIdPredicate(
-      TransactionId transactionId) {
-    return x -> transactionId.equals(x.getTransactionId());
   }
 
   protected BucketRegionQueue getBucketRegionQueueByBucketId(final PartitionedRegion prQ,
@@ -2053,7 +1945,7 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
     throw new RuntimeException("This method(size)is not supported by ParallelGatewaySenderQueue");
   }
 
-  static class MetaRegionFactory {
+  protected static class MetaRegionFactory {
     ParallelGatewaySenderQueueMetaRegion newMetataRegion(InternalCache cache, final String prQName,
         final RegionAttributes ra, AbstractGatewaySender sender) {
       ParallelGatewaySenderQueueMetaRegion meta =

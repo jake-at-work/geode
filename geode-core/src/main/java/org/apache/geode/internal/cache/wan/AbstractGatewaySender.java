@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.CancelException;
@@ -125,7 +126,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
 
   protected boolean isParallel;
 
-  protected boolean groupTransactionEvents;
+  // protected boolean groupTransactionEvents;
 
   protected boolean isForInternalUse;
 
@@ -240,8 +241,9 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
     statisticsClock = disabledClock();
   }
 
-  public AbstractGatewaySender(InternalCache cache, StatisticsClock statisticsClock,
-      GatewaySenderAttributes attrs) {
+  public AbstractGatewaySender(final @NotNull InternalCache cache,
+      final @NotNull StatisticsClock statisticsClock,
+      final @NotNull GatewaySenderAttributes attrs) {
     this.cache = cache;
     this.statisticsClock = statisticsClock;
     id = attrs.getId();
@@ -255,7 +257,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
     alertThreshold = attrs.getAlertThreshold();
     manualStart = attrs.isManualStart();
     isParallel = attrs.isParallel();
-    groupTransactionEvents = attrs.mustGroupTransactionEvents();
+    // groupTransactionEvents = attrs.mustGroupTransactionEvents();
     isForInternalUse = attrs.isForInternalUse();
     diskStoreName = attrs.getDiskStoreName();
     remoteDSId = attrs.getRemoteDSId();
@@ -560,10 +562,10 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
     return isParallel;
   }
 
-  @Override
-  public boolean mustGroupTransactionEvents() {
-    return groupTransactionEvents;
-  }
+  // @Override
+  // public boolean mustGroupTransactionEvents() {
+  // return groupTransactionEvents;
+  // }
 
   public boolean isForInternalUse() {
     return isForInternalUse;
@@ -698,10 +700,10 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
     }
   };
 
-  @Override
-  public void setGroupTransactionEvents(boolean groupTransactionEvents) {
-    this.groupTransactionEvents = groupTransactionEvents;
-  };
+  // @Override
+  // public void setGroupTransactionEvents(boolean groupTransactionEvents) {
+  // this.groupTransactionEvents = groupTransactionEvents;
+  // };
 
   @Override
   public void setGatewayEventFilters(List<GatewayEventFilter> filters) {

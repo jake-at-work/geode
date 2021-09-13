@@ -15,19 +15,24 @@
 
 package org.apache.geode.cache.wan.internal.spi;
 
+import org.jetbrains.annotations.NotNull;
+
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
 import org.apache.geode.internal.statistics.StatisticsClock;
 
 public interface GatewaySenderTypeFactory {
+  @NotNull
   String getName();
 
   void check();
 
-  GatewaySender createInstance(InternalCache cache,
-      StatisticsClock statisticsClock,
-      GatewaySenderAttributes gatewaySenderAttributes);
+  @NotNull
+  GatewaySender createInstance(@NotNull InternalCache cache,
+      @NotNull StatisticsClock statisticsClock,
+      @NotNull GatewaySenderAttributes gatewaySenderAttributes);
 
-  GatewaySender createCreation(InternalCache cache,
-      GatewaySenderAttributes gatewaySenderAttributes);
+  @NotNull
+  GatewaySender createCreation(@NotNull InternalCache cache,
+      @NotNull GatewaySenderAttributes gatewaySenderAttributes);
 }

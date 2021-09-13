@@ -229,10 +229,10 @@ public class GatewaySenderMBean extends NotificationBroadcasterSupport
     return bridge.isParallel();
   }
 
-  @Override
-  public boolean mustGroupTransactionEvents() {
-    return bridge.mustGroupTransactionEvents();
-  }
+  // @Override
+  // public boolean mustGroupTransactionEvents() {
+  // return bridge.mustGroupTransactionEvents();
+  // }
 
   @Override
   public String getGatewayReceiver() {

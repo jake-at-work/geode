@@ -15,6 +15,8 @@
 
 package com.example.geode.wan;
 
+import org.jetbrains.annotations.NotNull;
+
 import org.apache.geode.cache.wan.internal.spi.GatewaySender;
 import org.apache.geode.cache.wan.internal.spi.GatewaySenderTypeFactory;
 import org.apache.geode.internal.cache.InternalCache;
@@ -23,7 +25,7 @@ import org.apache.geode.internal.statistics.StatisticsClock;
 
 public class ExampleGatewaySenderTypeFactory implements GatewaySenderTypeFactory {
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return "ExampleGatewaySender";
   }
 
@@ -32,16 +34,18 @@ public class ExampleGatewaySenderTypeFactory implements GatewaySenderTypeFactory
 
   }
 
+  @NotNull
   @Override
-  public GatewaySender createInstance(final InternalCache cache,
-      final StatisticsClock statisticsClock,
-      final GatewaySenderAttributes attrs) {
-    return null;
+  public GatewaySender createInstance(@NotNull final InternalCache cache,
+      @NotNull final StatisticsClock statisticsClock,
+      @NotNull final GatewaySenderAttributes attrs) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
-  public GatewaySender createCreation(final InternalCache cache,
-      final GatewaySenderAttributes attrs) {
-    return null;
+  public @NotNull GatewaySender createCreation(
+      @NotNull final InternalCache cache,
+      @NotNull final GatewaySenderAttributes attrs) {
+    throw new UnsupportedOperationException();
   }
 }

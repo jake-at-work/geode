@@ -14,8 +14,10 @@
  */
 package org.apache.geode.cache.wan.internal.parallel;
 
-
 import java.util.Set;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.wan.internal.GatewaySenderEventRemoteDispatcher;
@@ -33,20 +35,22 @@ import org.apache.geode.internal.monitoring.ThreadsMonitoring;
 public class RemoteConcurrentParallelGatewaySenderEventProcessor
     extends ConcurrentParallelGatewaySenderEventProcessor {
 
-  public RemoteConcurrentParallelGatewaySenderEventProcessor(AbstractGatewaySender sender,
-      ThreadsMonitoring tMonitoring, boolean cleanQueues) {
+  public RemoteConcurrentParallelGatewaySenderEventProcessor(
+      final @NotNull AbstractGatewaySender sender,
+      final @Nullable ThreadsMonitoring tMonitoring, final boolean cleanQueues) {
     super(sender, tMonitoring, cleanQueues);
   }
 
   @Override
-  protected void createProcessors(int dispatcherThreads, Set<Region<?, ?>> targetRs,
-      boolean cleanQueues) {
+  protected void createProcessors(final int dispatcherThreads,
+      final @NotNull Set<Region<?, ?>> targetRegions,
+      final boolean cleanQueues) {
     processors = new RemoteParallelGatewaySenderEventProcessor[sender.getDispatcherThreads()];
     if (logger.isDebugEnabled()) {
       logger.debug("Creating GatewaySenderEventProcessor");
     }
     for (int i = 0; i < sender.getDispatcherThreads(); i++) {
-      processors[i] = new RemoteParallelGatewaySenderEventProcessor(sender, targetRs, i,
+      processors[i] = new RemoteParallelGatewaySenderEventProcessor(sender, targetRegions, i,
           sender.getDispatcherThreads(), getThreadMonitorObj(), cleanQueues);
     }
   }
@@ -69,7 +73,7 @@ public class RemoteConcurrentParallelGatewaySenderEventProcessor
     }
   }
 
-  private ThreadsMonitoring getThreadMonitorObj() {
+  protected ThreadsMonitoring getThreadMonitorObj() {
     DistributionManager distributionManager = sender.getDistributionManager();
     if (distributionManager != null) {
       return distributionManager.getThreadMonitoring();

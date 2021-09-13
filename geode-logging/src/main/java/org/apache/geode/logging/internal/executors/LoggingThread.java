@@ -14,11 +14,14 @@
  */
 package org.apache.geode.logging.internal.executors;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * LoggingThread instances always handle uncaught exceptions by logging them.
  */
 public class LoggingThread extends Thread {
-  private boolean treatExceptionAsFatal;
+  private final boolean treatExceptionAsFatal;
 
   /**
    * Creates a daemon thread with the given name
@@ -26,7 +29,7 @@ public class LoggingThread extends Thread {
    *
    * @param name the name of the thread
    */
-  public LoggingThread(final String name) {
+  public LoggingThread(final @NotNull String name) {
     this(name, null);
   }
 
@@ -37,7 +40,7 @@ public class LoggingThread extends Thread {
    * @param name the name of the thread
    * @param runnable what the thread will run
    */
-  public LoggingThread(final String name, final Runnable runnable) {
+  public LoggingThread(final @NotNull String name, final @Nullable Runnable runnable) {
     this(name, true, runnable);
   }
 
@@ -49,7 +52,8 @@ public class LoggingThread extends Thread {
    * @param isDaemon true if thread will be marked as a daemon
    * @param runnable what the thread will run
    */
-  public LoggingThread(final String name, final boolean isDaemon, final Runnable runnable) {
+  public LoggingThread(@NotNull final String name, final boolean isDaemon,
+      final @Nullable Runnable runnable) {
     this(name, isDaemon, runnable, true);
   }
 

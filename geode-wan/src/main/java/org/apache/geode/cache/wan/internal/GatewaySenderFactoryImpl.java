@@ -258,12 +258,14 @@ public class GatewaySenderFactoryImpl implements InternalGatewaySenderFactory {
         }
       }
     }
-    if (this.attrs.mustGroupTransactionEvents() && this.attrs.isBatchConflationEnabled()) {
-      throw new GatewaySenderException(
-          String.format(
-              "GatewaySender %s cannot be created with both group transaction events set to true and batch conflation enabled",
-              id));
-    }
+    // TODO jbarrett check method on the type factory.
+    // if (this.attrs.mustGroupTransactionEvents() && this.attrs.isBatchConflationEnabled()) {
+    // throw new GatewaySenderException(
+    // String.format(
+    // "GatewaySender %s cannot be created with both group transaction events set to true and batch
+    // conflation enabled",
+    // id));
+    // }
 
     if (this.attrs.isParallel()) {
       final GatewaySenderTypeFactory factory =
@@ -295,12 +297,14 @@ public class GatewaySenderFactoryImpl implements InternalGatewaySenderFactory {
                 "SerialGatewaySender %s cannot define a remote site because at least AsyncEventListener is already added. Both listeners and remote site cannot be defined for the same gateway sender.",
                 id));
       }
-      if (this.attrs.mustGroupTransactionEvents() && this.attrs.getDispatcherThreads() > 1) {
-        throw new GatewaySenderException(
-            String.format(
-                "SerialGatewaySender %s cannot be created with group transaction events set to true when dispatcher threads is greater than 1",
-                id));
-      }
+      // TODO jbarrett check method
+      // if (this.attrs.mustGroupTransactionEvents() && this.attrs.getDispatcherThreads() > 1) {
+      // throw new GatewaySenderException(
+      // String.format(
+      // "SerialGatewaySender %s cannot be created with group transaction events set to true when
+      // dispatcher threads is greater than 1",
+      // id));
+      // }
       if (this.attrs.getOrderPolicy() == null && this.attrs.getDispatcherThreads() > 1) {
         this.attrs.setOrderPolicy(GatewaySender.DEFAULT_ORDER_POLICY);
       }
@@ -414,7 +418,7 @@ public class GatewaySenderFactoryImpl implements InternalGatewaySenderFactory {
       this.attrs.getGatewayTransportFilters().add(filter);
     }
     this.attrs.setEventSubstitutionFilter(senderCreation.getGatewayEventSubstitutionFilter());
-    this.attrs.setGroupTransactionEvents(senderCreation.mustGroupTransactionEvents());
+    // this.attrs.setGroupTransactionEvents(senderCreation.mustGroupTransactionEvents());
     this.attrs.setEnforceThreadsConnectSameReceiver(
         senderCreation.getEnforceThreadsConnectSameReceiver());
   }

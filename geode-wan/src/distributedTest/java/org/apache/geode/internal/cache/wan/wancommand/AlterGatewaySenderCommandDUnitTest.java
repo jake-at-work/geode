@@ -447,28 +447,28 @@ public class AlterGatewaySenderCommandDUnitTest {
     });
   }
 
-  @Test
-  public void testCreateParallelGatewaySenderAndChangeGroupTransaction() throws Exception {
-    gfsh.executeAndAssertThat(CREATE_PARALLEL).statusIsSuccess()
-        .doesNotContainOutput("Did not complete waiting")
-        .hasTableSection()
-        .hasColumn("Message")
-        .containsExactly("GatewaySender \"sender1P\" created on \"happyserver1\"",
-            "GatewaySender \"sender1P\" created on \"happyserver2\"");
-
-    gfsh.executeAndAssertThat("list gateways").statusIsSuccess()
-        .containsOutput("sender1P");
-
-    gfsh.executeAndAssertThat("alter gateway-sender --id=sender1P --group-transaction-events=true")
-        .statusIsSuccess();
-
-    // verify that server1's event queue has the default value
-    server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1P");
-      assertThat(sender.mustGroupTransactionEvents()).isTrue();
-    });
-  }
+  // @Test
+  // public void testCreateParallelGatewaySenderAndChangeGroupTransaction() throws Exception {
+  // gfsh.executeAndAssertThat(CREATE_PARALLEL).statusIsSuccess()
+  // .doesNotContainOutput("Did not complete waiting")
+  // .hasTableSection()
+  // .hasColumn("Message")
+  // .containsExactly("GatewaySender \"sender1P\" created on \"happyserver1\"",
+  // "GatewaySender \"sender1P\" created on \"happyserver2\"");
+  //
+  // gfsh.executeAndAssertThat("list gateways").statusIsSuccess()
+  // .containsOutput("sender1P");
+  //
+  // gfsh.executeAndAssertThat("alter gateway-sender --id=sender1P --group-transaction-events=true")
+  // .statusIsSuccess();
+  //
+  // // verify that server1's event queue has the default value
+  // server1.invoke(() -> {
+  // InternalCache cache = ClusterStartupRule.getCache();
+  // GatewaySender sender = cache.getGatewaySender("sender1P");
+  // assertThat(sender.mustGroupTransactionEvents()).isTrue();
+  // });
+  // }
 
   public static class MyGatewayEventFilter implements GatewayEventFilter {
     @Override

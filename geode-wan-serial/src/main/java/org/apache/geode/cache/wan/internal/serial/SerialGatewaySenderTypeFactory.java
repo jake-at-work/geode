@@ -15,6 +15,8 @@
 
 package org.apache.geode.cache.wan.internal.serial;
 
+import org.jetbrains.annotations.NotNull;
+
 import org.apache.geode.cache.wan.internal.spi.GatewaySender;
 import org.apache.geode.cache.wan.internal.spi.GatewaySenderTypeFactory;
 import org.apache.geode.internal.cache.InternalCache;
@@ -23,7 +25,7 @@ import org.apache.geode.internal.statistics.StatisticsClock;
 
 public class SerialGatewaySenderTypeFactory implements GatewaySenderTypeFactory {
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return "SerialGatewaySender";
   }
 
@@ -33,15 +35,15 @@ public class SerialGatewaySenderTypeFactory implements GatewaySenderTypeFactory 
   }
 
   @Override
-  public GatewaySender createInstance(final InternalCache cache,
-      final StatisticsClock statisticsClock,
-      final GatewaySenderAttributes gatewaySenderAttributes) {
+  public @NotNull GatewaySender createInstance(final @NotNull InternalCache cache,
+      final @NotNull StatisticsClock statisticsClock,
+      final @NotNull GatewaySenderAttributes gatewaySenderAttributes) {
     return new SerialGatewaySenderImpl(cache, statisticsClock, gatewaySenderAttributes);
   }
 
   @Override
-  public GatewaySender createCreation(final InternalCache cache,
-      final GatewaySenderAttributes gatewaySenderAttributes) {
+  public @NotNull GatewaySender createCreation(final @NotNull InternalCache cache,
+      final @NotNull GatewaySenderAttributes gatewaySenderAttributes) {
     return new SerialGatewaySenderCreation(cache, gatewaySenderAttributes);
   }
 }

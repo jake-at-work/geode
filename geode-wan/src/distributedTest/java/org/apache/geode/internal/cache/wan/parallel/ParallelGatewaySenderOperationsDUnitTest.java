@@ -1045,52 +1045,52 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
     checkBatchTimeInterval(150);
   }
 
-  @Test
-  public void testParallelGWSenderUpdateAttrWhilePaused() throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
-
-    createCacheInVMs(nyPort, vm2, vm3);
-    createReceiverInVMs(vm2, vm3);
-
-    createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
-
-    vm4.invoke(() -> createSender("ln", 2, true, 100, 10, false, false, null, false));
-    vm5.invoke(() -> createSender("ln", 2, true, 100, 10, false, false, null, false));
-    vm6.invoke(() -> createSender("ln", 2, true, 100, 10, false, false, null, false));
-    vm7.invoke(() -> createSender("ln", 2, true, 100, 10, false, false, null, false));
-
-    createPartitionedRegions(false);
-
-    vm4.invoke(() -> waitForSenderRunningState("ln"));
-    vm5.invoke(() -> waitForSenderRunningState("ln"));
-    vm6.invoke(() -> waitForSenderRunningState("ln"));
-    vm7.invoke(() -> waitForSenderRunningState("ln"));
-
-    vm4.invoke(() -> pauseSender("ln"));
-    vm5.invoke(() -> pauseSender("ln"));
-    vm6.invoke(() -> pauseSender("ln"));
-    vm7.invoke(() -> pauseSender("ln"));
-
-    vm4.invoke(() -> doPuts(getUniqueName() + "_PR", 5000));
-
-    updateGroupTransactionEvents(true);
-    updateBatchTimeInterval(200);
-
-    validateRegionSizes(getUniqueName() + "_PR", 0, vm2, vm3);
-
-    checkGroupTransactionEvents(true);
-    checkBatchTimeInterval(200);
-
-    vm4.invoke(() -> resumeSender("ln"));
-    vm5.invoke(() -> resumeSender("ln"));
-    vm6.invoke(() -> resumeSender("ln"));
-    vm7.invoke(() -> resumeSender("ln"));
-
-    validateRegionSizes(getUniqueName() + "_PR", 5000, vm2, vm3);
-
-  }
+  // @Test
+  // public void testParallelGWSenderUpdateAttrWhilePaused() throws Exception {
+  // Integer[] locatorPorts = createLNAndNYLocators();
+  // Integer lnPort = locatorPorts[0];
+  // Integer nyPort = locatorPorts[1];
+  //
+  // createCacheInVMs(nyPort, vm2, vm3);
+  // createReceiverInVMs(vm2, vm3);
+  //
+  // createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
+  //
+  // vm4.invoke(() -> createSender("ln", 2, true, 100, 10, false, false, null, false));
+  // vm5.invoke(() -> createSender("ln", 2, true, 100, 10, false, false, null, false));
+  // vm6.invoke(() -> createSender("ln", 2, true, 100, 10, false, false, null, false));
+  // vm7.invoke(() -> createSender("ln", 2, true, 100, 10, false, false, null, false));
+  //
+  // createPartitionedRegions(false);
+  //
+  // vm4.invoke(() -> waitForSenderRunningState("ln"));
+  // vm5.invoke(() -> waitForSenderRunningState("ln"));
+  // vm6.invoke(() -> waitForSenderRunningState("ln"));
+  // vm7.invoke(() -> waitForSenderRunningState("ln"));
+  //
+  // vm4.invoke(() -> pauseSender("ln"));
+  // vm5.invoke(() -> pauseSender("ln"));
+  // vm6.invoke(() -> pauseSender("ln"));
+  // vm7.invoke(() -> pauseSender("ln"));
+  //
+  // vm4.invoke(() -> doPuts(getUniqueName() + "_PR", 5000));
+  //
+  // updateGroupTransactionEvents(true);
+  // updateBatchTimeInterval(200);
+  //
+  // validateRegionSizes(getUniqueName() + "_PR", 0, vm2, vm3);
+  //
+  // checkGroupTransactionEvents(true);
+  // checkBatchTimeInterval(200);
+  //
+  // vm4.invoke(() -> resumeSender("ln"));
+  // vm5.invoke(() -> resumeSender("ln"));
+  // vm6.invoke(() -> resumeSender("ln"));
+  // vm7.invoke(() -> resumeSender("ln"));
+  //
+  // validateRegionSizes(getUniqueName() + "_PR", 5000, vm2, vm3);
+  //
+  // }
 
   @Test
   public void testParallelGWSenderUpdateFiltersWhilePutting() throws Exception {
@@ -1340,57 +1340,57 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
     });
   }
 
-  private void updateGroupTransactionEvents(boolean groupTransactionEvents) {
-    vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
-      if (sender.isRunning() && !sender.isPaused()) {
-        sender.pause();
-        paused = true;
-      }
-      sender.setGroupTransactionEvents(groupTransactionEvents);
-      if (paused) {
-        sender.resume();
-      }
-    });
-    vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
-      if (sender.isRunning() && !sender.isPaused()) {
-        sender.pause();
-        paused = true;
-      }
-      sender.setGroupTransactionEvents(groupTransactionEvents);
-      if (paused) {
-        sender.resume();
-      }
-    });
-    vm6.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
-      if (sender.isRunning() && !sender.isPaused()) {
-        sender.pause();
-        paused = true;
-      }
-      sender.setGroupTransactionEvents(groupTransactionEvents);
-      if (paused) {
-        sender.resume();
-      }
-    });
-    vm7.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
-      if (sender.isRunning() && !sender.isPaused()) {
-        sender.pause();
-        paused = true;
-      }
-      sender.setGroupTransactionEvents(groupTransactionEvents);
-      if (paused) {
-        sender.resume();
-      }
-    });
-
-  }
+  // private void updateGroupTransactionEvents(boolean groupTransactionEvents) {
+  // vm4.invoke(() -> {
+  // AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+  // boolean paused = false;
+  // if (sender.isRunning() && !sender.isPaused()) {
+  // sender.pause();
+  // paused = true;
+  // }
+  // sender.setGroupTransactionEvents(groupTransactionEvents);
+  // if (paused) {
+  // sender.resume();
+  // }
+  // });
+  // vm5.invoke(() -> {
+  // AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+  // boolean paused = false;
+  // if (sender.isRunning() && !sender.isPaused()) {
+  // sender.pause();
+  // paused = true;
+  // }
+  // sender.setGroupTransactionEvents(groupTransactionEvents);
+  // if (paused) {
+  // sender.resume();
+  // }
+  // });
+  // vm6.invoke(() -> {
+  // AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+  // boolean paused = false;
+  // if (sender.isRunning() && !sender.isPaused()) {
+  // sender.pause();
+  // paused = true;
+  // }
+  // sender.setGroupTransactionEvents(groupTransactionEvents);
+  // if (paused) {
+  // sender.resume();
+  // }
+  // });
+  // vm7.invoke(() -> {
+  // AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+  // boolean paused = false;
+  // if (sender.isRunning() && !sender.isPaused()) {
+  // sender.pause();
+  // paused = true;
+  // }
+  // sender.setGroupTransactionEvents(groupTransactionEvents);
+  // if (paused) {
+  // sender.resume();
+  // }
+  // });
+  //
+  // }
 
   private void updateGatewayEventFilters(List<GatewayEventFilter> filters) {
     vm4.invoke(() -> {
@@ -1481,24 +1481,24 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
     });
   }
 
-  private void checkGroupTransactionEvents(boolean groupTransactionEvents) {
-    vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
-    });
-    vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
-    });
-    vm6.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
-    });
-    vm7.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
-    });
-  }
+  // private void checkGroupTransactionEvents(boolean groupTransactionEvents) {
+  // vm4.invoke(() -> {
+  // AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+  // assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
+  // });
+  // vm5.invoke(() -> {
+  // AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+  // assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
+  // });
+  // vm6.invoke(() -> {
+  // AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+  // assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
+  // });
+  // vm7.invoke(() -> {
+  // AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+  // assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
+  // });
+  // }
 
   private void stopSenders() {
     vm4.invoke(() -> stopSender("ln"));

@@ -95,13 +95,13 @@ public class GatewaySenderEventImplTest {
     when(dataInput.readShort()).thenReturn(KnownVersion.GEODE_1_13_0.ordinal());
 
     gatewaySenderEvent.fromData(dataInput, deserializationContext);
-    assertThat(gatewaySenderEvent.getTransactionId()).isNull();
+    assertThat(gatewaySenderEvent.<Object>getMetadata()).isNull();
 
     when(dataInput.readShort()).thenReturn(GEODE_1_14_0.ordinal());
     when(objectDeserializer.readObject(dataInput)).thenReturn(eventID, new Object(),
         gatewaySenderEventCallbackArgument, transactionId);
     gatewaySenderEvent.fromData(dataInput, deserializationContext);
-    assertThat(gatewaySenderEvent.getTransactionId()).isNotNull();
+    assertThat(gatewaySenderEvent.<Object>getMetadata()).isNotNull();
   }
 
   @Test
@@ -257,10 +257,8 @@ public class GatewaySenderEventImplTest {
     assertThat(originalEvent.getBucketId()).isEqualTo(deserializedEvent.getBucketId());
     assertThat(originalEvent.isConcurrencyConflict())
         .isEqualTo(deserializedEvent.isConcurrencyConflict());
-    assertThat(originalEvent.getTransactionId())
-        .isEqualTo(deserializedEvent.getTransactionId());
-    assertThat(originalEvent.isLastEventInTransaction())
-        .isEqualTo(deserializedEvent.isLastEventInTransaction());
+    assertThat(originalEvent.<Object>getMetadata())
+        .isEqualTo(deserializedEvent.getMetadata());
   }
 
   public static class VersionAndExpectedInvocations {

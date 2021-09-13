@@ -23,6 +23,8 @@ dependencies {
   api(platform(project(':boms:geode-all-bom')))
   api(project(':geode-wan-spi'))
 
+  compileOnly(platform(project(':boms:geode-all-bom')))
+  compileOnly('org.jetbrains:annotations')
 
   integrationTestImplementation(project(':geode-wan'))
   integrationTestImplementation('org.junit.jupiter:junit-jupiter-api:latest.release')

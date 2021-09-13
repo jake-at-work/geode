@@ -20,13 +20,15 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import org.apache.geode.DataSerializer;
 import org.apache.geode.InternalGemFireError;
 import org.apache.geode.cache.CacheEvent;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.TransactionId;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.util.ObjectSizer;
 import org.apache.geode.cache.wan.EventSequenceID;
@@ -178,9 +180,7 @@ public class GatewaySenderEventImpl
 
   private short version;
 
-  private boolean isLastEventInTransaction = true;
-  private TransactionId transactionId = null;
-
+  private @Nullable Object metadata = null;
 
   /**
    * Is this thread in the process of serializing this event?
@@ -237,20 +237,22 @@ public class GatewaySenderEventImpl
    * @param operation The operation for this event (e.g. AFTER_CREATE)
    * @param event The <code>CacheEvent</code> on which this <code>GatewayEventImpl</code> is based
    * @param substituteValue The value to be enqueued instead of the value in the event.
-   * @param isLastEventInTransaction true if the event is the last in the transaction
+   * @param metadata The optional metadata provided by the event processor.
    *
    */
   @Retained
-  public GatewaySenderEventImpl(EnumListenerEvent operation, CacheEvent<?, ?> event,
-      Object substituteValue, boolean isLastEventInTransaction) throws IOException {
-    this(operation, event, substituteValue, true, isLastEventInTransaction);
+  public GatewaySenderEventImpl(final @NotNull EnumListenerEvent operation,
+      final @NotNull CacheEvent<?, ?> event,
+      final @Nullable Object substituteValue, final @Nullable Object metadata) throws IOException {
+    this(operation, event, substituteValue, true, metadata);
   }
 
   @Retained
-  public GatewaySenderEventImpl(EnumListenerEvent operation, CacheEvent<?, ?> event,
-      Object substituteValue, boolean initialize, int bucketId,
-      boolean isLastEventInTransaction) throws IOException {
-    this(operation, event, substituteValue, initialize, isLastEventInTransaction);
+  public GatewaySenderEventImpl(final @NotNull EnumListenerEvent operation,
+      final @NotNull CacheEvent<?, ?> event, final @Nullable Object substituteValue,
+      final boolean initialize, final int bucketId, final @Nullable Object metadata)
+      throws IOException {
+    this(operation, event, substituteValue, initialize, metadata);
     this.bucketId = bucketId;
   }
 
@@ -264,9 +266,10 @@ public class GatewaySenderEventImpl
    *
    */
   @Retained
-  public GatewaySenderEventImpl(EnumListenerEvent operation, CacheEvent<?, ?> ce,
-      Object substituteValue,
-      boolean initialize, boolean isLastEventInTransaction) throws IOException {
+  public GatewaySenderEventImpl(final @NotNull EnumListenerEvent operation,
+      final @NotNull CacheEvent<?, ?> ce,
+      final @Nullable Object substituteValue, final boolean initialize,
+      final @Nullable Object metadata) throws IOException {
     // Set the operation and event
     final EntryEventImpl event = (EntryEventImpl) ce;
     this.operation = operation;
@@ -322,8 +325,7 @@ public class GatewaySenderEventImpl
     }
     isConcurrencyConflict = event.isConcurrencyConflict();
 
-    transactionId = event.getTransactionId();
-    this.isLastEventInTransaction = isLastEventInTransaction;
+    this.metadata = metadata;
 
   }
 
@@ -353,8 +355,7 @@ public class GatewaySenderEventImpl
     valueObjReleased = false;
     valueIsObject = offHeapEvent.valueIsObject;
     value = offHeapEvent.getSerializedValue();
-    transactionId = offHeapEvent.transactionId;
-    isLastEventInTransaction = offHeapEvent.isLastEventInTransaction;
+    metadata = offHeapEvent.metadata;
   }
 
   /**
@@ -702,19 +703,15 @@ public class GatewaySenderEventImpl
   @Override
   public void toData(DataOutput out,
       SerializationContext context) throws IOException {
-    toDataPre_GEODE_1_15_0_0(out, context);
+    toDataPre_GEODE_1_14_0_0(out, context);
     out.writeInt(operationDetail);
+    context.getSerializer().writeObject(metadata, out);
   }
 
   public void toDataPre_GEODE_1_15_0_0(DataOutput out,
       SerializationContext context) throws IOException {
     toDataPre_GEODE_1_14_0_0(out, context);
-    boolean hasTransaction = transactionId != null;
-    DataSerializer.writeBoolean(hasTransaction, out);
-    if (hasTransaction) {
-      DataSerializer.writeBoolean(isLastEventInTransaction, out);
-      context.getSerializer().writeObject(transactionId, out);
-    }
+    DataSerializer.writeBoolean(false, out);
   }
 
   public void toDataPre_GEODE_1_14_0_0(DataOutput out,
@@ -752,9 +749,10 @@ public class GatewaySenderEventImpl
   @Override
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
-    fromDataPre_GEODE_1_15_0_0(in, context);
+    fromDataPre_GEODE_1_14_0_0(in, context);
     if (version >= KnownVersion.GEODE_1_15_0.ordinal()) {
       operationDetail = in.readInt();
+      metadata = context.getDeserializer().readObject(in);
     }
   }
 
@@ -762,11 +760,7 @@ public class GatewaySenderEventImpl
       throws IOException, ClassNotFoundException {
     fromDataPre_GEODE_1_14_0_0(in, context);
     if (version >= KnownVersion.GEODE_1_14_0.ordinal()) {
-      boolean hasTransaction = DataSerializer.readBoolean(in);
-      if (hasTransaction) {
-        isLastEventInTransaction = DataSerializer.readBoolean(in);
-        transactionId = context.getDeserializer().readObject(in);
-      }
+      boolean ignored = DataSerializer.readBoolean(in);
     }
   }
 
@@ -815,8 +809,7 @@ public class GatewaySenderEventImpl
         + ";acked=" + isAcked + ";dispatched=" + isDispatched
         + ";bucketId=" + bucketId
         + ";isConcurrencyConflict=" + isConcurrencyConflict
-        + ";transactionId=" + transactionId
-        + ";isLastEventInTransaction=" + isLastEventInTransaction
+        + ";metadata=" + metadata
         + "]";
   }
 
@@ -1230,12 +1223,9 @@ public class GatewaySenderEventImpl
     return shadowKey;
   }
 
-  public boolean isLastEventInTransaction() {
-    return isLastEventInTransaction;
-  }
-
-  public TransactionId getTransactionId() {
-    return transactionId;
+  @SuppressWarnings("unchecked")
+  public <T> @Nullable T getMetadata() {
+    return (T) metadata;
   }
 
   public boolean equals(Object obj) {
