@@ -39,5 +39,5 @@ dependencies {
   testImplementation(project(':geode-wan'))
   testImplementation(project(':geode-logging'))
   testImplementation(project(':geode-serialization'))
-
+  testImplementation(testFixtures(project(':geode-core')))
 }
