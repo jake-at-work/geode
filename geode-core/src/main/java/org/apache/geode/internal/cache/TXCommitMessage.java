@@ -27,7 +27,6 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceConfigurationError;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -708,46 +707,31 @@ public class TXCommitMessage extends PooledDistributionMessage
   }
 
   void firePendingCallbacks(List<EntryEventImpl> callbacks) {
-    boolean isConfigError = false;
-    EntryEventImpl lastTransactionEvent = null;
-    try {
-      lastTransactionEvent = getLastTransactionEvent(callbacks);
-    } catch (ServiceConfigurationError ex) {
-      logger.error(ex.getMessage());
-      isConfigError = true;
-    }
+    final Iterator<EntryEventImpl> iterator = callbacks.iterator();
+    boolean hasNext = iterator.hasNext();
+    while (hasNext) {
+      final EntryEventImpl ee = iterator.next();
+      hasNext = iterator.hasNext();
 
-    for (EntryEventImpl ee : callbacks) {
-      boolean isLastTransactionEvent = TXLastEventInTransactionUtils
-          .isLastTransactionEvent(isConfigError, lastTransactionEvent, ee);
       try {
         if (ee.getOperation().isDestroy()) {
-          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_DESTROY, ee, true,
-              isLastTransactionEvent);
+          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_DESTROY, ee, true, !hasNext);
         } else if (ee.getOperation().isInvalidate()) {
-          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_INVALIDATE, ee, true,
-              isLastTransactionEvent);
+          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_INVALIDATE, ee, true, !hasNext);
         } else if (ee.getOperation().isCreate()) {
-          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_CREATE, ee, true,
-              isLastTransactionEvent);
+          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_CREATE, ee, true, !hasNext);
         } else {
           if (!ee.hasNewValue()) { // GEODE-8964, fixes GII and TX create conflict that
             ee.getRegion(). // produces an Update with null value
-                invokeTXCallbacks(EnumListenerEvent.AFTER_CREATE, ee, true, isLastTransactionEvent);
+                invokeTXCallbacks(EnumListenerEvent.AFTER_CREATE, ee, true, !hasNext);
           } else {
-            ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_UPDATE, ee, true,
-                isLastTransactionEvent);
+            ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_UPDATE, ee, true, !hasNext);
           }
         }
       } finally {
         ee.release();
       }
     }
-  }
-
-  EntryEventImpl getLastTransactionEvent(List<EntryEventImpl> callbacks) {
-    return TXLastEventInTransactionUtils.getLastTransactionEventInGroupedTxForWANSender(callbacks,
-        dm.getCache());
   }
 
   protected void processCacheRuntimeException(CacheRuntimeException problem) {

@@ -23,7 +23,6 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceConfigurationError;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReentrantLock;
@@ -242,31 +241,24 @@ public class TXState implements TXStateInterface {
   }
 
   public void firePendingCallbacks() {
-    boolean isConfigError = false;
-    EntryEventImpl lastTransactionEvent = null;
-    try {
-      lastTransactionEvent = TXLastEventInTransactionUtils
-          .getLastTransactionEventInGroupedTxForWANSender(getPendingCallbacks(), getCache());
-    } catch (ServiceConfigurationError ex) {
-      logger.error(ex.getMessage());
-      isConfigError = true;
-    }
+    final Iterator<EntryEventImpl> iterator = getPendingCallbacks().iterator();
+    boolean hasNext = iterator.hasNext();
+    while (hasNext) {
+      final EntryEventImpl ee = iterator.next();
+      hasNext = iterator.hasNext();
 
-    for (EntryEventImpl ee : getPendingCallbacks()) {
-      boolean isLastTransactionEvent = TXLastEventInTransactionUtils
-          .isLastTransactionEvent(isConfigError, lastTransactionEvent, ee);
-      if (ee.getOperation().isDestroy()) {
-        ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_DESTROY, ee, true,
-            isLastTransactionEvent);
-      } else if (ee.getOperation().isInvalidate()) {
-        ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_INVALIDATE, ee, true,
-            isLastTransactionEvent);
-      } else if (ee.getOperation().isCreate()) {
-        ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_CREATE, ee, true,
-            isLastTransactionEvent);
-      } else {
-        ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_UPDATE, ee, true,
-            isLastTransactionEvent);
+      try {
+        if (ee.getOperation().isDestroy()) {
+          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_DESTROY, ee, true, !hasNext);
+        } else if (ee.getOperation().isInvalidate()) {
+          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_INVALIDATE, ee, true, !hasNext);
+        } else if (ee.getOperation().isCreate()) {
+          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_CREATE, ee, true, !hasNext);
+        } else {
+          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_UPDATE, ee, true, !hasNext);
+        }
+      } finally {
+        ee.release();
       }
     }
   }

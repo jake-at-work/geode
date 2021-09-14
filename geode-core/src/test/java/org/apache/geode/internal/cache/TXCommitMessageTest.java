@@ -76,8 +76,6 @@ public class TXCommitMessageTest {
     when(updateEvent.getNewValue()).thenReturn(null);
     when(updateEvent.getRegion()).thenReturn(region);
 
-    doReturn(lastTxEvent).when(message).getLastTransactionEvent(callbacks);
-
     message.firePendingCallbacks(callbacks);
 
     verify(region, only()).invokeTXCallbacks(EnumListenerEvent.AFTER_CREATE, updateEvent, true,
