@@ -49,6 +49,14 @@ public class TxBatchingParallelGatewaySenderQueue extends ParallelGatewaySenderQ
     super(sender, userRegions, idx, nDispatcher, cleanQueues);
   }
 
+  @VisibleForTesting
+  TxBatchingParallelGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
+      final @NotNull Set<Region<?, ?>> userRegions, final int idx,
+      final int nDispatcher, final @NotNull MetaRegionFactory metaRegionFactory,
+      final boolean cleanQueues) {
+    super(sender, userRegions, idx, nDispatcher, metaRegionFactory, cleanQueues);
+  }
+
   @Override
   protected void postProcessBatch(final @NotNull List<GatewaySenderEventImpl> batch,
       final @NotNull PartitionedRegion prQ) {

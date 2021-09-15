@@ -249,9 +249,11 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
   }
 
   @VisibleForTesting
-  ParallelGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
+  protected ParallelGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
       final @NotNull Set<Region<?, ?>> userRegions, final int idx,
-      final int nDispatcher, final MetaRegionFactory metaRegionFactory, final boolean cleanQueues) {
+      final int nDispatcher,
+      final @NotNull MetaRegionFactory metaRegionFactory,
+      final boolean cleanQueues) {
 
     this.metaRegionFactory = metaRegionFactory;
 
@@ -901,7 +903,8 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
     }
   }
 
-  void putIntoBucketRegionQueue(AbstractBucketRegionQueue brq, Object key,
+  @VisibleForTesting
+  public void putIntoBucketRegionQueue(AbstractBucketRegionQueue brq, Object key,
       GatewaySenderEventImpl value) {
     boolean addedValueToQueue = false;
     try {
@@ -975,7 +978,8 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
     return prQ;
   }
 
-  boolean isDREvent(InternalCache cache, GatewaySenderEventImpl event) {
+  @VisibleForTesting
+  public boolean isDREvent(InternalCache cache, GatewaySenderEventImpl event) {
     Region region = cache.getRegion(event.getRegionPath());
     return region instanceof DistributedRegion;
   }
@@ -1365,7 +1369,7 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
   }
 
   @VisibleForTesting
-  static long calculateTimeToSleep(long timeToWait) {
+  public static long calculateTimeToSleep(long timeToWait) {
     if (timeToWait <= 0) {
       return 0;
     }
@@ -1876,7 +1880,8 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
     }
   }
 
-  protected static class ParallelGatewaySenderQueueMetaRegion extends PartitionedRegion {
+  @VisibleForTesting
+  public static class ParallelGatewaySenderQueueMetaRegion extends PartitionedRegion {
 
     AbstractGatewaySender sender = null;
 
@@ -1945,9 +1950,12 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
     throw new RuntimeException("This method(size)is not supported by ParallelGatewaySenderQueue");
   }
 
-  protected static class MetaRegionFactory {
-    ParallelGatewaySenderQueueMetaRegion newMetataRegion(InternalCache cache, final String prQName,
-        final RegionAttributes ra, AbstractGatewaySender sender) {
+  @VisibleForTesting
+  public static class MetaRegionFactory {
+    public ParallelGatewaySenderQueueMetaRegion newMetataRegion(InternalCache cache,
+        final String prQName,
+        final RegionAttributes ra,
+        AbstractGatewaySender sender) {
       ParallelGatewaySenderQueueMetaRegion meta =
           new ParallelGatewaySenderQueueMetaRegion(prQName, ra, null, cache, sender,
               sender.getStatisticsClock());
