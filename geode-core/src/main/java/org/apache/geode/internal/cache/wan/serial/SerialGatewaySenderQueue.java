@@ -703,11 +703,11 @@ public class SerialGatewaySenderQueue implements RegionQueue {
   }
 
   @VisibleForTesting
-  protected static class KeyAndEventPair {
+  public static class KeyAndEventPair {
     public final long key;
     public final AsyncEvent event;
 
-    KeyAndEventPair(Long key, AsyncEvent event) {
+    public KeyAndEventPair(Long key, AsyncEvent event) {
       this.key = key;
       this.event = event;
     }
@@ -773,7 +773,8 @@ public class SerialGatewaySenderQueue implements RegionQueue {
    * If a matching object also fulfills the endPredicate then the method
    * stops looking for more matching objects.
    */
-  protected List<KeyAndEventPair> getElementsMatching(Predicate<GatewaySenderEventImpl> condition,
+  @VisibleForTesting
+  public List<KeyAndEventPair> getElementsMatching(Predicate<GatewaySenderEventImpl> condition,
       Predicate<GatewaySenderEventImpl> stopCondition,
       long lastKey) {
     GatewaySenderEventImpl event;
@@ -1345,8 +1346,9 @@ public class SerialGatewaySenderQueue implements RegionQueue {
     }
   }
 
-  protected static class MetaRegionFactory {
-    SerialGatewaySenderQueueMetaRegion newMetaRegion(InternalCache cache,
+  @VisibleForTesting
+  public static class MetaRegionFactory {
+    public SerialGatewaySenderQueueMetaRegion newMetaRegion(InternalCache cache,
         final String regionName,
         final RegionAttributes ra,
         AbstractGatewaySender sender) {

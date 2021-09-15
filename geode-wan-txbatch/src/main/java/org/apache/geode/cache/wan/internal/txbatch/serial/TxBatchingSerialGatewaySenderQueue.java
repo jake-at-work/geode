@@ -43,8 +43,16 @@ public class TxBatchingSerialGatewaySenderQueue extends SerialGatewaySenderQueue
     super(sender, regionName, listener, cleanQueues);
   }
 
+  public TxBatchingSerialGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
+      final @NotNull String regionName,
+      final @Nullable CacheListener<?, ?> listener, final boolean cleanQueues,
+      final @NotNull MetaRegionFactory metaRegionFactory) {
+    super(sender, regionName, listener, cleanQueues, metaRegionFactory);
+  }
+
   @Override
-  protected void postProcessBatch(final @NotNull List<AsyncEvent<?, ?>> batch, final long lastKey) {
+  protected void postProcessBatch(final @NotNull List<AsyncEvent<?, ?>> batch,
+      final long lastKey) {
     if (batch.isEmpty()) {
       return;
     }
