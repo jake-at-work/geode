@@ -703,6 +703,7 @@ public class GatewaySenderEventImpl
   @Override
   public void toData(DataOutput out,
       SerializationContext context) throws IOException {
+    // Intentionally omit the changes introduced in 1.14.
     toDataPre_GEODE_1_14_0_0(out, context);
     out.writeInt(operationDetail);
     context.getSerializer().writeObject(metadata, out);
@@ -711,6 +712,7 @@ public class GatewaySenderEventImpl
   public void toDataPre_GEODE_1_15_0_0(DataOutput out,
       SerializationContext context) throws IOException {
     toDataPre_GEODE_1_14_0_0(out, context);
+    // This feature was not production ready at release and is not used
     DataSerializer.writeBoolean(false, out);
   }
 
@@ -749,10 +751,13 @@ public class GatewaySenderEventImpl
   @Override
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
-    fromDataPre_GEODE_1_14_0_0(in, context);
     if (version >= KnownVersion.GEODE_1_15_0.ordinal()) {
+      // Intentionally omit the changes introduced in 1.14.
+      fromDataPre_GEODE_1_14_0_0(in, context);
       operationDetail = in.readInt();
       metadata = context.getDeserializer().readObject(in);
+    } else {
+      fromDataPre_GEODE_1_15_0_0(in, context);
     }
   }
 
@@ -760,7 +765,13 @@ public class GatewaySenderEventImpl
       throws IOException, ClassNotFoundException {
     fromDataPre_GEODE_1_14_0_0(in, context);
     if (version >= KnownVersion.GEODE_1_14_0.ordinal()) {
-      boolean ignored = DataSerializer.readBoolean(in);
+      // This feature was not production ready at release and is not used
+      if (DataSerializer.readBoolean(in)) {
+        // Ignore isLastEventInTransaction
+        DataSerializer.readBoolean(in);
+        // Ignore transactionId
+        context.getDeserializer().readObject(in);
+      }
     }
   }
 
