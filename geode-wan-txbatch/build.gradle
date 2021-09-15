@@ -41,4 +41,22 @@ dependencies {
   testImplementation(project(':geode-serialization'))
   testImplementation(testFixtures(project(':geode-core')))
   testImplementation(project(':geode-membership'))
+
+
+  distributedTestImplementation(project(':geode-gfsh'))
+  distributedTestImplementation(project(':geode-dunit'))
+  distributedTestImplementation(project(':geode-junit'))
+  distributedTestImplementation(project(':geode-wan-default'))
+  distributedTestImplementation(project(':geode-wan').sourceSets.distributedTest.output)
+  distributedTestImplementation('mx4j:mx4j')
+  distributedTestImplementation('org.awaitility:awaitility')
+  distributedTestImplementation('junit:junit')
+  distributedTestImplementation('org.hamcrest:hamcrest')
+  distributedTestImplementation('org.mockito:mockito-core')
+  distributedTestImplementation('org.hamcrest:hamcrest')
+  distributedTestImplementation('org.apache.commons:commons-lang3')
+  distributedTestImplementation('commons-io:commons-io')
+  distributedTestImplementation('org.assertj:assertj-core')
+  distributedTestImplementation('pl.pragmatists:JUnitParams')
+
 }

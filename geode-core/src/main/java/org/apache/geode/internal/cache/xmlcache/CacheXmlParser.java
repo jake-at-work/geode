@@ -699,14 +699,15 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     // GatewaySender sender = gatewaySenderFactory.create(id, Integer.parseInt(remoteDS));
     // stack.push(sender);
 
-    String groupTransactionEvents = atts.getValue(GROUP_TRANSACTION_EVENTS);
-    if (groupTransactionEvents == null) {
-      gatewaySenderFactory
-          .setGroupTransactionEvents(GatewaySender.DEFAULT_MUST_GROUP_TRANSACTION_EVENTS);
-    } else {
-      gatewaySenderFactory
-          .setGroupTransactionEvents(Boolean.parseBoolean(groupTransactionEvents));
-    }
+    // TODO jbarrett add class/id support
+    // String groupTransactionEvents = atts.getValue(GROUP_TRANSACTION_EVENTS);
+    // if (groupTransactionEvents == null) {
+    // gatewaySenderFactory
+    // .setGroupTransactionEvents(GatewaySender.DEFAULT_MUST_GROUP_TRANSACTION_EVENTS);
+    // } else {
+    // gatewaySenderFactory
+    // .setGroupTransactionEvents(Boolean.parseBoolean(groupTransactionEvents));
+    // }
 
     String enforceThreadsConnectSameReceiver = atts.getValue(ENFORCE_THREADS_CONNECT_SAME_RECEIVER);
     if (enforceThreadsConnectSameReceiver == null) {

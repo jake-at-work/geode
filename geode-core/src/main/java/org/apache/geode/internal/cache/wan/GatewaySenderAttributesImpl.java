@@ -164,9 +164,10 @@ public class GatewaySenderAttributesImpl implements GatewaySenderAttributes {
     isParallel = parallel;
   }
 
-  public void setGroupTransactionEvents(boolean groupTransEvents) {
-    groupTransactionEvents = groupTransEvents;
-  }
+  // TODO ja
+  // public void setGroupTransactionEvents(boolean groupTransEvents) {
+  // groupTransactionEvents = groupTransEvents;
+  // }
 
   public void setForInternalUse(boolean forInternalUse) {
     isForInternalUse = forInternalUse;

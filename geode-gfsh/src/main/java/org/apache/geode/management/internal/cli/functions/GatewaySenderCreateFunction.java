@@ -87,10 +87,11 @@ public class GatewaySenderCreateFunction implements InternalFunction<GatewaySend
       gateway.setParallel(isParallel);
     }
 
-    Boolean groupTransactionEvents = gatewaySenderCreateArgs.mustGroupTransactionEvents();
-    if (groupTransactionEvents != null) {
-      gateway.setGroupTransactionEvents(groupTransactionEvents);
-    }
+    // TODO jbarrett class/id here
+    // Boolean groupTransactionEvents = gatewaySenderCreateArgs.mustGroupTransactionEvents();
+    // if (groupTransactionEvents != null) {
+    // gateway.setGroupTransactionEvents(groupTransactionEvents);
+    // }
 
     Boolean manualStart = gatewaySenderCreateArgs.isManualStart();
     if (manualStart != null) {

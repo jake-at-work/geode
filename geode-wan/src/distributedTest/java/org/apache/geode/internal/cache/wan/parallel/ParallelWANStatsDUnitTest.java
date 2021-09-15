@@ -328,7 +328,7 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     createCacheInVMs(nyPort, vm2);
     createReceiverInVMs(vm2);
 
-    createSenders(lnPort, false);
+    createSenders(lnPort);
 
     createReceiverCustomerOrderShipmentPR(vm2);
 
@@ -390,150 +390,152 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     assertEquals(0, v4List.get(5) + v5List.get(5) + v6List.get(5) + v7List.get(5));
   }
 
-  @Test
-  public void testPRParallelPropagationWithGroupTransactionEventsSendsBatchesWithCompleteTransactions() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+  // TODO jbarrett migrate test
+  // @Test
+  // public void
+  // testPRParallelPropagationWithGroupTransactionEventsSendsBatchesWithCompleteTransactions() {
+  // Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+  // Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+  //
+  // createCacheInVMs(nyPort, vm2);
+  // createReceiverInVMs(vm2);
+  //
+  // createSenders(lnPort, true);
+  //
+  // createReceiverCustomerOrderShipmentPR(vm2);
+  //
+  // createSenderCustomerOrderShipmentPRs(vm4);
+  // createSenderCustomerOrderShipmentPRs(vm5);
+  // createSenderCustomerOrderShipmentPRs(vm6);
+  // createSenderCustomerOrderShipmentPRs(vm7);
+  //
+  // startSenderInVMs("ln", vm4, vm5, vm6, vm7);
+  //
+  // final Map<Object, Object> custKeyValue = new HashMap<>();
+  // int intCustId = 1;
+  // CustId custId = new CustId(intCustId);
+  // custKeyValue.put(custId, new Customer());
+  // vm4.invoke(() -> WANTestBase.putGivenKeyValue(customerRegionName, custKeyValue));
+  //
+  // int transactions = 3;
+  // final Map<Object, Object> keyValues = new HashMap<>();
+  // for (int i = 0; i < transactions; i++) {
+  // OrderId orderId = new OrderId(i, custId);
+  // ShipmentId shipmentId1 = new ShipmentId(i, orderId);
+  // ShipmentId shipmentId2 = new ShipmentId(i + 1, orderId);
+  // ShipmentId shipmentId3 = new ShipmentId(i + 2, orderId);
+  // keyValues.put(orderId, new Order());
+  // keyValues.put(shipmentId1, new Shipment());
+  // keyValues.put(shipmentId2, new Shipment());
+  // keyValues.put(shipmentId3, new Shipment());
+  // }
+  //
+  // // 3 transactions of 4 events each are sent so that the batch would
+  // // initially contain the first 2 transactions complete and the first
+  // // 2 events of the last transaction (10 entries).
+  // // As --group-transaction-events is configured in the senders, the remaining
+  // // 2 events of the last transaction are added to the batch which makes
+  // // that only one batch of 12 events is sent.
+  // int eventsPerTransaction = 4;
+  // vm4.invoke(() -> WANTestBase.doOrderAndShipmentPutsInsideTransactions(keyValues,
+  // eventsPerTransaction));
+  //
+  // int entries = (transactions * eventsPerTransaction) + 1;
+  //
+  // vm4.invoke(() -> WANTestBase.validateRegionSize(customerRegionName, 1));
+  // vm4.invoke(() -> WANTestBase.validateRegionSize(orderRegionName, transactions));
+  // vm4.invoke(() -> WANTestBase.validateRegionSize(shipmentRegionName, transactions * 3));
+  //
+  // ArrayList<Integer> v4List =
+  // (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+  // ArrayList<Integer> v5List =
+  // (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+  // ArrayList<Integer> v6List =
+  // (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+  // ArrayList<Integer> v7List =
+  // (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+  //
+  // // queue size:
+  // assertEquals(0, v4List.get(0) + v5List.get(0) + v6List.get(0) + v7List.get(0));
+  // // eventsReceived:
+  // assertEquals(entries, v4List.get(1) + v5List.get(1) + v6List.get(1) + v7List.get(1));
+  // // events queued:
+  // assertEquals(entries, v4List.get(2) + v5List.get(2) + v6List.get(2) + v7List.get(2));
+  // // events distributed:
+  // assertEquals(entries, v4List.get(3) + v5List.get(3) + v6List.get(3) + v7List.get(3));
+  // // batches distributed:
+  // assertEquals(1, v4List.get(4) + v5List.get(4) + v6List.get(4) + v7List.get(4));
+  // // batches redistributed:
+  // assertEquals(0, v4List.get(5) + v5List.get(5) + v6List.get(5) + v7List.get(5));
+  // // events not queued conflated:
+  // assertEquals(0, v4List.get(7) + v5List.get(7) + v6List.get(7) + v7List.get(7));
+  // // batches with incomplete transactions
+  // assertEquals(0, (int) v4List.get(13));
+  //
+  // }
 
-    createCacheInVMs(nyPort, vm2);
-    createReceiverInVMs(vm2);
-
-    createSenders(lnPort, true);
-
-    createReceiverCustomerOrderShipmentPR(vm2);
-
-    createSenderCustomerOrderShipmentPRs(vm4);
-    createSenderCustomerOrderShipmentPRs(vm5);
-    createSenderCustomerOrderShipmentPRs(vm6);
-    createSenderCustomerOrderShipmentPRs(vm7);
-
-    startSenderInVMs("ln", vm4, vm5, vm6, vm7);
-
-    final Map<Object, Object> custKeyValue = new HashMap<>();
-    int intCustId = 1;
-    CustId custId = new CustId(intCustId);
-    custKeyValue.put(custId, new Customer());
-    vm4.invoke(() -> WANTestBase.putGivenKeyValue(customerRegionName, custKeyValue));
-
-    int transactions = 3;
-    final Map<Object, Object> keyValues = new HashMap<>();
-    for (int i = 0; i < transactions; i++) {
-      OrderId orderId = new OrderId(i, custId);
-      ShipmentId shipmentId1 = new ShipmentId(i, orderId);
-      ShipmentId shipmentId2 = new ShipmentId(i + 1, orderId);
-      ShipmentId shipmentId3 = new ShipmentId(i + 2, orderId);
-      keyValues.put(orderId, new Order());
-      keyValues.put(shipmentId1, new Shipment());
-      keyValues.put(shipmentId2, new Shipment());
-      keyValues.put(shipmentId3, new Shipment());
-    }
-
-    // 3 transactions of 4 events each are sent so that the batch would
-    // initially contain the first 2 transactions complete and the first
-    // 2 events of the last transaction (10 entries).
-    // As --group-transaction-events is configured in the senders, the remaining
-    // 2 events of the last transaction are added to the batch which makes
-    // that only one batch of 12 events is sent.
-    int eventsPerTransaction = 4;
-    vm4.invoke(() -> WANTestBase.doOrderAndShipmentPutsInsideTransactions(keyValues,
-        eventsPerTransaction));
-
-    int entries = (transactions * eventsPerTransaction) + 1;
-
-    vm4.invoke(() -> WANTestBase.validateRegionSize(customerRegionName, 1));
-    vm4.invoke(() -> WANTestBase.validateRegionSize(orderRegionName, transactions));
-    vm4.invoke(() -> WANTestBase.validateRegionSize(shipmentRegionName, transactions * 3));
-
-    ArrayList<Integer> v4List =
-        (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v5List =
-        (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v6List =
-        (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v7List =
-        (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-
-    // queue size:
-    assertEquals(0, v4List.get(0) + v5List.get(0) + v6List.get(0) + v7List.get(0));
-    // eventsReceived:
-    assertEquals(entries, v4List.get(1) + v5List.get(1) + v6List.get(1) + v7List.get(1));
-    // events queued:
-    assertEquals(entries, v4List.get(2) + v5List.get(2) + v6List.get(2) + v7List.get(2));
-    // events distributed:
-    assertEquals(entries, v4List.get(3) + v5List.get(3) + v6List.get(3) + v7List.get(3));
-    // batches distributed:
-    assertEquals(1, v4List.get(4) + v5List.get(4) + v6List.get(4) + v7List.get(4));
-    // batches redistributed:
-    assertEquals(0, v4List.get(5) + v5List.get(5) + v6List.get(5) + v7List.get(5));
-    // events not queued conflated:
-    assertEquals(0, v4List.get(7) + v5List.get(7) + v6List.get(7) + v7List.get(7));
-    // batches with incomplete transactions
-    assertEquals(0, (int) v4List.get(13));
-
-  }
-
-  @Test
-  public void testPRParallelPropagationWithGroupTransactionEventsWithIncompleteTransactions() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
-
-    createCacheInVMs(nyPort, vm2);
-    createReceiverInVMs(vm2);
-
-    int dispThreads = 2;
-    createSenderInVm(lnPort, vm4, dispThreads);
-
-    createReceiverPR(vm2, 0);
-
-    createSenderPRInVM(0, vm4);
-
-    startSenderInVMs("ln", vm4);
-
-    // Adding events in transactions
-    // Transactions will contain objects assigned to different buckets but given that there is only
-    // one server, there will be no TransactionDataNotCollocatedException.
-    // With this and by using more than one dispatcher thread, we will provoke that
-    // it will be impossible for the batches to have complete transactions as some
-    // events for a transaction will be handled by one dispatcher thread and some other events by
-    // another thread.
-    final Map<Object, Object> keyValue = new HashMap<>();
-    int entries = 30;
-    for (int i = 0; i < entries; i++) {
-      keyValue.put(i, i);
-    }
-
-    int entriesPerTransaction = 3;
-    vm4.invoke(
-        () -> WANTestBase.doPutsInsideTransactions(testName, keyValue, entriesPerTransaction));
-
-    vm4.invoke(() -> WANTestBase.validateRegionSize(testName, entries));
-
-    ArrayList<Integer> v4List =
-        (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-
-    // The number of batches will be 4 because each
-    // dispatcher thread (there are 2) will send half the number of entries,
-    // each on 2 batches.
-    int batches = 4;
-    // queue size:
-    assertEquals(0, (int) v4List.get(0));
-    // eventsReceived:
-    assertEquals(entries, (int) v4List.get(1));
-    // events queued:
-    assertEquals(entries, (int) v4List.get(2));
-    // events distributed:
-    assertEquals(entries, (int) v4List.get(3));
-    // batches distributed:
-    assertEquals(batches, (int) v4List.get(4));
-    // batches redistributed:
-    assertEquals(0, (int) v4List.get(5));
-    // events not queued conflated:
-    assertEquals(0, (int) v4List.get(7));
-    // batches with incomplete transactions
-    assertEquals(batches, (int) v4List.get(13));
-
-    vm2.invoke(() -> WANTestBase.checkGatewayReceiverStats(batches, entries, entries));
-  }
+  // @Test
+  // public void testPRParallelPropagationWithGroupTransactionEventsWithIncompleteTransactions() {
+  // Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+  // Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+  //
+  // createCacheInVMs(nyPort, vm2);
+  // createReceiverInVMs(vm2);
+  //
+  // int dispThreads = 2;
+  // createSenderInVm(lnPort, vm4, dispThreads);
+  //
+  // createReceiverPR(vm2, 0);
+  //
+  // createSenderPRInVM(0, vm4);
+  //
+  // startSenderInVMs("ln", vm4);
+  //
+  // // Adding events in transactions
+  // // Transactions will contain objects assigned to different buckets but given that there is only
+  // // one server, there will be no TransactionDataNotCollocatedException.
+  // // With this and by using more than one dispatcher thread, we will provoke that
+  // // it will be impossible for the batches to have complete transactions as some
+  // // events for a transaction will be handled by one dispatcher thread and some other events by
+  // // another thread.
+  // final Map<Object, Object> keyValue = new HashMap<>();
+  // int entries = 30;
+  // for (int i = 0; i < entries; i++) {
+  // keyValue.put(i, i);
+  // }
+  //
+  // int entriesPerTransaction = 3;
+  // vm4.invoke(
+  // () -> WANTestBase.doPutsInsideTransactions(testName, keyValue, entriesPerTransaction));
+  //
+  // vm4.invoke(() -> WANTestBase.validateRegionSize(testName, entries));
+  //
+  // ArrayList<Integer> v4List =
+  // (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+  //
+  // // The number of batches will be 4 because each
+  // // dispatcher thread (there are 2) will send half the number of entries,
+  // // each on 2 batches.
+  // int batches = 4;
+  // // queue size:
+  // assertEquals(0, (int) v4List.get(0));
+  // // eventsReceived:
+  // assertEquals(entries, (int) v4List.get(1));
+  // // events queued:
+  // assertEquals(entries, (int) v4List.get(2));
+  // // events distributed:
+  // assertEquals(entries, (int) v4List.get(3));
+  // // batches distributed:
+  // assertEquals(batches, (int) v4List.get(4));
+  // // batches redistributed:
+  // assertEquals(0, (int) v4List.get(5));
+  // // events not queued conflated:
+  // assertEquals(0, (int) v4List.get(7));
+  // // batches with incomplete transactions
+  // assertEquals(batches, (int) v4List.get(13));
+  //
+  // vm2.invoke(() -> WANTestBase.checkGatewayReceiverStats(batches, entries, entries));
+  // }
 
 
   @Test
@@ -543,7 +545,7 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     createCacheInVMs(nyPort, vm2);
 
-    createSenders(lnPort, false);
+    createSenders(lnPort);
 
     createSenderCustomerOrderShipmentPRs(vm4);
 
@@ -602,82 +604,84 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     assertTrue("Batch was not redistributed", (v4List.get(5)) > 0);
   }
 
-  @Test
-  public void testPRParallelPropagationWithBatchRedistWithGroupTransactionEventsSendsBatchesWithCompleteTransactions() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
-
-    createCacheInVMs(nyPort, vm2);
-
-    createSenders(lnPort, true);
-
-    createReceiverCustomerOrderShipmentPR(vm2);
-
-    createSenderCustomerOrderShipmentPRs(vm4);
-
-    startSenderInVMs("ln", vm4);
-
-
-    final Map<Object, Object> custKeyValue = new HashMap<>();
-    int intCustId = 1;
-    CustId custId = new CustId(intCustId);
-    custKeyValue.put(custId, new Customer());
-    vm4.invoke(() -> WANTestBase.putGivenKeyValue(customerRegionName, custKeyValue));
-
-    int transactions = 6;
-    final Map<Object, Object> keyValues = new HashMap<>();
-    for (int i = 0; i < transactions; i++) {
-      OrderId orderId = new OrderId(i, custId);
-      ShipmentId shipmentId1 = new ShipmentId(i, orderId);
-      ShipmentId shipmentId2 = new ShipmentId(i + 1, orderId);
-      ShipmentId shipmentId3 = new ShipmentId(i + 2, orderId);
-      keyValues.put(orderId, new Order());
-      keyValues.put(shipmentId1, new Shipment());
-      keyValues.put(shipmentId2, new Shipment());
-      keyValues.put(shipmentId3, new Shipment());
-    }
-
-    // 6 transactions of 4 events each are sent so that the first batch
-    // would initially contain the first 2 transactions complete and the first
-    // 2 events of the next transaction (10 entries).
-    // As --group-transaction-events is configured in the senders, the remaining
-    // 2 events of the second transaction are added to the batch which makes
-    // that the first batch is sent with 12 events. The same happens with the
-    // second batch which will contain 12 events too.
-    int eventsPerTransaction = 4;
-    vm4.invoke(() -> WANTestBase.doOrderAndShipmentPutsInsideTransactions(keyValues,
-        eventsPerTransaction));
-
-    int entries = (transactions * eventsPerTransaction) + 1;
-
-    vm4.invoke(() -> WANTestBase.validateRegionSize(customerRegionName, 1));
-    vm4.invoke(() -> WANTestBase.validateRegionSize(orderRegionName, transactions));
-    vm4.invoke(() -> WANTestBase.validateRegionSize(shipmentRegionName, transactions * 3));
-
-    // wait for batches to be redistributed and then start the receiver
-    vm4.invoke(() -> await()
-        .until(() -> WANTestBase.getSenderStats("ln", -1).get(5) > 0));
-
-    createReceiverInVMs(vm2);
-
-    ArrayList<Integer> v4List =
-        (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-
-    // queue size:
-    assertEquals(0, (int) v4List.get(0));
-    // events received:
-    assertEquals(entries, (int) v4List.get(1));
-    // events queued:
-    assertEquals(entries, (int) v4List.get(2));
-    // events distributed:
-    assertEquals(entries, (int) v4List.get(3));
-    // batches distributed:
-    assertEquals(2, (int) v4List.get(4));
-    // batches redistributed:
-    assertTrue("Batch was not redistributed", (v4List.get(5)) > 0);
-    // events not queued conflated:
-    assertEquals(0, (int) v4List.get(7));
-  }
+  // @Test
+  // public void
+  // testPRParallelPropagationWithBatchRedistWithGroupTransactionEventsSendsBatchesWithCompleteTransactions()
+  // {
+  // Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+  // Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+  //
+  // createCacheInVMs(nyPort, vm2);
+  //
+  // createSenders(lnPort, true);
+  //
+  // createReceiverCustomerOrderShipmentPR(vm2);
+  //
+  // createSenderCustomerOrderShipmentPRs(vm4);
+  //
+  // startSenderInVMs("ln", vm4);
+  //
+  //
+  // final Map<Object, Object> custKeyValue = new HashMap<>();
+  // int intCustId = 1;
+  // CustId custId = new CustId(intCustId);
+  // custKeyValue.put(custId, new Customer());
+  // vm4.invoke(() -> WANTestBase.putGivenKeyValue(customerRegionName, custKeyValue));
+  //
+  // int transactions = 6;
+  // final Map<Object, Object> keyValues = new HashMap<>();
+  // for (int i = 0; i < transactions; i++) {
+  // OrderId orderId = new OrderId(i, custId);
+  // ShipmentId shipmentId1 = new ShipmentId(i, orderId);
+  // ShipmentId shipmentId2 = new ShipmentId(i + 1, orderId);
+  // ShipmentId shipmentId3 = new ShipmentId(i + 2, orderId);
+  // keyValues.put(orderId, new Order());
+  // keyValues.put(shipmentId1, new Shipment());
+  // keyValues.put(shipmentId2, new Shipment());
+  // keyValues.put(shipmentId3, new Shipment());
+  // }
+  //
+  // // 6 transactions of 4 events each are sent so that the first batch
+  // // would initially contain the first 2 transactions complete and the first
+  // // 2 events of the next transaction (10 entries).
+  // // As --group-transaction-events is configured in the senders, the remaining
+  // // 2 events of the second transaction are added to the batch which makes
+  // // that the first batch is sent with 12 events. The same happens with the
+  // // second batch which will contain 12 events too.
+  // int eventsPerTransaction = 4;
+  // vm4.invoke(() -> WANTestBase.doOrderAndShipmentPutsInsideTransactions(keyValues,
+  // eventsPerTransaction));
+  //
+  // int entries = (transactions * eventsPerTransaction) + 1;
+  //
+  // vm4.invoke(() -> WANTestBase.validateRegionSize(customerRegionName, 1));
+  // vm4.invoke(() -> WANTestBase.validateRegionSize(orderRegionName, transactions));
+  // vm4.invoke(() -> WANTestBase.validateRegionSize(shipmentRegionName, transactions * 3));
+  //
+  // // wait for batches to be redistributed and then start the receiver
+  // vm4.invoke(() -> await()
+  // .until(() -> WANTestBase.getSenderStats("ln", -1).get(5) > 0));
+  //
+  // createReceiverInVMs(vm2);
+  //
+  // ArrayList<Integer> v4List =
+  // (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+  //
+  // // queue size:
+  // assertEquals(0, (int) v4List.get(0));
+  // // events received:
+  // assertEquals(entries, (int) v4List.get(1));
+  // // events queued:
+  // assertEquals(entries, (int) v4List.get(2));
+  // // events distributed:
+  // assertEquals(entries, (int) v4List.get(3));
+  // // batches distributed:
+  // assertEquals(2, (int) v4List.get(4));
+  // // batches redistributed:
+  // assertTrue("Batch was not redistributed", (v4List.get(5)) > 0);
+  // // events not queued conflated:
+  // assertEquals(0, (int) v4List.get(7));
+  // }
 
   @Test
   public void testPartitionedRegionParallelPropagation_AfterDispatch_Redundancy_3() {
@@ -835,75 +839,77 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     vm2.invoke(() -> WANTestBase.checkGatewayReceiverStatsHA(NUM_PUTS, 1000, 1000));
   }
 
-  @Category({WanTest.class})
-  @Test
-  public void testParallelPropagationHAWithGroupTransactionEvents() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
-
-    createCacheInVMs(nyPort, vm2);
-
-    createReceiverPR(vm2, 0);
-
-    createReceiverInVMs(vm2);
-
-    createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
-
-    createSenderPRs(3);
-
-    int batchSize = 9;
-    boolean groupTransactionEvents = true;
-    vm4.invoke(
-        () -> WANTestBase.createSender("ln", 2, true, 100, batchSize, false, false, null, true,
-            groupTransactionEvents));
-    vm5.invoke(
-        () -> WANTestBase.createSender("ln", 2, true, 100, batchSize, false, false, null, true,
-            groupTransactionEvents));
-    vm6.invoke(
-        () -> WANTestBase.createSender("ln", 2, true, 100, batchSize, false, false, null, true,
-            groupTransactionEvents));
-    vm7.invoke(
-        () -> WANTestBase.createSender("ln", 2, true, 100, batchSize, false, false, null, true,
-            groupTransactionEvents));
-
-    startSenderInVMs("ln", vm4, vm5, vm6, vm7);
-
-    AsyncInvocation<Void> inv1 =
-        vm5.invokeAsync(() -> WANTestBase.doTxPutsWithRetryIfError(testName, 2, 1000, 0));
-
-    vm2.invoke(() -> await()
-        .untilAsserted(() -> assertTrue("Waiting for some batches to be received",
-            getRegionSize(testName) > 40)));
-    AsyncInvocation<Void> inv3 = vm4.invokeAsync(() -> WANTestBase.killSender());
-    inv1.await();
-    inv3.await();
-
-    vm2.invoke(() -> WANTestBase.validateRegionSize(testName, 2000));
-
-    ArrayList<Integer> v5List =
-        (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v6List =
-        (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v7List =
-        (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-
-    assertEquals(0, v5List.get(0) + v6List.get(0) + v7List.get(0)); // queue size
-    int receivedEvents = v5List.get(1) + v6List.get(1) + v7List.get(1);
-    // We may see two retried events (as transactions are made of 2 events) on all members due to
-    // the kill
-    assertTrue("Received " + receivedEvents,
-        6000 <= receivedEvents && 6006 >= receivedEvents); // eventsReceived
-    int queuedEvents = v5List.get(2) + v6List.get(2) + v7List.get(2);
-    assertTrue("Queued " + queuedEvents,
-        6000 <= queuedEvents && 6006 >= queuedEvents); // eventsQueued
-    assertEquals(0, v5List.get(5) + v6List.get(5) + v7List.get(5)); // batches redistributed
-
-    // batchesReceived is equal to numberOfEntries/(batchSize+1)
-    // As transactions are 2 events long, for each batch it will always be necessary to
-    // add one more entry to the 9 events batch in order to have complete transactions in the batch.
-    int batchesReceived = (1000 + 1000) / (batchSize + 1);
-    vm2.invoke(() -> WANTestBase.checkGatewayReceiverStatsHA(batchesReceived, 2000, 2000));
-  }
+  // TODO jbarrett migrate test
+  // @Category({WanTest.class})
+  // @Test
+  // public void testParallelPropagationHAWithGroupTransactionEvents() throws Exception {
+  // Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+  // Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+  //
+  // createCacheInVMs(nyPort, vm2);
+  //
+  // createReceiverPR(vm2, 0);
+  //
+  // createReceiverInVMs(vm2);
+  //
+  // createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
+  //
+  // createSenderPRs(3);
+  //
+  // int batchSize = 9;
+  // boolean groupTransactionEvents = true;
+  // vm4.invoke(
+  // () -> WANTestBase.createSender("ln", 2, true, 100, batchSize, false, false, null, true,
+  // groupTransactionEvents));
+  // vm5.invoke(
+  // () -> WANTestBase.createSender("ln", 2, true, 100, batchSize, false, false, null, true,
+  // groupTransactionEvents));
+  // vm6.invoke(
+  // () -> WANTestBase.createSender("ln", 2, true, 100, batchSize, false, false, null, true,
+  // groupTransactionEvents));
+  // vm7.invoke(
+  // () -> WANTestBase.createSender("ln", 2, true, 100, batchSize, false, false, null, true,
+  // groupTransactionEvents));
+  //
+  // startSenderInVMs("ln", vm4, vm5, vm6, vm7);
+  //
+  // AsyncInvocation<Void> inv1 =
+  // vm5.invokeAsync(() -> WANTestBase.doTxPutsWithRetryIfError(testName, 2, 1000, 0));
+  //
+  // vm2.invoke(() -> await()
+  // .untilAsserted(() -> assertTrue("Waiting for some batches to be received",
+  // getRegionSize(testName) > 40)));
+  // AsyncInvocation<Void> inv3 = vm4.invokeAsync(() -> WANTestBase.killSender());
+  // inv1.await();
+  // inv3.await();
+  //
+  // vm2.invoke(() -> WANTestBase.validateRegionSize(testName, 2000));
+  //
+  // ArrayList<Integer> v5List =
+  // (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+  // ArrayList<Integer> v6List =
+  // (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+  // ArrayList<Integer> v7List =
+  // (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+  //
+  // assertEquals(0, v5List.get(0) + v6List.get(0) + v7List.get(0)); // queue size
+  // int receivedEvents = v5List.get(1) + v6List.get(1) + v7List.get(1);
+  // // We may see two retried events (as transactions are made of 2 events) on all members due to
+  // // the kill
+  // assertTrue("Received " + receivedEvents,
+  // 6000 <= receivedEvents && 6006 >= receivedEvents); // eventsReceived
+  // int queuedEvents = v5List.get(2) + v6List.get(2) + v7List.get(2);
+  // assertTrue("Queued " + queuedEvents,
+  // 6000 <= queuedEvents && 6006 >= queuedEvents); // eventsQueued
+  // assertEquals(0, v5List.get(5) + v6List.get(5) + v7List.get(5)); // batches redistributed
+  //
+  // // batchesReceived is equal to numberOfEntries/(batchSize+1)
+  // // As transactions are 2 events long, for each batch it will always be necessary to
+  // // add one more entry to the 9 events batch in order to have complete transactions in the
+  // batch.
+  // int batchesReceived = (1000 + 1000) / (batchSize + 1);
+  // vm2.invoke(() -> WANTestBase.checkGatewayReceiverStatsHA(batchesReceived, 2000, 2000));
+  // }
 
 
   /**
@@ -1280,34 +1286,26 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     vm7.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, true, false, null, true));
   }
 
-  protected void createSenderInVm(Integer lnPort, VM vm,
-      int dispatcherThreads) {
-    createCacheInVMs(lnPort, vm);
-    vm.invoke(() -> WANTestBase.setNumDispatcherThreadsForTheRun(dispatcherThreads));
-    vm.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true,
-        true));
-  }
+  // protected void createSenderInVm(Integer lnPort, VM vm,
+  // int dispatcherThreads) {
+  // createCacheInVMs(lnPort, vm);
+  // vm.invoke(() -> WANTestBase.setNumDispatcherThreadsForTheRun(dispatcherThreads));
+  // vm.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true,
+  // true));
+  // }
 
   protected void createSenderInVm(Integer lnPort, VM vm) {
     createCacheInVMs(lnPort, vm);
     vm.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
   }
 
-  protected void createSenders(Integer lnPort, boolean groupTransactionEvents) {
+  protected void createSenders(Integer lnPort) {
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
 
-    vm4.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true,
-        groupTransactionEvents));
-    vm5.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true,
-        groupTransactionEvents));
-    vm6.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true,
-        groupTransactionEvents));
-    vm7.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true,
-        groupTransactionEvents));
-  }
-
-  protected void createSenders(Integer lnPort) {
-    createSenders(lnPort, false);
+    vm4.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
+    vm5.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
+    vm6.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
+    vm7.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
   }
 
   private void verifyConflationIndexesSize(String senderId, int expectedSize, VM... vms) {
