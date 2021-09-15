@@ -37,7 +37,6 @@ import org.apache.geode.CancelCriterion;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.TransactionId;
 import org.apache.geode.cache.wan.internal.txbatch.TxBatchMetadata;
 import org.apache.geode.internal.cache.BucketRegionQueue;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -150,7 +149,7 @@ public class TxBatchingParallelGatewaySenderQueueTest {
     queue.setMockedAbstractBucketRegionQueue(bucketRegionQueue);
 
     List<GatewaySenderEventImpl> batch = new ArrayList<>(Arrays.asList(event1, event2));
-    PartitionedRegion mockBucketRegion = mockPR("bucketRegion");
+    PartitionedRegion mockBucketRegion = mockPR();
     queue.postProcessBatch(batch, mockBucketRegion);
   }
 
@@ -163,19 +162,9 @@ public class TxBatchingParallelGatewaySenderQueueTest {
     return event;
   }
 
-  private GatewaySenderEventImpl createMockGatewaySenderEvent(Object key, TransactionId tId,
-      boolean isLastEventInTx) {
-    GatewaySenderEventImpl event = mock(GatewaySenderEventImpl.class);
-    when(event.getMetadata())
-        .thenReturn(tId == null ? null : new TxBatchMetadata(tId, isLastEventInTx));
-    when(event.getKey()).thenReturn(key);
-    return event;
-  }
-
-
-  private PartitionedRegion mockPR(String name) {
+  private PartitionedRegion mockPR() {
     PartitionedRegion region = mock(PartitionedRegion.class);
-    when(region.getFullPath()).thenReturn(name);
+    when(region.getFullPath()).thenReturn("bucketRegion");
     when(region.getPartitionAttributes()).thenReturn(new PartitionAttributesFactory<>().create());
     when(region.getTotalNumberOfBuckets()).thenReturn(113);
     when(region.getDataPolicy()).thenReturn(DataPolicy.PARTITION);
@@ -188,7 +177,7 @@ public class TxBatchingParallelGatewaySenderQueueTest {
   }
 
   private BucketRegionQueue mockBucketRegionQueue(final Queue<GatewaySenderEventImpl> backingList) {
-    PartitionedRegion mockBucketRegion = mockPR("bucketRegion");
+    PartitionedRegion mockBucketRegion = mockPR();
     // These next mocked return calls are for when peek is called. It ends up checking these on the
     // mocked pr region
     when(mockBucketRegion.getLocalMaxMemory()).thenReturn(100);
