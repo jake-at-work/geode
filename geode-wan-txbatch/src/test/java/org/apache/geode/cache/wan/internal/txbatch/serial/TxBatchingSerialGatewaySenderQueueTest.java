@@ -12,9 +12,8 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
+
 package org.apache.geode.cache.wan.internal.txbatch.serial;
-
-
 
 import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
 import static org.junit.Assert.assertEquals;

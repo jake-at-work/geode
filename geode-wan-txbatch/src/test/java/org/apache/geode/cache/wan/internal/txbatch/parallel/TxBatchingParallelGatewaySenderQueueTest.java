@@ -49,6 +49,8 @@ import org.apache.geode.internal.cache.wan.parallel.ParallelGatewaySenderQueue.M
 
 public class TxBatchingParallelGatewaySenderQueueTest {
 
+  public static final String BUCKET_REGION = "bucketRegion";
+
   private MetaRegionFactory metaRegionFactory;
   private AbstractGatewaySender sender;
 
@@ -164,7 +166,7 @@ public class TxBatchingParallelGatewaySenderQueueTest {
 
   private PartitionedRegion mockPR() {
     PartitionedRegion region = mock(PartitionedRegion.class);
-    when(region.getFullPath()).thenReturn("bucketRegion");
+    when(region.getFullPath()).thenReturn(BUCKET_REGION);
     when(region.getPartitionAttributes()).thenReturn(new PartitionAttributesFactory<>().create());
     when(region.getTotalNumberOfBuckets()).thenReturn(113);
     when(region.getDataPolicy()).thenReturn(DataPolicy.PARTITION);
