@@ -49,6 +49,7 @@ dependencies {
   distributedTestImplementation(project(':geode-gfsh'))
   distributedTestImplementation(project(':geode-dunit'))
   distributedTestImplementation(project(':geode-junit'))
+  // TODO jbarrett remove this dependency
   distributedTestImplementation(project(':geode-wan-default'))
 
   distributedTestImplementation('mx4j:mx4j')

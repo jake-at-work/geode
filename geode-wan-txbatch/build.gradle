@@ -28,7 +28,7 @@ dependencies {
   compileOnly(project(':geode-serialization'))
   compileOnly('org.jetbrains:annotations')
 
-  // TODO remove this, move all deps into SPI?
+  // TODO jbarrett remove this, move all deps into SPI?
   compileOnly(project(':geode-wan'))
 
   implementation(project(':geode-wan-default'))
@@ -46,7 +46,6 @@ dependencies {
   distributedTestImplementation(project(':geode-gfsh'))
   distributedTestImplementation(project(':geode-dunit'))
   distributedTestImplementation(project(':geode-junit'))
-  distributedTestImplementation(project(':geode-wan-default'))
   distributedTestImplementation(project(':geode-wan').sourceSets.distributedTest.output)
   distributedTestImplementation('mx4j:mx4j')
   distributedTestImplementation('org.awaitility:awaitility')

@@ -25,6 +25,11 @@ public interface GatewaySenderTypeFactory {
   @NotNull
   String getName();
 
+  /**
+   * Performs checks on proposed configuration.
+   *
+   * TODO jbarrett throws exceptions on failure
+   */
   void check();
 
   @NotNull
