@@ -14,6 +14,8 @@
  */
 package org.apache.geode.internal.cache.xmlcache;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +41,8 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -579,12 +583,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   private void startGatewaySender(Attributes atts) {
     GatewaySenderFactory gatewaySenderFactory = this.cache.createGatewaySenderFactory();
 
-    String parallel = atts.getValue(PARALLEL);
-    if (parallel == null) {
-      gatewaySenderFactory.setParallel(GatewaySender.DEFAULT_IS_PARALLEL);
-    } else {
-      gatewaySenderFactory.setParallel(Boolean.parseBoolean(parallel));
-    }
+    doGatewaySenderParallelOrType(gatewaySenderFactory, atts);
 
     // manual-start
     String manualStart = atts.getValue(MANUAL_START);
@@ -696,18 +695,6 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     stack.push(id);
     stack.push(remoteDS);
     stack.push(gatewaySenderFactory);
-    // GatewaySender sender = gatewaySenderFactory.create(id, Integer.parseInt(remoteDS));
-    // stack.push(sender);
-
-    // TODO jbarrett add class/id support
-    // String groupTransactionEvents = atts.getValue(GROUP_TRANSACTION_EVENTS);
-    // if (groupTransactionEvents == null) {
-    // gatewaySenderFactory
-    // .setGroupTransactionEvents(GatewaySender.DEFAULT_MUST_GROUP_TRANSACTION_EVENTS);
-    // } else {
-    // gatewaySenderFactory
-    // .setGroupTransactionEvents(Boolean.parseBoolean(groupTransactionEvents));
-    // }
 
     String enforceThreadsConnectSameReceiver = atts.getValue(ENFORCE_THREADS_CONNECT_SAME_RECEIVER);
     if (enforceThreadsConnectSameReceiver == null) {
@@ -719,6 +706,37 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
           .setEnforceThreadsConnectSameReceiver(
               Boolean.parseBoolean(enforceThreadsConnectSameReceiver));
     }
+  }
+
+  private void doGatewaySenderParallelOrType(
+      final @NotNull GatewaySenderFactory gatewaySenderFactory,
+      final @NotNull Attributes attributes) {
+    final String parallel = attributes.getValue(PARALLEL);
+    final String type = attributes.getValue(TYPE);
+    if (isNotBlank(parallel) && isNotBlank(type)) {
+      throw new IllegalArgumentException(
+          "In GatewaySender element either parallel or type should attribute but not both.");
+    }
+    doGatewaySenderParallel(gatewaySenderFactory, parallel);
+    doGatewaySenderType(gatewaySenderFactory, type);
+  }
+
+  private void doGatewaySenderParallel(final @NotNull GatewaySenderFactory gatewaySenderFactory,
+      final @Nullable String parallel) {
+    if (parallel == null) {
+      return;
+    }
+
+    gatewaySenderFactory.setParallel(Boolean.parseBoolean(parallel));
+  }
+
+  private void doGatewaySenderType(final @NotNull GatewaySenderFactory gatewaySenderFactory,
+      final @Nullable String type) {
+    if (null == type) {
+      return;
+    }
+
+    gatewaySenderFactory.setType(type);
   }
 
   private void startGatewayReceiver(Attributes atts) {

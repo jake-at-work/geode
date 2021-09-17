@@ -141,9 +141,13 @@ public interface GatewaySender {
   boolean EARLY_ACK =
       Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "GatewaySender.EARLY_ACK");
 
+  /**
+   * @deprecated use #DEFAULT_TYPE.
+   */
+  @Deprecated
   boolean DEFAULT_IS_PARALLEL = false;
 
-  boolean DEFAULT_MUST_GROUP_TRANSACTION_EVENTS = false;
+  String DEFAULT_TYPE = "SerialGatewaySender";
 
   boolean DEFAULT_IS_FOR_INTERNAL_USE = false;
 

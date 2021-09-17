@@ -427,14 +427,14 @@ public abstract class CacheXml implements EntityResolver2, ErrorHandler {
   protected static final String STARTUP_POLICY = "startup-policy";
   /** The name of the <code>parallel</code> attribute */
   protected static final String PARALLEL = "parallel";
+  /** The name of the <code>type</code> attribute */
+  protected static final String TYPE = "type";
   /** The name of the <code>manual-start</code> attribute */
   protected static final String MANUAL_START = "manual-start";
   /** The name of the <code>order-policy</code> attribute */
   protected static final String ORDER_POLICY = "order-policy";
   /** The name of the <code>remote-distributed-system</code> attribute */
   protected static final String REMOTE_DISTRIBUTED_SYSTEM_ID = "remote-distributed-system-id";
-  /** The name of the <code>group-transaction-events</code> attribute */
-  protected static final String GROUP_TRANSACTION_EVENTS = "group-transaction-events";
   /** The name of the <code>enforce-threads-connect-same-receiver</code> attribute */
   protected static final String ENFORCE_THREADS_CONNECT_SAME_RECEIVER =
       "enforce-threads-connect-same-receiver";

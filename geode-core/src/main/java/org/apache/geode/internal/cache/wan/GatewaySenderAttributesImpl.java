@@ -17,6 +17,8 @@ package org.apache.geode.internal.cache.wan;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
+
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.client.internal.LocatorDiscoveryCallback;
 import org.apache.geode.cache.wan.GatewayEventFilter;
@@ -73,9 +75,14 @@ public class GatewaySenderAttributesImpl implements GatewaySenderAttributes {
 
   private int parallelism = GatewaySender.DEFAULT_PARALLELISM_REPLICATED_REGION;
 
-  private boolean isParallel = GatewaySender.DEFAULT_IS_PARALLEL;
+  private String type = getTypeFromParallelProperty(GatewaySender.DEFAULT_IS_PARALLEL);
 
-  private boolean groupTransactionEvents = GatewaySender.DEFAULT_MUST_GROUP_TRANSACTION_EVENTS;
+  private String getTypeFromParallelProperty(boolean parallel) {
+    return parallel ? "ParallelGatewaySender" : "SerialGatewaySender";
+  }
+
+  @Deprecated
+  private boolean isParallel = GatewaySender.DEFAULT_IS_PARALLEL;
 
   private boolean isForInternalUse = GatewaySender.DEFAULT_IS_FOR_INTERNAL_USE;
 
@@ -160,14 +167,18 @@ public class GatewaySenderAttributesImpl implements GatewaySenderAttributes {
     parallelism = tempParallelism;
   }
 
+  /**
+   * @deprecated use {@link #setType(String)}.
+   */
+  @Deprecated
   public void setParallel(boolean parallel) {
     isParallel = parallel;
+    setType(getTypeFromParallelProperty(parallel));
   }
 
-  // TODO ja
-  // public void setGroupTransactionEvents(boolean groupTransEvents) {
-  // groupTransactionEvents = groupTransEvents;
-  // }
+  public void setType(@NotNull String type) {
+    this.type = type;
+  }
 
   public void setForInternalUse(boolean forInternalUse) {
     isForInternalUse = forInternalUse;
@@ -265,16 +276,15 @@ public class GatewaySenderAttributesImpl implements GatewaySenderAttributes {
   }
 
   @Override
+  public @NotNull String getType() {
+    return type;
+  }
+
+  @Override
   @Deprecated
   public boolean isParallel() {
     return isParallel;
   }
-
-  // @Override
-  // @Deprecated
-  // public boolean mustGroupTransactionEvents() {
-  // return groupTransactionEvents;
-  // }
 
   @Override
   public boolean isForInternalUse() {

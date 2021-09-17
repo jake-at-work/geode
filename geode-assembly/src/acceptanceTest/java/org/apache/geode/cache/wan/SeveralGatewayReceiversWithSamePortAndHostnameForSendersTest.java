@@ -271,6 +271,7 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
         true);
   }
 
+  @SuppressWarnings("deprecation")
   public static void createGatewaySender(VM vm, String dsName, int remoteDsId,
       boolean isParallel, Integer batchSize,
       int numDispatchers,

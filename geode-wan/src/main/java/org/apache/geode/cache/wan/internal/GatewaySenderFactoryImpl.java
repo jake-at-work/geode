@@ -67,11 +67,24 @@ public class GatewaySenderFactoryImpl implements InternalGatewaySenderFactory {
   }
 
   @Override
+  public GatewaySenderFactory setType(final String type) {
+    this.attrs.setType(type);
+    return this;
+  }
+
+  @Override
+  @Deprecated
   public GatewaySenderFactory setParallel(boolean isParallel) {
     this.attrs.setParallel(isParallel);
     return this;
   }
 
+  @Override
+  @Deprecated
+  public GatewaySenderFactory setGroupTransactionEvents(final boolean groupTransactionEvents) {
+    logger.error("GatewaySenderFactory.setGroupTransactionEvents not implemented.");
+    return this;
+  }
 
   @Override
   public GatewaySenderFactory setForInternalUse(boolean isForInternalUse) {

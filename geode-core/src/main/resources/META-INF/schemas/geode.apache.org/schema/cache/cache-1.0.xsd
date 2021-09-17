@@ -183,7 +183,13 @@ declarative caching XML file elements unless indicated otherwise.
             </xsd:sequence>
             <xsd:attribute name="id" type="xsd:string" use="required" />
             <xsd:attribute name="remote-distributed-system-id" type="xsd:string" use="required" />
-            <xsd:attribute name="parallel" type="xsd:boolean" use="optional" />
+            <xsd:attribute name="type" type="xsd:string" use="optional" />
+            <xsd:attribute name="parallel" type="xsd:boolean" use="optional">
+              <xsd:annotation>
+                <xsd:appinfo>deprecated</xsd:appinfo>
+                <xsd:documentation>Use type attribute.</xsd:documentation>
+              </xsd:annotation>
+            </xsd:attribute>
             <xsd:attribute name="manual-start" type="xsd:boolean" use="optional" >
               <xsd:annotation>
                 <xsd:appinfo>deprecated</xsd:appinfo>
@@ -203,7 +209,12 @@ declarative caching XML file elements unless indicated otherwise.
             <xsd:attribute name="dispatcher-threads" type="xsd:string" use="optional" />
             <xsd:attribute name="order-policy" type="xsd:string" use="optional" />
             <xsd:attribute name="group-transaction-events" type="xsd:boolean" use="optional" />
-            <xsd:attribute name="enforce-threads-connect-same-receiver" type="xsd:boolean" use="optional" />
+            <xsd:attribute name="enforce-threads-connect-same-receiver" type="xsd:boolean" use="optional">
+              <xsd:annotation>
+                <xsd:appinfo>deprecated</xsd:appinfo>
+                <xsd:documentation>Use attribute type with value TxBatchingParallelGatewaySender or TxBatchingSerialGatewaySender</xsd:documentation>
+              </xsd:annotation>
+            </xsd:attribute>
           </xsd:complexType>
         </xsd:element>
 

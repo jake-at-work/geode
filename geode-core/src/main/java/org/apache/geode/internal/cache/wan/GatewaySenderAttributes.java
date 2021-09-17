@@ -17,6 +17,8 @@ package org.apache.geode.internal.cache.wan;
 
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
+
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.client.internal.LocatorDiscoveryCallback;
 import org.apache.geode.cache.wan.GatewayEventFilter;
@@ -78,11 +80,13 @@ public interface GatewaySenderAttributes {
 
   boolean getEnforceThreadsConnectSameReceiver();
 
-  // TODO refactor out
-  // @Deprecated
-  // boolean mustGroupTransactionEvents();
-
-  // TODO refactor out
+  // TODO jbarrett refactor out
+  /**
+   * @deprecated use {@link #getType()}.
+   */
   @Deprecated
   boolean isParallel();
+
+  @NotNull
+  String getType();
 }

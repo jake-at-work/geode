@@ -18,22 +18,47 @@ package org.apache.geode.cache.wan;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
 
 /**
- * Factory to create SerialGatewaySender
- *
+ * Factory to create GatewaySender
  *
  * @since GemFire 7.0
  * @see GatewaySender
- *
  */
 public interface GatewaySenderFactory {
+
+  /**
+   * Sets the type of GatewaySender.
+   *
+   * @param type is either the well known name or fully qualified class name of
+   *        {@link GatewaySender} implementation.
+   * @throws IllegalArgumentException if type is null.
+   */
+  GatewaySenderFactory setType(String type);
 
   /**
    * Indicates whether all VMs need to distribute events to remote site. In this case only the
    * events originating in a particular VM will be dispatched in order.
    *
    * @param isParallel boolean to indicate whether distribution policy is parallel
+   * @deprecated Use {@link #setType(String)}.
    */
+  @Deprecated
   GatewaySenderFactory setParallel(boolean isParallel);
+
+  /**
+   * Indicates whether events belonging to the same transaction must be
+   * delivered inside the same batch, i.e. they cannot be spread across different
+   * batches.
+   * <code>groupTransactionEvents</code> can be enabled only on parallel gateway senders
+   * or on serial gateway senders with just one dispatcher thread.
+   * It cannot be enabled if batch conflation is enabled.
+   *
+   * @param groupTransactionEvents boolean to indicate whether events from
+   *        the same transaction must be delivered inside
+   *        the same batch.
+   * @deprecated Use {@link #setType(String)}
+   */
+  @Deprecated
+  GatewaySenderFactory setGroupTransactionEvents(boolean groupTransactionEvents);
 
   /**
    * Adds a <code>GatewayEventFilter</code>

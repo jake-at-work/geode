@@ -47,6 +47,7 @@ public class ParallelGatewaySenderImplTest {
   private GatewaySenderAttributesImpl attrs;
   private ParallelGatewaySenderImpl gatewaysender;
 
+  @SuppressWarnings("deprecation")
   @Before
   public void setUp() {
     cache = mock(InternalCache.class, RETURNS_DEEP_STUBS);
