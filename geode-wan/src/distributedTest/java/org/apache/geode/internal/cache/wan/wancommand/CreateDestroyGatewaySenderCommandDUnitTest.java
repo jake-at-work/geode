@@ -191,8 +191,7 @@ public class CreateDestroyGatewaySenderCommandDUnitTest implements Serializable 
         + "=ln" + " --" + CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID + "=2" + " --"
         + CliStrings.CREATE_GATEWAYSENDER__MANUALSTART + "=true" + " --"
         + CliStrings.CREATE_GATEWAYSENDER__SOCKETBUFFERSIZE + "=1000" + " --"
-        + CliStrings.CREATE_GATEWAYSENDER__DISPATCHERTHREADS + "=1" + " --"
-        + CliStrings.CREATE_GATEWAYSENDER__GROUPTRANSACTIONEVENTS + "=true";
+        + CliStrings.CREATE_GATEWAYSENDER__DISPATCHERTHREADS + "=1";
 
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .doesNotContainOutput("Did not complete waiting")

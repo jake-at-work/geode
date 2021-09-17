@@ -87,7 +87,6 @@ public class AlterGatewaySenderFunctionTest {
     when(args.getBatchSize()).thenReturn(null);
     when(args.getBatchTimeInterval()).thenReturn(null);
     when(args.getGatewayEventFilter()).thenReturn(null);
-    when(args.mustGroupTransactionEvents()).thenReturn(null);
 
     function.execute(context);
 
@@ -106,7 +105,6 @@ public class AlterGatewaySenderFunctionTest {
     when(args.getBatchSize()).thenReturn(50);
     when(args.getBatchTimeInterval()).thenReturn(150);
     when(args.getGatewayEventFilter()).thenReturn(null);
-    when(args.mustGroupTransactionEvents()).thenReturn(null);
 
     function.execute(context);
     verify(sender).setAlertThreshold(200);

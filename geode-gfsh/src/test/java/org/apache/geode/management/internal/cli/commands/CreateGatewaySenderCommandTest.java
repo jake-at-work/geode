@@ -54,7 +54,7 @@ public class CreateGatewaySenderCommandTest {
   private CreateGatewaySenderCommand command;
   private List<CliFunctionResult> functionResults;
   private CliFunctionResult cliFunctionResult;
-  private ArgumentCaptor<GatewaySenderFunctionArgs> argsArgumentCaptor =
+  private final ArgumentCaptor<GatewaySenderFunctionArgs> argsArgumentCaptor =
       ArgumentCaptor.forClass(GatewaySenderFunctionArgs.class);
 
   @Before
@@ -243,6 +243,7 @@ public class CreateGatewaySenderCommandTest {
         .containsOutput(CliStrings.CREATE_GATEWAYSENDER__MSG__CAN_NOT_CREATE_DIFFERENT_VERSIONS);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testDefaultArguments() {
     doReturn(mock(Set.class)).when(command).getMembers(any(), any());
@@ -257,6 +258,7 @@ public class CreateGatewaySenderCommandTest {
     assertThat(argsArgumentCaptor.getValue().getId()).isEqualTo("testGateway");
     assertThat(argsArgumentCaptor.getValue().getRemoteDistributedSystemId()).isEqualTo(1);
     assertThat(argsArgumentCaptor.getValue().isParallel()).isFalse();
+    assertThat(argsArgumentCaptor.getValue().getType()).isNotNull();
     assertThat(argsArgumentCaptor.getValue().isManualStart()).isFalse();
     assertThat(argsArgumentCaptor.getValue().getSocketBufferSize()).isNull();
     assertThat(argsArgumentCaptor.getValue().getSocketReadTimeout()).isNull();
@@ -274,10 +276,10 @@ public class CreateGatewaySenderCommandTest {
     assertThat(argsArgumentCaptor.getValue().getOrderPolicy()).isNull();
     assertThat(argsArgumentCaptor.getValue().getGatewayEventFilter()).isNull();
     assertThat(argsArgumentCaptor.getValue().getGatewayTransportFilter()).isNotNull().isEmpty();
-    assertThat(argsArgumentCaptor.getValue().mustGroupTransactionEvents()).isNotNull();
     assertThat(argsArgumentCaptor.getValue().getEnforceThreadsConnectSameReceiver()).isFalse();
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void booleanArgumentsShouldBeSetAsTrueWhenSpecifiedWithoutValue() {
     doReturn(mock(Set.class)).when(command).getMembers(any(), any());
@@ -303,23 +305,7 @@ public class CreateGatewaySenderCommandTest {
     assertThat(argsArgumentCaptor.getValue().isBatchConflationEnabled()).isTrue();
   }
 
-  @Test
-  public void groupTransactionEventsShouldBeSetAsTrueWhenSpecifiedWithoutValue() {
-    doReturn(mock(Set.class)).when(command).getMembers(any(), any());
-    cliFunctionResult =
-        new CliFunctionResult("member", CliFunctionResult.StatusState.OK, "cliFunctionResult");
-    functionResults.add(cliFunctionResult);
-    gfsh.executeAndAssertThat(command,
-        "create gateway-sender --member=xyz --id=testGateway --remote-distributed-system-id=1"
-            + " --parallel"
-            + " --group-transaction-events")
-        .statusIsSuccess();
-    verify(command).executeAndGetFunctionResult(any(), argsArgumentCaptor.capture(), any());
-
-    assertThat(argsArgumentCaptor.getValue().getId()).isEqualTo("testGateway");
-    assertThat(argsArgumentCaptor.getValue().mustGroupTransactionEvents()).isTrue();
-  }
-
+  @SuppressWarnings("deprecation")
   @Test
   public void booleanArgumentsShouldUseTheCustomParameterValueWhenSpecified() {
     doReturn(mock(Set.class)).when(command).getMembers(any(), any());
@@ -332,8 +318,7 @@ public class CreateGatewaySenderCommandTest {
             + " --manual-start=false"
             + " --disk-synchronous=false"
             + " --enable-persistence=false"
-            + " --enable-batch-conflation=false"
-            + " --group-transaction-events=false")
+            + " --enable-batch-conflation=false")
         .statusIsSuccess();
     verify(command).executeAndGetFunctionResult(any(), argsArgumentCaptor.capture(), any());
 
@@ -344,8 +329,6 @@ public class CreateGatewaySenderCommandTest {
     assertThat(argsArgumentCaptor.getValue().isDiskSynchronous()).isFalse();
     assertThat(argsArgumentCaptor.getValue().isPersistenceEnabled()).isFalse();
     assertThat(argsArgumentCaptor.getValue().isBatchConflationEnabled()).isFalse();
-    assertThat(argsArgumentCaptor.getValue().mustGroupTransactionEvents()).isFalse();
-
   }
 
   @Test

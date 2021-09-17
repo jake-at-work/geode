@@ -2587,6 +2587,7 @@ public class CacheConfig {
    *       &lt;/sequence>
    *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
    *       &lt;attribute name="remote-distributed-system-id" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+   *       &lt;attribute name="type" type="{http://www.w3.org/2001/XMLSchema}string" />
    *       &lt;attribute name="parallel" type="{http://www.w3.org/2001/XMLSchema}boolean" />
    *       &lt;attribute name="manual-start" type="{http://www.w3.org/2001/XMLSchema}boolean" />
    *       &lt;attribute name="socket-buffer-size" type="{http://www.w3.org/2001/XMLSchema}string" />
@@ -2628,6 +2629,8 @@ public class CacheConfig {
     protected String remoteDistributedSystemId;
     @XmlAttribute(name = "parallel")
     protected Boolean parallel;
+    @XmlAttribute(name = "type")
+    protected String type;
     @XmlAttribute(name = "manual-start")
     protected Boolean manualStart;
     @XmlAttribute(name = "socket-buffer-size")
@@ -2654,8 +2657,6 @@ public class CacheConfig {
     protected String dispatcherThreads;
     @XmlAttribute(name = "order-policy")
     protected String orderPolicy;
-    @XmlAttribute(name = "group-transaction-events")
-    protected Boolean groupTransactionEvents;
     @XmlAttribute(name = "enforce-threads-connect-same-receiver")
     protected Boolean enforceThreadsConnectSameReceiver;
 
@@ -2787,15 +2788,6 @@ public class CacheConfig {
      */
     public void setRemoteDistributedSystemId(String value) {
       this.remoteDistributedSystemId = value;
-    }
-
-    public Boolean mustGroupTransactionEvents() {
-      return groupTransactionEvents;
-    }
-
-
-    public void setGroupTransactionEvents(Boolean value) {
-      this.groupTransactionEvents = value;
     }
 
     /**
@@ -3126,6 +3118,14 @@ public class CacheConfig {
      */
     public Boolean getEnforceThreadsConnectSameReceiver() {
       return this.enforceThreadsConnectSameReceiver;
+    }
+
+    public void setType(final String type) {
+      this.type = type;
+    }
+
+    public String getType() {
+      return type;
     }
   }
 

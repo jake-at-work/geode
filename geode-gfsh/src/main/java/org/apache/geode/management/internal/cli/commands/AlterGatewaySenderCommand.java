@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
@@ -31,7 +30,6 @@ import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.serialization.KnownVersion;
-import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.SingleGfshCommand;
@@ -48,14 +46,12 @@ import org.apache.geode.security.ResourcePermission;
 public class AlterGatewaySenderCommand extends SingleGfshCommand {
   private final AlterGatewaySenderFunction alterGatewaySenderFunction =
       new AlterGatewaySenderFunction();
-  private static final Logger logger = LogService.getLogger();
 
   @CliCommand(value = CliStrings.ALTER_GATEWAYSENDER,
       help = CliStrings.ALTER_GATEWAYSENDER__HELP)
   @CliMetaData(relatedTopic = CliStrings.TOPIC_GEODE_WAN)
   @ResourceOperation(resource = ResourcePermission.Resource.CLUSTER,
       operation = ResourcePermission.Operation.MANAGE, target = ResourcePermission.Target.GATEWAY)
-
   public ResultModel alterGatewaySender(@CliOption(key = CliStrings.ALTER_GATEWAYSENDER__ID,
       mandatory = true, optionContext = ConverterHint.GATEWAY_SENDER_ID,
       help = CliStrings.ALTER_GATEWAYSENDER__ID__HELP) String senderId,
@@ -75,10 +71,7 @@ public class AlterGatewaySenderCommand extends SingleGfshCommand {
           specifiedDefaultValue = "",
           // split the input only with comma outside of json string
           optionContext = "splittingRegex=,(?![^{]*\\})",
-          help = CliStrings.ALTER_GATEWAYSENDER__GATEWAYEVENTFILTER__HELP) ClassName[] gatewayEventFilters,
-      @CliOption(key = CliStrings.ALTER_GATEWAYSENDER__GROUPTRANSACTIONEVENTS,
-          specifiedDefaultValue = "true",
-          help = CliStrings.ALTER_GATEWAYSENDER__GROUPTRANSACTIONEVENTS__HELP) Boolean groupTransactionEvents)
+          help = CliStrings.ALTER_GATEWAYSENDER__GATEWAYEVENTFILTER__HELP) ClassName[] gatewayEventFilters)
       throws EntityNotFoundException {
 
     // need not check if any running servers has this gateway-sender. A server with this
@@ -113,20 +106,6 @@ public class AlterGatewaySenderCommand extends SingleGfshCommand {
           "alter-gateway-sender cannot be performed for --batch-time-interval values smaller then -1.");
     }
 
-    if (groupTransactionEvents != null && groupTransactionEvents
-        && !oldConfiguration.mustGroupTransactionEvents()) {
-      if (!oldConfiguration.isParallel() && (oldConfiguration.getDispatcherThreads() == null
-          || Integer.parseInt(oldConfiguration.getDispatcherThreads()) > 1)) {
-        return ResultModel.createError(
-            "alter-gateway-sender cannot be performed for --group-transaction-events attribute if serial sender and dispatcher-threads is greater than 1.");
-      }
-
-      if (oldConfiguration.isEnableBatchConflation()) {
-        return ResultModel.createError(
-            "alter-gateway-sender cannot be performed for --group-transaction-events attribute if batch-conflation is enabled.");
-      }
-    }
-
     Set<DistributedMember> dsMembers = findMembers(onGroup, onMember);
 
     if (dsMembers.isEmpty()) {
@@ -159,12 +138,6 @@ public class AlterGatewaySenderCommand extends SingleGfshCommand {
       modify = true;
       gwConfiguration.setBatchTimeInterval(batchTimeInterval.toString());
     }
-
-    if (groupTransactionEvents != null) {
-      modify = true;
-      gwConfiguration.setGroupTransactionEvents(groupTransactionEvents);
-    }
-
 
     if (gatewayEventFilters != null) {
       modify = true;
@@ -224,9 +197,6 @@ public class AlterGatewaySenderCommand extends SingleGfshCommand {
         if (StringUtils.isNotBlank(gwConfiguration.getAlertThreshold())) {
           sender.setAlertThreshold(gwConfiguration.getAlertThreshold());
         }
-        if (gwConfiguration.mustGroupTransactionEvents() != null) {
-          sender.setGroupTransactionEvents(gwConfiguration.mustGroupTransactionEvents());
-        }
 
         if (gwConfiguration.areGatewayEventFiltersUpdated()) {
           if (!sender.getGatewayEventFilters().isEmpty()) {
@@ -244,8 +214,7 @@ public class AlterGatewaySenderCommand extends SingleGfshCommand {
   }
 
   private CacheConfig.GatewaySender findGatewaySenderConfiguration(String gwId) {
-    CacheConfig.GatewaySender gwsender = null;
-    InternalConfigurationPersistenceService ccService = this.getConfigurationPersistenceService();
+    InternalConfigurationPersistenceService ccService = getConfigurationPersistenceService();
     if (ccService == null) {
       return null;
     }
@@ -266,7 +235,8 @@ public class AlterGatewaySenderCommand extends SingleGfshCommand {
       }
 
     }
-    return gwsender;
+
+    return null;
   }
 
   boolean verifyAllCurrentVersion(Set<DistributedMember> members) {

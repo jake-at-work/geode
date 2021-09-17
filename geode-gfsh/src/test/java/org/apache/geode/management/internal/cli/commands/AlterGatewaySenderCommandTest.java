@@ -73,14 +73,12 @@ public class AlterGatewaySenderCommandTest {
     CacheConfig.GatewaySender gw1 = new CacheConfig.GatewaySender();
     gw1.setId("sender1");
     gw1.setParallel(true);
-    gw1.setGroupTransactionEvents(false);
     gw1.setEnableBatchConflation(true);
 
     CacheConfig.GatewaySender gw2 = new CacheConfig.GatewaySender();
     gw2.setId("sender2");
     gw2.setParallel(false);
     gw2.setDispatcherThreads("5");
-    gw2.setGroupTransactionEvents(false);
     gw2.setEnableBatchConflation(false);
 
     config.getGatewaySenders().add(gw1);

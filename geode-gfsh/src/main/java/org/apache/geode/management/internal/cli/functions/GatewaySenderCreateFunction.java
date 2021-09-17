@@ -22,17 +22,15 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.ResultSender;
-import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
 import org.apache.geode.cache.wan.GatewaySenderFactory;
-import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.management.internal.cli.CliUtils;
+import org.apache.geode.management.configuration.ClassName;
+import org.apache.geode.management.internal.configuration.domain.DeclarableTypeInstantiator;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
-import org.apache.geode.management.internal.util.ManagementUtils;
 
 public class GatewaySenderCreateFunction implements InternalFunction<GatewaySenderFunctionArgs> {
 
@@ -77,26 +75,13 @@ public class GatewaySenderCreateFunction implements InternalFunction<GatewaySend
    * Creates the GatewaySender with given configuration.
    *
    */
-  @SuppressWarnings("deprecation")
   private GatewaySender createGatewaySender(Cache cache,
       GatewaySenderFunctionArgs gatewaySenderCreateArgs) {
     GatewaySenderFactory gateway = cache.createGatewaySenderFactory();
 
-    Boolean isParallel = gatewaySenderCreateArgs.isParallel();
-    if (isParallel != null) {
-      gateway.setParallel(isParallel);
-    }
-
-    // TODO jbarrett class/id here
-    // Boolean groupTransactionEvents = gatewaySenderCreateArgs.mustGroupTransactionEvents();
-    // if (groupTransactionEvents != null) {
-    // gateway.setGroupTransactionEvents(groupTransactionEvents);
-    // }
-
-    Boolean manualStart = gatewaySenderCreateArgs.isManualStart();
-    if (manualStart != null) {
-      gateway.setManualStart(manualStart);
-    }
+    setGatewaySenderType(gateway, gatewaySenderCreateArgs);
+    setGatewaySenderParallel(gateway, gatewaySenderCreateArgs);
+    setGatewaySenderManualStart(gateway, gatewaySenderCreateArgs);
 
     Integer maxQueueMemory = gatewaySenderCreateArgs.getMaxQueueMemory();
     if (maxQueueMemory != null) {
@@ -161,22 +146,16 @@ public class GatewaySenderCreateFunction implements InternalFunction<GatewaySend
     List<String> gatewayEventFilters = gatewaySenderCreateArgs.getGatewayEventFilter();
     if (gatewayEventFilters != null) {
       for (String gatewayEventFilter : gatewayEventFilters) {
-        Class<?> gatewayEventFilterKlass =
-            ManagementUtils.forName(gatewayEventFilter,
-                CliStrings.CREATE_GATEWAYSENDER__GATEWAYEVENTFILTER);
         gateway.addGatewayEventFilter(
-            (GatewayEventFilter) CliUtils.newInstance(gatewayEventFilterKlass,
-                CliStrings.CREATE_GATEWAYSENDER__GATEWAYEVENTFILTER));
+            DeclarableTypeInstantiator.newInstance(new ClassName(gatewayEventFilter), cache));
       }
     }
 
     List<String> gatewayTransportFilters = gatewaySenderCreateArgs.getGatewayTransportFilter();
     if (gatewayTransportFilters != null) {
       for (String gatewayTransportFilter : gatewayTransportFilters) {
-        Class<?> gatewayTransportFilterKlass = ManagementUtils.forName(gatewayTransportFilter,
-            CliStrings.CREATE_GATEWAYSENDER__GATEWAYTRANSPORTFILTER);
-        gateway.addGatewayTransportFilter((GatewayTransportFilter) CliUtils.newInstance(
-            gatewayTransportFilterKlass, CliStrings.CREATE_GATEWAYSENDER__GATEWAYTRANSPORTFILTER));
+        gateway.addGatewayTransportFilter(
+            DeclarableTypeInstantiator.newInstance(new ClassName(gatewayTransportFilter), cache));
       }
     }
 
@@ -188,5 +167,31 @@ public class GatewaySenderCreateFunction implements InternalFunction<GatewaySend
 
     return gateway.create(gatewaySenderCreateArgs.getId(),
         gatewaySenderCreateArgs.getRemoteDistributedSystemId());
+  }
+
+  @SuppressWarnings("deprecation")
+  private void setGatewaySenderManualStart(final GatewaySenderFactory gateway,
+      final GatewaySenderFunctionArgs gatewaySenderCreateArgs) {
+    Boolean manualStart = gatewaySenderCreateArgs.isManualStart();
+    if (manualStart != null) {
+      gateway.setManualStart(manualStart);
+    }
+  }
+
+  @SuppressWarnings("deprecation")
+  private void setGatewaySenderParallel(final GatewaySenderFactory gateway,
+      final GatewaySenderFunctionArgs gatewaySenderCreateArgs) {
+    final Boolean isParallel = gatewaySenderCreateArgs.isParallel();
+    if (isParallel != null) {
+      gateway.setParallel(isParallel);
+    }
+  }
+
+  private void setGatewaySenderType(final GatewaySenderFactory gateway,
+      final GatewaySenderFunctionArgs gatewaySenderCreateArgs) {
+    final String type = gatewaySenderCreateArgs.getType();
+    if (type != null) {
+      gateway.setType(type);
+    }
   }
 }

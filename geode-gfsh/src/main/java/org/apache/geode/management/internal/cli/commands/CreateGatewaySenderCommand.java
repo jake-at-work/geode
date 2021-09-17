@@ -75,16 +75,14 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
           optionContext = ConverterHint.MEMBERIDNAME,
           help = CliStrings.CREATE_GATEWAYSENDER__MEMBER__HELP) String[] onMember,
 
-
-      @CliOption(key = CliStrings.CREATE_GATEWAYSENDER__GROUPTRANSACTIONEVENTS,
-          specifiedDefaultValue = "true",
-          unspecifiedDefaultValue = "false",
-          help = CliStrings.CREATE_GATEWAYSENDER__GROUPTRANSACTIONEVENTS__HELP) boolean groupTransactionEvents,
-
-      @CliOption(key = CliStrings.CREATE_GATEWAYSENDER__PARALLEL,
+      @SuppressWarnings("deprecation") @CliOption(key = CliStrings.CREATE_GATEWAYSENDER__PARALLEL,
           specifiedDefaultValue = "true",
           unspecifiedDefaultValue = "false",
           help = CliStrings.CREATE_GATEWAYSENDER__PARALLEL__HELP) boolean parallel,
+
+      @CliOption(key = CliStrings.CREATE_GATEWAYSENDER__TYPE,
+          specifiedDefaultValue = "SerialGatewaySender",
+          help = CliStrings.CREATE_GATEWAYSENDER__TYPE__HELP) String type,
 
       // Users must avoid this feature, it might cause data loss and other issues during startup.
       @SuppressWarnings("deprecation") @CliOption(
@@ -146,11 +144,11 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
           help = CliStrings.CREATE_GATEWAYSENDER__ENFORCE_THREADS_CONNECT_SAME_RECEIVER__HELP) Boolean enforceThreadsConnectSameReceiver) {
 
     CacheConfig.GatewaySender configuration =
-        buildConfiguration(id, remoteDistributedSystemId, parallel, manualStart,
+        buildConfiguration(id, remoteDistributedSystemId, parallel, type, manualStart,
             socketBufferSize, socketReadTimeout, enableBatchConflation, batchSize,
             batchTimeInterval, enablePersistence, diskStoreName, diskSynchronous, maxQueueMemory,
             alertThreshold, dispatcherThreads, orderPolicy == null ? null : orderPolicy.name(),
-            gatewayEventFilters, gatewayTransportFilter, groupTransactionEvents,
+            gatewayEventFilters, gatewayTransportFilter,
             enforceThreadsConnectSameReceiver);
 
     GatewaySenderFunctionArgs gatewaySenderFunctionArgs =
@@ -220,6 +218,7 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
 
   private CacheConfig.GatewaySender buildConfiguration(String id, Integer remoteDSId,
       Boolean parallel,
+      String type,
       Boolean manualStart,
       Integer socketBufferSize,
       Integer socketReadTimeout,
@@ -235,12 +234,12 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
       String orderPolicy,
       String[] gatewayEventFilters,
       String[] gatewayTransportFilters,
-      Boolean groupTransactionEvents,
       Boolean enforceThreadsConnectSameReceiver) {
     CacheConfig.GatewaySender sender = new CacheConfig.GatewaySender();
     sender.setId(id);
     sender.setRemoteDistributedSystemId(int2string(remoteDSId));
     sender.setParallel(parallel);
+    sender.setType(type);
     sender.setManualStart(manualStart);
     sender.setSocketBufferSize(int2string(socketBufferSize));
     sender.setSocketReadTimeout(int2string(socketReadTimeout));
@@ -254,7 +253,6 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
     sender.setAlertThreshold(int2string(alertThreshold));
     sender.setDispatcherThreads(int2string(dispatcherThreads));
     sender.setOrderPolicy(orderPolicy);
-    sender.setGroupTransactionEvents(groupTransactionEvents);
     if (gatewayEventFilters != null) {
       sender.getGatewayEventFilters().addAll((stringsToDeclarableTypes(gatewayEventFilters)));
     }
@@ -280,18 +278,14 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
   public static class Interceptor extends AbstractCliAroundInterceptor {
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
+      // TODO jbarrett resolve some of the basic config issues here.
+      @SuppressWarnings("deprecation")
       Boolean parallel =
           (Boolean) parseResult.getParamValue(CliStrings.CREATE_GATEWAYSENDER__PARALLEL);
       OrderPolicy orderPolicy =
           (OrderPolicy) parseResult.getParamValue(CliStrings.CREATE_GATEWAYSENDER__ORDERPOLICY);
       Integer dispatcherThreads =
           (Integer) parseResult.getParamValue(CliStrings.CREATE_GATEWAYSENDER__DISPATCHERTHREADS);
-      Boolean groupTransactionEvents =
-          (Boolean) parseResult
-              .getParamValue(CliStrings.CREATE_GATEWAYSENDER__GROUPTRANSACTIONEVENTS);
-      Boolean batchConflationEnabled =
-          (Boolean) parseResult
-              .getParamValue(CliStrings.CREATE_GATEWAYSENDER__ENABLEBATCHCONFLATION);
       Boolean enforceThreadsConnectSameReceiver =
           (Boolean) parseResult
               .getParamValue(
@@ -307,16 +301,19 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
             "Parallel Gateway Sender can not be created with THREAD OrderPolicy");
       }
 
-      if (!parallel && dispatcherThreads != null && dispatcherThreads > 1
-          && groupTransactionEvents) {
-        return ResultModel.createError(
-            "Serial Gateway Sender cannot be created with --group-transaction-events when --dispatcher-threads is greater than 1.");
-      }
-
-      if (groupTransactionEvents && batchConflationEnabled) {
-        return ResultModel.createError(
-            "Gateway Sender cannot be created with both --group-transaction-events and --enable-batch-conflation.");
-      }
+      // TODO jbarrett move checks to GatewaySender impls
+      // if (!parallel && dispatcherThreads != null && dispatcherThreads > 1
+      // && groupTransactionEvents) {
+      // return ResultModel.createError(
+      // "Serial Gateway Sender cannot be created with --group-transaction-events when
+      // --dispatcher-threads is greater than 1.");
+      // }
+      //
+      // if (groupTransactionEvents && batchConflationEnabled) {
+      // return ResultModel.createError(
+      // "Gateway Sender cannot be created with both --group-transaction-events and
+      // --enable-batch-conflation.");
+      // }
 
       if (parallel && enforceThreadsConnectSameReceiver) {
         return ResultModel
