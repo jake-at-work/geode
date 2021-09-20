@@ -37,10 +37,10 @@ public class TxBatchSerialGatewaySenderImpl extends SerialGatewaySenderImpl {
   protected @NotNull AbstractGatewaySenderEventProcessor createEventProcessor(
       final boolean cleanQueues) {
     if (getDispatcherThreads() > 1) {
-      return new TxBatchingRemoteConcurrentSerialGatewaySenderEventProcessor(
+      return new TxBatchRemoteConcurrentSerialGatewaySenderEventProcessor(
           this, getThreadMonitorObj(), cleanQueues);
     } else {
-      return new TxBatchingRemoteSerialGatewaySenderEventProcessor(this, getId(),
+      return new TxBatchRemoteSerialGatewaySenderEventProcessor(this, getId(),
           getThreadMonitorObj(), cleanQueues);
     }
   }

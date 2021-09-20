@@ -15,36 +15,30 @@
 
 package org.apache.geode.cache.wan.internal.txbatch.serial;
 
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import org.apache.geode.cache.wan.internal.serial.RemoteConcurrentSerialGatewaySenderEventProcessor;
+import org.apache.geode.cache.CacheListener;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
+import org.apache.geode.internal.cache.wan.serial.SerialGatewaySenderEventProcessor;
+import org.apache.geode.internal.cache.wan.serial.SerialGatewaySenderQueue;
 import org.apache.geode.internal.monitoring.ThreadsMonitoring;
-import org.apache.geode.logging.internal.log4j.api.LogService;
 
-public class TxBatchingRemoteConcurrentSerialGatewaySenderEventProcessor extends
-    RemoteConcurrentSerialGatewaySenderEventProcessor {
+public class TxBatchRemoteSerialGatewaySenderEventProcessor
+    extends SerialGatewaySenderEventProcessor {
 
-  private static final Logger logger = LogService.getLogger();
-
-  public TxBatchingRemoteConcurrentSerialGatewaySenderEventProcessor(
+  public TxBatchRemoteSerialGatewaySenderEventProcessor(
       final @NotNull AbstractGatewaySender sender,
-      final @Nullable ThreadsMonitoring threadsMonitoring, final boolean cleanQueues) {
-    super(sender, threadsMonitoring, cleanQueues);
+      final @NotNull String id,
+      final @Nullable ThreadsMonitoring threadsMonitoring,
+      final boolean cleanQueues) {
+    super(sender, id, threadsMonitoring, cleanQueues);
   }
 
   @Override
-  protected void initializeMessageQueue(final @NotNull String id, final boolean cleanQueues) {
-    for (int i = 0; i < sender.getDispatcherThreads(); i++) {
-      processors.add(new TxBatchingRemoteSerialGatewaySenderEventProcessor(sender, id + "." + i,
-          getThreadMonitorObj(), cleanQueues));
-      if (logger.isDebugEnabled()) {
-        logger.debug("Created the TxBatchingRemoteSerialGatewaySenderEventProcessor_{}->{}", i,
-            processors.get(i));
-      }
-    }
+  protected @NotNull SerialGatewaySenderQueue createQueue(
+      final @NotNull AbstractGatewaySender sender, final @NotNull String regionName,
+      final @Nullable CacheListener<?, ?> listener, final boolean cleanQueues) {
+    return new TxBatchSerialGatewaySenderQueue(sender, regionName, listener, cleanQueues);
   }
-
 }

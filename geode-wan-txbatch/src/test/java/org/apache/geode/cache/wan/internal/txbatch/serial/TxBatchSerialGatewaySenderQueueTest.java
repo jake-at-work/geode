@@ -54,11 +54,11 @@ import org.apache.geode.internal.cache.wan.serial.SerialGatewaySenderQueue;
 import org.apache.geode.internal.statistics.DummyStatisticsRegistry;
 import org.apache.geode.metrics.internal.NoopMeterRegistry;
 
-public class TxBatchingSerialGatewaySenderQueueTest {
+public class TxBatchSerialGatewaySenderQueueTest {
 
   private static final String QUEUE_REGION = "queueRegion";
 
-  private TxBatchingSerialGatewaySenderQueue.MetaRegionFactory metaRegionFactory;
+  private TxBatchSerialGatewaySenderQueue.MetaRegionFactory metaRegionFactory;
   private AbstractGatewaySender sender;
   private Region<?, ?> region;
 
@@ -202,7 +202,7 @@ public class TxBatchingSerialGatewaySenderQueueTest {
     queue.postProcessBatch(uncheckedCast(batch), 0);
   }
 
-  private static class TestableSerialGatewaySenderQueue extends TxBatchingSerialGatewaySenderQueue {
+  private static class TestableSerialGatewaySenderQueue extends TxBatchSerialGatewaySenderQueue {
 
     public TestableSerialGatewaySenderQueue(final AbstractGatewaySender sender,
         String regionName, final MetaRegionFactory metaRegionFactory) {

@@ -38,7 +38,7 @@ public class TxBatchParallelGatewaySenderImpl extends ParallelGatewaySenderImpl 
   @Override
   protected @NotNull RemoteConcurrentParallelGatewaySenderEventProcessor createEventProcessor(
       final @Nullable ThreadsMonitoring threadsMonitoring, final boolean cleanQueues) {
-    return new TxBatchingRemoteConcurrentParallelGatewaySenderEventProcessor(this,
+    return new TxBatchRemoteConcurrentParallelGatewaySenderEventProcessor(this,
         threadsMonitoring, cleanQueues);
   }
 

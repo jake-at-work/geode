@@ -15,30 +15,36 @@
 
 package org.apache.geode.cache.wan.internal.txbatch.serial;
 
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import org.apache.geode.cache.CacheListener;
+import org.apache.geode.cache.wan.internal.serial.RemoteConcurrentSerialGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
-import org.apache.geode.internal.cache.wan.serial.SerialGatewaySenderEventProcessor;
-import org.apache.geode.internal.cache.wan.serial.SerialGatewaySenderQueue;
 import org.apache.geode.internal.monitoring.ThreadsMonitoring;
+import org.apache.geode.logging.internal.log4j.api.LogService;
 
-public class TxBatchingRemoteSerialGatewaySenderEventProcessor
-    extends SerialGatewaySenderEventProcessor {
+public class TxBatchRemoteConcurrentSerialGatewaySenderEventProcessor extends
+    RemoteConcurrentSerialGatewaySenderEventProcessor {
 
-  public TxBatchingRemoteSerialGatewaySenderEventProcessor(
+  private static final Logger logger = LogService.getLogger();
+
+  public TxBatchRemoteConcurrentSerialGatewaySenderEventProcessor(
       final @NotNull AbstractGatewaySender sender,
-      final @NotNull String id,
-      final @Nullable ThreadsMonitoring threadsMonitoring,
-      final boolean cleanQueues) {
-    super(sender, id, threadsMonitoring, cleanQueues);
+      final @Nullable ThreadsMonitoring threadsMonitoring, final boolean cleanQueues) {
+    super(sender, threadsMonitoring, cleanQueues);
   }
 
   @Override
-  protected @NotNull SerialGatewaySenderQueue createQueue(
-      final @NotNull AbstractGatewaySender sender, final @NotNull String regionName,
-      final @Nullable CacheListener<?, ?> listener, final boolean cleanQueues) {
-    return new TxBatchingSerialGatewaySenderQueue(sender, regionName, listener, cleanQueues);
+  protected void initializeMessageQueue(final @NotNull String id, final boolean cleanQueues) {
+    for (int i = 0; i < sender.getDispatcherThreads(); i++) {
+      processors.add(new TxBatchRemoteSerialGatewaySenderEventProcessor(sender, id + "." + i,
+          getThreadMonitorObj(), cleanQueues));
+      if (logger.isDebugEnabled()) {
+        logger.debug("Created the TxBatchRemoteSerialGatewaySenderEventProcessor_{}->{}", i,
+            processors.get(i));
+      }
+    }
   }
+
 }

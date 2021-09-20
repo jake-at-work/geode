@@ -34,19 +34,19 @@ import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.cache.wan.serial.SerialGatewaySenderQueue;
 
-public class TxBatchingSerialGatewaySenderQueue extends SerialGatewaySenderQueue {
+public class TxBatchSerialGatewaySenderQueue extends SerialGatewaySenderQueue {
 
-  public TxBatchingSerialGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
-      final @NotNull String regionName,
-      final @Nullable CacheListener<?, ?> listener,
-      final boolean cleanQueues) {
+  public TxBatchSerialGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
+                                         final @NotNull String regionName,
+                                         final @Nullable CacheListener<?, ?> listener,
+                                         final boolean cleanQueues) {
     super(sender, regionName, listener, cleanQueues);
   }
 
-  public TxBatchingSerialGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
-      final @NotNull String regionName,
-      final @Nullable CacheListener<?, ?> listener, final boolean cleanQueues,
-      final @NotNull MetaRegionFactory metaRegionFactory) {
+  public TxBatchSerialGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
+                                         final @NotNull String regionName,
+                                         final @Nullable CacheListener<?, ?> listener, final boolean cleanQueues,
+                                         final @NotNull MetaRegionFactory metaRegionFactory) {
     super(sender, regionName, listener, cleanQueues, metaRegionFactory);
   }
 

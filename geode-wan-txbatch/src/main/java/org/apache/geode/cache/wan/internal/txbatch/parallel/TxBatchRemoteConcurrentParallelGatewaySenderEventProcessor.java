@@ -25,10 +25,10 @@ import org.apache.geode.cache.wan.internal.parallel.RemoteConcurrentParallelGate
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.monitoring.ThreadsMonitoring;
 
-public class TxBatchingRemoteConcurrentParallelGatewaySenderEventProcessor extends
+public class TxBatchRemoteConcurrentParallelGatewaySenderEventProcessor extends
     RemoteConcurrentParallelGatewaySenderEventProcessor {
 
-  public TxBatchingRemoteConcurrentParallelGatewaySenderEventProcessor(
+  public TxBatchRemoteConcurrentParallelGatewaySenderEventProcessor(
       final @NotNull AbstractGatewaySender sender,
       final @Nullable ThreadsMonitoring tMonitoring, final boolean cleanQueues) {
     super(sender, tMonitoring, cleanQueues);
@@ -39,13 +39,13 @@ public class TxBatchingRemoteConcurrentParallelGatewaySenderEventProcessor exten
       final @NotNull Set<Region<?, ?>> targetRegions,
       final boolean cleanQueues) {
     processors =
-        new TxBatchingRemoteParallelGatewaySenderEventProcessor[sender.getDispatcherThreads()];
+        new TxBatchRemoteParallelGatewaySenderEventProcessor[sender.getDispatcherThreads()];
     if (logger.isDebugEnabled()) {
-      logger.debug("Creating TxBatchingRemoteConcurrentParallelGatewaySenderEventProcessor");
+      logger.debug("Creating TxBatchRemoteConcurrentParallelGatewaySenderEventProcessor");
     }
     for (int i = 0; i < sender.getDispatcherThreads(); i++) {
       processors[i] =
-          new TxBatchingRemoteParallelGatewaySenderEventProcessor(sender, targetRegions, i,
+          new TxBatchRemoteParallelGatewaySenderEventProcessor(sender, targetRegions, i,
               sender.getDispatcherThreads(), getThreadMonitorObj(), cleanQueues);
     }
   }

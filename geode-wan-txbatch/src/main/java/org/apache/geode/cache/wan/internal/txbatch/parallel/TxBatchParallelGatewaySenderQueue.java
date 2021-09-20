@@ -40,20 +40,20 @@ import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.cache.wan.parallel.BucketRegionQueueUnavailableException;
 import org.apache.geode.internal.cache.wan.parallel.ParallelGatewaySenderQueue;
 
-public class TxBatchingParallelGatewaySenderQueue extends ParallelGatewaySenderQueue {
+public class TxBatchParallelGatewaySenderQueue extends ParallelGatewaySenderQueue {
 
-  TxBatchingParallelGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
-      final @NotNull Set<Region<?, ?>> userRegions, final int idx,
-      final int nDispatcher,
-      final boolean cleanQueues) {
+  TxBatchParallelGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
+                                    final @NotNull Set<Region<?, ?>> userRegions, final int idx,
+                                    final int nDispatcher,
+                                    final boolean cleanQueues) {
     super(sender, userRegions, idx, nDispatcher, cleanQueues);
   }
 
   @VisibleForTesting
-  TxBatchingParallelGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
-      final @NotNull Set<Region<?, ?>> userRegions, final int idx,
-      final int nDispatcher, final @NotNull MetaRegionFactory metaRegionFactory,
-      final boolean cleanQueues) {
+  TxBatchParallelGatewaySenderQueue(final @NotNull AbstractGatewaySender sender,
+                                    final @NotNull Set<Region<?, ?>> userRegions, final int idx,
+                                    final int nDispatcher, final @NotNull MetaRegionFactory metaRegionFactory,
+                                    final boolean cleanQueues) {
     super(sender, userRegions, idx, nDispatcher, metaRegionFactory, cleanQueues);
   }
 

@@ -47,7 +47,7 @@ import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.cache.wan.GatewaySenderStats;
 import org.apache.geode.internal.cache.wan.parallel.ParallelGatewaySenderQueue.MetaRegionFactory;
 
-public class TxBatchingParallelGatewaySenderQueueTest {
+public class TxBatchParallelGatewaySenderQueueTest {
 
   public static final String BUCKET_REGION = "bucketRegion";
 
@@ -213,7 +213,7 @@ public class TxBatchingParallelGatewaySenderQueueTest {
   }
 
   private static class TestableParallelGatewaySenderQueue
-      extends TxBatchingParallelGatewaySenderQueue {
+      extends TxBatchParallelGatewaySenderQueue {
 
     private BucketRegionQueue mockedAbstractBucketRegionQueue;
 

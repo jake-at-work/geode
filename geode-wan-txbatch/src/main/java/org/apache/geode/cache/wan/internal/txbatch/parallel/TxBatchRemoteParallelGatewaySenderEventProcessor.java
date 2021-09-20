@@ -33,11 +33,11 @@ import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.cache.wan.parallel.ParallelGatewaySenderQueue;
 import org.apache.geode.internal.monitoring.ThreadsMonitoring;
 
-public class TxBatchingRemoteParallelGatewaySenderEventProcessor extends
+public class TxBatchRemoteParallelGatewaySenderEventProcessor extends
     RemoteParallelGatewaySenderEventProcessor {
 
 
-  protected TxBatchingRemoteParallelGatewaySenderEventProcessor(
+  protected TxBatchRemoteParallelGatewaySenderEventProcessor(
       final @NotNull AbstractGatewaySender sender, final @NotNull Set<Region<?, ?>> userRegions,
       final int id,
       final int nDispatcher,
@@ -67,7 +67,7 @@ public class TxBatchingRemoteParallelGatewaySenderEventProcessor extends
   protected @NotNull ParallelGatewaySenderQueue createParallelGatewaySenderQueue(
       final @NotNull AbstractGatewaySender sender, final @NotNull Set<Region<?, ?>> targetRegions,
       final int index, final int nDispatcher, final boolean cleanQueues) {
-    return new TxBatchingParallelGatewaySenderQueue(sender, targetRegions, index, nDispatcher,
+    return new TxBatchParallelGatewaySenderQueue(sender, targetRegions, index, nDispatcher,
         cleanQueues);
   }
 
