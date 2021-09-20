@@ -213,6 +213,11 @@ public class ParallelAsyncEventQueueImpl extends AbstractGatewaySender {
     clonedEvent.setEventId(newEventId);
   }
 
+  @Override
+  public String getType() {
+    return "ParallelAsyncEventQueue";
+  }
+
   private ThreadsMonitoring getThreadMonitorObj() {
     DistributionManager distributionManager = this.cache.getDistributionManager();
     if (distributionManager != null) {

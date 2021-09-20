@@ -26,6 +26,9 @@ import org.apache.geode.internal.monitoring.ThreadsMonitoring;
 import org.apache.geode.internal.statistics.StatisticsClock;
 
 public class TxBatchParallelGatewaySenderImpl extends ParallelGatewaySenderImpl {
+
+  public static final String TYPE = "TxBatchParallelGatewaySender";
+
   public TxBatchParallelGatewaySenderImpl(final @NotNull InternalCache cache,
       final @NotNull StatisticsClock statisticsClock,
       final @NotNull GatewaySenderAttributes attrs) {
@@ -39,4 +42,8 @@ public class TxBatchParallelGatewaySenderImpl extends ParallelGatewaySenderImpl 
         threadsMonitoring, cleanQueues);
   }
 
+  @Override
+  public String getType() {
+    return TYPE;
+  }
 }

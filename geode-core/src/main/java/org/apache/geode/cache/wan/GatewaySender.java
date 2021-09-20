@@ -398,13 +398,16 @@ public interface GatewaySender {
    */
   boolean isParallel();
 
-  // /**
-  // * Returns groupTransactionEvents boolean property for this GatewaySender.
-  // *
-  // * @return groupTransactionEvents boolean property for this GatewaySender
-  // *
-  // */
-  // boolean mustGroupTransactionEvents();
+  String getType();
+
+  /**
+   * Returns groupTransactionEvents boolean property for this GatewaySender.
+   *
+   * @return groupTransactionEvents boolean property for this GatewaySender
+   * @deprecated Use {@link #getType()}.
+   */
+  @Deprecated
+  boolean mustGroupTransactionEvents();
 
   /**
    * Returns the number of dispatcher threads working for this <code>GatewaySender</code>. Default

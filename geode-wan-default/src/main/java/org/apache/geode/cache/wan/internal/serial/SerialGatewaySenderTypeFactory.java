@@ -26,7 +26,7 @@ import org.apache.geode.internal.statistics.StatisticsClock;
 public class SerialGatewaySenderTypeFactory implements GatewaySenderTypeFactory {
   @Override
   public @NotNull String getName() {
-    return "SerialGatewaySender";
+    return SerialGatewaySenderImpl.TYPE;
   }
 
   @Override

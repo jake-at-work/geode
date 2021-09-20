@@ -81,7 +81,6 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
           help = CliStrings.CREATE_GATEWAYSENDER__PARALLEL__HELP) boolean parallel,
 
       @CliOption(key = CliStrings.CREATE_GATEWAYSENDER__TYPE,
-          specifiedDefaultValue = "SerialGatewaySender",
           help = CliStrings.CREATE_GATEWAYSENDER__TYPE__HELP) String type,
 
       // Users must avoid this feature, it might cause data loss and other issues during startup.

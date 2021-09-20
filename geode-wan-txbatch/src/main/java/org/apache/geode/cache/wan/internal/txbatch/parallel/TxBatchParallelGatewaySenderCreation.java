@@ -15,6 +15,8 @@
 
 package org.apache.geode.cache.wan.internal.txbatch.parallel;
 
+import static org.apache.geode.cache.wan.internal.txbatch.parallel.TxBatchParallelGatewaySenderImpl.TYPE;
+
 import org.apache.geode.cache.wan.internal.parallel.ParallelGatewaySenderCreation;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
@@ -26,4 +28,8 @@ public class TxBatchParallelGatewaySenderCreation extends ParallelGatewaySenderC
     super(cache, attrs);
   }
 
+  @Override
+  public String getType() {
+    return TYPE;
+  }
 }

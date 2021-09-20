@@ -28,4 +28,8 @@ public class TxBatchSerialGatewaySenderCreation extends SerialGatewaySenderCreat
     super(cache, attrs);
   }
 
+  @Override
+  public String getType() {
+    return TxBatchSerialGatewaySenderImpl.TYPE;
+  }
 }

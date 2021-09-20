@@ -271,7 +271,14 @@ public interface GatewaySenderMXBean {
    */
   boolean isParallel();
 
-  // boolean mustGroupTransactionEvents();
+  String getType();
+
+  /**
+   *
+   * @deprecated Use {@link #getType()}.
+   */
+  @Deprecated
+  boolean mustGroupTransactionEvents();
 
   /**
    * Returns the host and port information of GatewayReceiver to which this gateway sender is

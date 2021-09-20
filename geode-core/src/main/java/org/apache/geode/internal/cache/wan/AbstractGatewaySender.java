@@ -562,10 +562,11 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
     return isParallel;
   }
 
-  // @Override
-  // public boolean mustGroupTransactionEvents() {
-  // return groupTransactionEvents;
-  // }
+  @Deprecated
+  @Override
+  public boolean mustGroupTransactionEvents() {
+    return false;
+  }
 
   public boolean isForInternalUse() {
     return isForInternalUse;
@@ -983,11 +984,6 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
       return false;
     }
     return true;
-  }
-
-  public void distribute(EnumListenerEvent operation, EntryEventImpl event,
-      List<Integer> allRemoteDSIds) {
-    distribute(operation, event, allRemoteDSIds, false);
   }
 
   public void distribute(EnumListenerEvent operation, EntryEventImpl event,

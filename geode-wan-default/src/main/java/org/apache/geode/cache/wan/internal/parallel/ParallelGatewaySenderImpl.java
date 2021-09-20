@@ -47,6 +47,8 @@ import org.apache.geode.logging.internal.log4j.api.LogService;
 public class ParallelGatewaySenderImpl extends AbstractRemoteGatewaySender implements
     org.apache.geode.cache.wan.internal.spi.GatewaySender {
 
+  public static final String TYPE = "ParallelGatewaySender";
+
   private static final Logger logger = LogService.getLogger();
 
   public ParallelGatewaySenderImpl(InternalCache cache, StatisticsClock statisticsClock,
@@ -216,6 +218,11 @@ public class ParallelGatewaySenderImpl extends AbstractRemoteGatewaySender imple
           newThreadId);
     }
     clonedEvent.setEventId(newEventId);
+  }
+
+  @Override
+  public String getType() {
+    return TYPE;
   }
 
   private ThreadsMonitoring getThreadMonitorObj() {

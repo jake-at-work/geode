@@ -16,8 +16,6 @@ package org.apache.geode.internal.cache.xmlcache;
 
 import static org.apache.geode.internal.statistics.StatisticsClockFactory.disabledClock;
 
-import java.util.List;
-
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.distributed.internal.DistributionAdvisee;
@@ -26,7 +24,6 @@ import org.apache.geode.distributed.internal.DistributionAdvisor.Profile;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.EntryEventImpl;
-import org.apache.geode.internal.cache.EnumListenerEvent;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.GatewaySenderAttributesImpl;
@@ -37,10 +34,6 @@ public class ParallelAsyncEventQueueCreation extends AbstractGatewaySender
   public ParallelAsyncEventQueueCreation(InternalCache cache, GatewaySenderAttributesImpl attrs) {
     super(cache, disabledClock(), attrs);
   }
-
-  @Override
-  public void distribute(EnumListenerEvent operation, EntryEventImpl event,
-      List<Integer> remoteDSIds) {}
 
   @Override
   public void start() {}
@@ -106,4 +99,9 @@ public class ParallelAsyncEventQueueCreation extends AbstractGatewaySender
 
   @Override
   public void setModifiedEventId(EntryEventImpl clonedEvent) {}
+
+  @Override
+  public String getType() {
+    return "ParallelAsyncEventQueue";
+  }
 }

@@ -26,7 +26,7 @@ import org.apache.geode.internal.statistics.StatisticsClock;
 public class ParallelGatewaySenderTypeFactory implements GatewaySenderTypeFactory {
   @Override
   public @NotNull String getName() {
-    return "ParallelGatewaySender";
+    return ParallelGatewaySenderImpl.TYPE;
   }
 
   @Override

@@ -48,6 +48,8 @@ import org.apache.geode.logging.internal.log4j.api.LogService;
  */
 public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender implements GatewaySender {
 
+  public static final String TYPE = "SerialGatewaySender";
+
   private static final Logger logger = LogService.getLogger();
 
   public SerialGatewaySenderImpl(final @NotNull InternalCache cache,
@@ -256,6 +258,11 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender impleme
           ThreadIdentifier.toDisplayString(newThreadId));
     }
     clonedEvent.setEventId(newEventId);
+  }
+
+  @Override
+  public String getType() {
+    return TYPE;
   }
 
   protected ThreadsMonitoring getThreadMonitorObj() {

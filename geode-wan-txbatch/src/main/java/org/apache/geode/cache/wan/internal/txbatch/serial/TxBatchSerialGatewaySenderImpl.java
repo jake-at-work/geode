@@ -25,6 +25,8 @@ import org.apache.geode.internal.statistics.StatisticsClock;
 
 public class TxBatchSerialGatewaySenderImpl extends SerialGatewaySenderImpl {
 
+  public static final String TYPE = "TxBatchSerialGatewaySender";
+
   public TxBatchSerialGatewaySenderImpl(final @NotNull InternalCache cache,
       final @NotNull StatisticsClock statisticsClock,
       final @NotNull GatewaySenderAttributes attrs) {
@@ -43,4 +45,8 @@ public class TxBatchSerialGatewaySenderImpl extends SerialGatewaySenderImpl {
     }
   }
 
+  @Override
+  public String getType() {
+    return TYPE;
+  }
 }

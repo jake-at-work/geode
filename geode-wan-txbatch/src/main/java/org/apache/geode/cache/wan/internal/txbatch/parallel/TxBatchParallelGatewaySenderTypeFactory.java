@@ -15,6 +15,8 @@
 
 package org.apache.geode.cache.wan.internal.txbatch.parallel;
 
+import static org.apache.geode.cache.wan.internal.txbatch.parallel.TxBatchParallelGatewaySenderImpl.TYPE;
+
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.cache.wan.internal.spi.GatewaySender;
@@ -26,7 +28,7 @@ import org.apache.geode.internal.statistics.StatisticsClock;
 public class TxBatchParallelGatewaySenderTypeFactory implements GatewaySenderTypeFactory {
   @Override
   public @NotNull String getName() {
-    return "ParallelGatewaySender";
+    return TYPE;
   }
 
   @Override

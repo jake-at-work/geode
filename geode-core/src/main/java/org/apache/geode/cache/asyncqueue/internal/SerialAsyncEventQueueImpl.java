@@ -266,6 +266,11 @@ public class SerialAsyncEventQueueImpl extends AbstractGatewaySender {
     clonedEvent.setEventId(newEventId);
   }
 
+  @Override
+  public String getType() {
+    return "SerialAsyncEventQueue";
+  }
+
   private ThreadsMonitoring getThreadMonitorObj() {
     DistributionManager distributionManager = this.cache.getDistributionManager();
     if (distributionManager != null) {

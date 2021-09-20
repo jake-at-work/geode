@@ -16,8 +16,6 @@ package org.apache.geode.cache.wan.internal.serial;
 
 import static org.apache.geode.internal.statistics.StatisticsClockFactory.disabledClock;
 
-import java.util.List;
-
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.cache.wan.internal.spi.GatewaySender;
@@ -27,7 +25,6 @@ import org.apache.geode.distributed.internal.DistributionAdvisor.Profile;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.EntryEventImpl;
-import org.apache.geode.internal.cache.EnumListenerEvent;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.GatewaySenderAttributes;
@@ -37,10 +34,6 @@ public class SerialGatewaySenderCreation extends AbstractGatewaySender implement
   public SerialGatewaySenderCreation(InternalCache cache, GatewaySenderAttributes attrs) {
     super(cache, disabledClock(), attrs);
   }
-
-  @Override
-  public void distribute(EnumListenerEvent operation, EntryEventImpl event,
-      List<Integer> remoteDSIds) {}
 
   @Override
   public void start() {}
@@ -115,5 +108,10 @@ public class SerialGatewaySenderCreation extends AbstractGatewaySender implement
   @Override
   protected void putSynchronizationEvent(GatewayQueueEvent event) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getType() {
+    return SerialGatewaySenderImpl.TYPE;
   }
 }
