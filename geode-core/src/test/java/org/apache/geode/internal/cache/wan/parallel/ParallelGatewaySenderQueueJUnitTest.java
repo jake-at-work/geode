@@ -482,7 +482,7 @@ public class ParallelGatewaySenderQueueJUnitTest {
 
     List<GatewaySenderEventImpl> batch = new ArrayList<>(Arrays.asList(event1, event2));
     PartitionedRegion mockBucketRegion = mockPR("bucketRegion");
-    queue.peekEventsFromIncompleteTransactions(batch, mockBucketRegion);
+    queue.postProcessBatch(mockBucketRegion, batch);
   }
 
 
@@ -708,11 +708,6 @@ public class ParallelGatewaySenderQueueJUnitTest {
 
     public void setGroupTransactionEvents(boolean groupTransactionEvents) {
       this.groupTransactionEvents = groupTransactionEvents;
-    }
-
-    @Override
-    public boolean mustGroupTransactionEvents() {
-      return groupTransactionEvents;
     }
 
     @Override
