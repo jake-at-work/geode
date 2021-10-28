@@ -32,25 +32,25 @@ public class LocalStatisticsImplTest {
     StatisticsManager mockStatisticsManager = mock(StatisticsManager.class);
     StatisticsTypeFactory statsFactory = StatisticsTypeFactoryImpl.singleton();
     StatisticDescriptor[] stats = {
-        statsFactory.createIntCounter("intCount", "int counter", "ints"),
+        statsFactory.createLongCounter("intCount", "int counter", "ints"),
         statsFactory.createLongCounter("longCount", "long counter", "longs")
     };
     StatisticsType statisticsType = new StatisticsTypeImpl("abc", "mock stats", stats);
     LocalStatisticsImpl localStatistics = new LocalStatisticsImpl(statisticsType, "abc", 123L, 123L,
         false, 90, mockStatisticsManager);
 
-    localStatistics.incInt("intCount", 7);
+    localStatistics.incLong("intCount", 7);
     localStatistics.incLong("longCount", 15);
 
-    assertThat(localStatistics.getInt("intCount")).isEqualTo(7);
-    assertThat(localStatistics.getInt("longCount")).isEqualTo(15);
+    assertThat(localStatistics.getLong("intCount")).isEqualTo(7);
+    assertThat(localStatistics.getLong("longCount")).isEqualTo(15);
     assertThat(localStatistics.getLong("longCount")).isEqualTo(15);
 
     int intId = statisticsType.nameToId("intCount");
-    assertThat(localStatistics.getInt(intId)).isEqualTo(7);
+    assertThat(localStatistics.getLong(intId)).isEqualTo(7);
     assertThat(localStatistics.getLong(intId)).isEqualTo(7);
     int longId = statisticsType.nameToId("longCount");
-    assertThat(localStatistics.getInt(longId)).isEqualTo(15);
+    assertThat(localStatistics.getLong(longId)).isEqualTo(15);
     assertThat(localStatistics.getLong(longId)).isEqualTo(15);
   }
 
@@ -59,7 +59,7 @@ public class LocalStatisticsImplTest {
     StatisticsManager mockStatisticsManager = mock(StatisticsManager.class);
     StatisticsTypeFactory statsFactory = StatisticsTypeFactoryImpl.singleton();
     StatisticDescriptor[] stats = {
-        statsFactory.createIntCounter("intCount", "int counter", "ints"),
+        statsFactory.createLongCounter("intCount", "int counter", "ints"),
         statsFactory.createLongCounter("longCount", "long counter", "longs"),
         statsFactory.createDoubleCounter("doubleCount", "double counter", "doubles")
     };
@@ -67,21 +67,21 @@ public class LocalStatisticsImplTest {
     LocalStatisticsImpl localStatistics = new LocalStatisticsImpl(statisticsType, "abc", 123L, 123L,
         false, 90, mockStatisticsManager);
 
-    localStatistics.incInt("intCount", 7);
+    localStatistics.incLong("intCount", 7);
     localStatistics.incLong("longCount", 15);
     localStatistics.incDouble("doubleCount", 3.14);
 
-    assertThat(localStatistics.getInt("intCount")).isEqualTo(7);
-    assertThat(localStatistics.getInt("longCount")).isEqualTo(15);
+    assertThat(localStatistics.getLong("intCount")).isEqualTo(7);
+    assertThat(localStatistics.getLong("longCount")).isEqualTo(15);
     assertThat(localStatistics.getLong("longCount")).isEqualTo(15);
     assertThat(localStatistics.getDouble("doubleCount")).isEqualTo(3.14);
 
     int intId = statisticsType.nameToId("intCount");
-    assertThat(localStatistics.getInt(intId)).isEqualTo(7);
+    assertThat(localStatistics.getLong(intId)).isEqualTo(7);
     assertThat(localStatistics.getLong(intId)).isEqualTo(7);
 
     int longId = statisticsType.nameToId("longCount");
-    assertThat(localStatistics.getInt(longId)).isEqualTo(15);
+    assertThat(localStatistics.getLong(longId)).isEqualTo(15);
     assertThat(localStatistics.getLong(longId)).isEqualTo(15);
 
     int doubleId = statisticsType.nameToId("doubleCount");

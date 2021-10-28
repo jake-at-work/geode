@@ -452,13 +452,13 @@ public class ConnectionStats implements MessageStats {
       StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
       type = f.createType("ClientStats", "Statistics about client to server communication",
           new StatisticDescriptor[] {
-              f.createIntGauge("addPdxTypeInProgress",
+              f.createLongGauge("addPdxTypeInProgress",
                   "Current number of addPdxType operations being executed", "addPdxType"),
-              f.createIntCounter("addPdxTypeFailures",
+              f.createLongCounter("addPdxTypeFailures",
                   "Total number of addPdxType operation attempts that have failed", "addPdxType"),
-              f.createIntCounter("addPdxTypeSuccessful",
+              f.createLongCounter("addPdxTypeSuccessful",
                   "Total number of addPdxType operations completed successfully", "addPdxType"),
-              f.createIntCounter("addPdxTypeTimeouts",
+              f.createLongCounter("addPdxTypeTimeouts",
                   "Total number of addPdxType operation attempts that have timed out",
                   "addPdxType"),
               f.createLongCounter("addPdxTypeTime",
@@ -466,7 +466,7 @@ public class ConnectionStats implements MessageStats {
                   "nanoseconds"),
               f.createLongCounter("clears", "Total number of clears completed successfully",
                   "clears"),
-              f.createIntGauge("clearsInProgress", "Current number of clears being executed",
+              f.createLongGauge("clearsInProgress", "Current number of clears being executed",
                   "clears"),
               f.createLongCounter("clearFailures",
                   "Total number of clear attempts that have failed",
@@ -475,67 +475,67 @@ public class ConnectionStats implements MessageStats {
                   "Total number of clear attempts that have timed out", "clears"),
               f.createLongCounter("clearTime",
                   "Total amount of time, in nanoseconds spent doing clears", "nanoseconds"),
-              f.createIntGauge("closeConsInProgress", "Current number of closeCons being executed",
+              f.createLongGauge("closeConsInProgress", "Current number of closeCons being executed",
                   "closeCons"),
-              f.createIntCounter("closeCons", "Total number of closeCons completed successfully",
+              f.createLongCounter("closeCons", "Total number of closeCons completed successfully",
                   "closeCons"),
-              f.createIntCounter("closeConFailures",
+              f.createLongCounter("closeConFailures",
                   "Total number of closeCon attempts that have failed", "closeCons"),
-              f.createIntCounter("closeConTimeouts",
+              f.createLongCounter("closeConTimeouts",
                   "Total number of closeCon attempts that have timed out", "closeCons"),
               f.createLongCounter("closeConTime",
                   "Total amount of time, in nanoseconds spent doing closeCons", "nanoseconds"),
-              f.createIntGauge("closeCQsInProgress", "Current number of closeCQs being executed",
+              f.createLongGauge("closeCQsInProgress", "Current number of closeCQs being executed",
                   "closeCQs"),
-              f.createIntCounter("closeCQs", "Total number of closeCQs completed successfully",
+              f.createLongCounter("closeCQs", "Total number of closeCQs completed successfully",
                   "closeCQs"),
-              f.createIntCounter("closeCQFailures",
+              f.createLongCounter("closeCQFailures",
                   "Total number of closeCQ attempts that have failed", "closeCQs"),
-              f.createIntCounter("closeCQTimeouts",
+              f.createLongCounter("closeCQTimeouts",
                   "Total number of closeCQ attempts that have timed out", "closeCQs"),
               f.createLongCounter("closeCQTime",
                   "Total amount of time, in nanoseconds spent doing closeCQs", "nanoseconds"),
-              f.createIntGauge("createCQsInProgress", "Current number of createCQs being executed",
+              f.createLongGauge("createCQsInProgress", "Current number of createCQs being executed",
                   "createCQs"),
-              f.createIntCounter("createCQs", "Total number of createCQs completed successfully",
+              f.createLongCounter("createCQs", "Total number of createCQs completed successfully",
                   "createCQs"),
-              f.createIntCounter("createCQFailures",
+              f.createLongCounter("createCQFailures",
                   "Total number of createCQ attempts that have failed", "createCQs"),
-              f.createIntCounter("createCQTimeouts",
+              f.createLongCounter("createCQTimeouts",
                   "Total number of createCQ attempts that have timed out", "createCQs"),
               f.createLongCounter("createCQTime",
                   "Total amount of time, in nanoseconds spent doing createCQs", "nanoseconds"),
-              f.createIntGauge("commitsInProgress", "Current number of commits being executed",
+              f.createLongGauge("commitsInProgress", "Current number of commits being executed",
                   "commits"),
-              f.createIntCounter("commits", "Total number of commits completed successfully",
+              f.createLongCounter("commits", "Total number of commits completed successfully",
                   "commits"),
-              f.createIntCounter("commitFailures",
+              f.createLongCounter("commitFailures",
                   "Total number of commit attempts that have failed", "commits"),
-              f.createIntCounter("commitTimeouts",
+              f.createLongCounter("commitTimeouts",
                   "Total number of commit attempts that have timed out", "commits"),
               f.createLongCounter("commitTime",
                   "Total amount of time, in nanoseconds spent doing commits", "nanoseconds"),
-              f.createIntGauge("containsKeysInProgress",
+              f.createLongGauge("containsKeysInProgress",
                   "Current number of containsKeys being executed", "containsKeys"),
-              f.createIntCounter("containsKeys",
+              f.createLongCounter("containsKeys",
                   "Total number of containsKeys completed successfully", "containsKeys"),
-              f.createIntCounter("containsKeyFailures",
+              f.createLongCounter("containsKeyFailures",
                   "Total number of containsKey attempts that have failed", "containsKeys"),
-              f.createIntCounter("containsKeyTimeouts",
+              f.createLongCounter("containsKeyTimeouts",
                   "Total number of containsKey attempts that have timed out", "containsKeys"),
               f.createLongCounter("containsKeyTime",
                   "Total amount of time, in nanoseconds spent doing containsKeys", "nanoseconds"),
-              f.createIntGauge("destroyRegionsInProgress",
+              f.createLongGauge("destroyRegionsInProgress",
                   "Current number of destroyRegions being executed", "destroyRegions"),
-              f.createIntCounter("destroyRegions",
+              f.createLongCounter("destroyRegions",
                   "Total number of destroyRegions completed successfully", "destroyRegions"),
-              f.createIntCounter("destroyRegionFailures",
+              f.createLongCounter("destroyRegionFailures",
                   "Total number of destroyRegion attempts that have failed", "destroyRegions"),
-              f.createIntCounter("destroyRegionTimeouts",
+              f.createLongCounter("destroyRegionTimeouts",
                   "Total number of destroyRegion attempts that have timed out", "destroyRegions"),
               f.createLongCounter("destroyRegionTime",
                   "Total amount of time, in nanoseconds spent doing destroyRegions", "nanoseconds"),
-              f.createIntGauge("destroysInProgress", "Current number of destroys being executed",
+              f.createLongGauge("destroysInProgress", "Current number of destroys being executed",
                   "destroys"),
               f.createLongCounter("destroys", "Total number of destroys completed successfully",
                   "destroys"),
@@ -545,116 +545,116 @@ public class ConnectionStats implements MessageStats {
                   "Total number of destroy attempts that have timed out", "destroys"),
               f.createLongCounter("destroyTime",
                   "Total amount of time, in nanoseconds spent doing destroys", "nanoseconds"),
-              f.createIntGauge("executeFunctionsInProgress",
+              f.createLongGauge("executeFunctionsInProgress",
                   "Current number of Functions being executed", "executeFunctions"),
-              f.createIntCounter("executeFunctions",
+              f.createLongCounter("executeFunctions",
                   "Total number of Functions completed successfully", "executeFunctions"),
-              f.createIntCounter("executeFunctionFailures",
+              f.createLongCounter("executeFunctionFailures",
                   "Total number of Function attempts that have failed", "executeFunctions"),
-              f.createIntCounter("executeFunctionTimeouts",
+              f.createLongCounter("executeFunctionTimeouts",
                   "Total number of Function attempts that have timed out", "executeFunctions"),
               f.createLongCounter("executeFunctionTime",
                   "Total amount of time, in nanoseconds spent doing Functions", "nanoseconds"),
-              f.createIntGauge("gatewayBatchsInProgress",
+              f.createLongGauge("gatewayBatchsInProgress",
                   "Current number of gatewayBatchs being executed", "gatewayBatchs"),
-              f.createIntCounter("gatewayBatchs",
+              f.createLongCounter("gatewayBatchs",
                   "Total number of gatewayBatchs completed successfully", "gatewayBatchs"),
-              f.createIntCounter("gatewayBatchFailures",
+              f.createLongCounter("gatewayBatchFailures",
                   "Total number of gatewayBatch attempts that have failed", "gatewayBatchs"),
-              f.createIntCounter("gatewayBatchTimeouts",
+              f.createLongCounter("gatewayBatchTimeouts",
                   "Total number of gatewayBatch attempts that have timed out", "gatewayBatchs"),
               f.createLongCounter("gatewayBatchTime",
                   "Total amount of time, in nanoseconds spent doing gatewayBatchs", "nanoseconds"),
-              f.createIntGauge("getAllsInProgress", "Current number of getAlls being executed",
+              f.createLongGauge("getAllsInProgress", "Current number of getAlls being executed",
                   "getAlls"),
-              f.createIntCounter("getAlls", "Total number of getAlls completed successfully",
+              f.createLongCounter("getAlls", "Total number of getAlls completed successfully",
                   "getAlls"),
-              f.createIntCounter("getAllFailures",
+              f.createLongCounter("getAllFailures",
                   "Total number of getAll attempts that have failed", "getAlls"),
-              f.createIntCounter("getAllTimeouts",
+              f.createLongCounter("getAllTimeouts",
                   "Total number of getAll attempts that have timed out", "getAlls"),
               f.createLongCounter("getAllTime",
                   "Total amount of time, in nanoseconds spent doing getAlls", "nanoseconds"),
-              f.createIntGauge("getClientPartitionAttributesInProgress",
+              f.createLongGauge("getClientPartitionAttributesInProgress",
                   "Current number of getClientPartitionAttributes operations being executed",
                   "getClientPartitionAttributes"),
-              f.createIntCounter("getClientPartitionAttributesFailures",
+              f.createLongCounter("getClientPartitionAttributesFailures",
                   "Total number of getClientPartitionAttributes operation attempts that have failed",
                   "getClientPartitionAttributes"),
-              f.createIntCounter("getClientPartitionAttributesSuccessful",
+              f.createLongCounter("getClientPartitionAttributesSuccessful",
                   "Total number of getClientPartitionAttributes operations completed successfully",
                   "getClientPartitionAttributes"),
-              f.createIntCounter("getClientPartitionAttributesTimeouts",
+              f.createLongCounter("getClientPartitionAttributesTimeouts",
                   "Total number of getClientPartitionAttributes operation attempts that have timed out",
                   "getClientPartitionAttributes"),
               f.createLongCounter("getClientPartitionAttributesTime",
                   "Total amount of time, in nanoseconds spent doing getClientPartitionAttributes successfully/unsuccessfully.",
                   "nanoseconds"),
-              f.createIntGauge("getClientPRMetadataInProgress",
+              f.createLongGauge("getClientPRMetadataInProgress",
                   "Current number of getClientPRMetadata operations being executed",
                   "getClientPRMetadata"),
-              f.createIntCounter("getClientPRMetadataFailures",
+              f.createLongCounter("getClientPRMetadataFailures",
                   "Total number of getClientPRMetadata operation attempts that have failed",
                   "getClientPRMetadata"),
-              f.createIntCounter("getClientPRMetadataSuccessful",
+              f.createLongCounter("getClientPRMetadataSuccessful",
                   "Total number of getClientPRMetadata operations completed successfully",
                   "getClientPRMetadata"),
-              f.createIntCounter("getClientPRMetadataTimeouts",
+              f.createLongCounter("getClientPRMetadataTimeouts",
                   "Total number of getClientPRMetadata operation attempts that have timed out",
                   "getClientPRMetadata"),
               f.createLongCounter("getClientPRMetadataTime",
                   "Total amount of time, in nanoseconds spent doing getClientPRMetadata successfully/unsuccessfully",
                   "nanoseconds"),
-              f.createIntGauge("getPDXIdForTypeInProgress",
+              f.createLongGauge("getPDXIdForTypeInProgress",
                   "Current number of getPDXIdForType operations being executed", "getPDXIdForType"),
-              f.createIntCounter("getPDXIdForTypeFailures",
+              f.createLongCounter("getPDXIdForTypeFailures",
                   "Total number of getPDXIdForType operation attempts that have failed",
                   "getPDXIdForType"),
-              f.createIntCounter("getPDXIdForTypeSuccessful",
+              f.createLongCounter("getPDXIdForTypeSuccessful",
                   "Total number of getPDXIdForType operations completed successfully",
                   "getPDXIdForType"),
-              f.createIntCounter("getPDXIdForTypeTimeouts",
+              f.createLongCounter("getPDXIdForTypeTimeouts",
                   "Total number of getPDXIdForType operation attempts that have timed out",
                   "getPDXIdForType"),
               f.createLongCounter("getPDXIdForTypeTime",
                   "Total amount of time, in nanoseconds spent doing getPDXIdForType successfully/unsuccessfully.",
                   "nanoseconds"),
-              f.createIntGauge("getPDXTypeByIdInProgress",
+              f.createLongGauge("getPDXTypeByIdInProgress",
                   "Current number of getPDXTypeById operations being executed", "getPDXTypeById"),
-              f.createIntCounter("getPDXTypeByIdFailures",
+              f.createLongCounter("getPDXTypeByIdFailures",
                   "Total number of getPDXTypeById operation attempts that have failed",
                   "getPDXTypeById"),
-              f.createIntCounter("getPDXTypeByIdSuccessful",
+              f.createLongCounter("getPDXTypeByIdSuccessful",
                   "Total number of getPDXTypeById operations completed successfully",
                   "getPDXTypeById"),
-              f.createIntCounter("getPDXTypeByIdTimeouts",
+              f.createLongCounter("getPDXTypeByIdTimeouts",
                   "Total number of getPDXTypeById operation attempts that have timed out",
                   "getPDXTypeById"),
               f.createLongCounter("getPDXTypeByIdTime",
                   "Total amount of time, in nanoseconds spent doing getPDXTypeById successfully/unsuccessfully.",
                   "nanoseconds"),
-              f.createIntGauge("getEntrysInProgress",
+              f.createLongGauge("getEntrysInProgress",
                   "Current number of getEntry messages being executed", "messages"),
-              f.createIntCounter("getEntrys",
+              f.createLongCounter("getEntrys",
                   "Total number of getEntry messages completed successfully", "messages"),
-              f.createIntCounter("getEntryFailures",
+              f.createLongCounter("getEntryFailures",
                   "Total number of getEntry attempts that have failed", "attempts"),
-              f.createIntCounter("getEntryTimeouts",
+              f.createLongCounter("getEntryTimeouts",
                   "Total number of getEntry attempts that have timed out", "attempts"),
               f.createLongCounter("getEntryTime",
                   "Total amount of time, in nanoseconds spent doing getEntry processings",
                   "nanoseconds"),
-              f.createIntGauge("getDurableCQsInProgress",
+              f.createLongGauge("getDurableCQsInProgress",
                   "Current number of getDurableCQs being executed", "getDurableCQs"),
-              f.createIntCounter("getDurableCQs",
+              f.createLongCounter("getDurableCQs",
                   "Total number of getDurableCQs completed successfully", "getDurableCQs"),
-              f.createIntCounter("getDurableCQsFailures",
+              f.createLongCounter("getDurableCQsFailures",
                   "Total number of getDurableCQs attempts that have failed", "getDurableCQs"),
-              f.createIntCounter("getDurableCQsTimeouts",
+              f.createLongCounter("getDurableCQsTimeouts",
                   "Total number of getDurableCQs attempts that have timed out", "getDurableCQs"),
               f.createLongCounter("getDurableCQsTime",
                   "Total amount of time, in nanoseconds spent doing getDurableCQs", "nanoseconds"),
-              f.createIntGauge("getsInProgress", "Current number of gets being executed", "gets"),
+              f.createLongGauge("getsInProgress", "Current number of gets being executed", "gets"),
               f.createLongCounter("gets", "Total number of gets completed successfully", "gets"),
               f.createLongCounter("getFailures", "Total number of get attempts that have failed",
                   "gets"),
@@ -662,7 +662,7 @@ public class ConnectionStats implements MessageStats {
                   "gets"),
               f.createLongCounter("getTime",
                   "Total amount of time, in nanoseconds spent doing gets", "nanoseconds"),
-              f.createIntGauge("invalidatesInProgress",
+              f.createLongGauge("invalidatesInProgress",
                   "Current number of invalidates being executed", "invalidates"),
               f.createLongCounter("invalidates",
                   "Total number of invalidates completed successfully", "invalidates"),
@@ -672,70 +672,70 @@ public class ConnectionStats implements MessageStats {
                   "Total number of invalidate attempts that have timed out", "invalidates"),
               f.createLongCounter("invalidateTime",
                   "Total amount of time, in nanoseconds spent doing invalidates", "nanoseconds"),
-              f.createIntGauge("jtaSynchronizationsInProgress",
+              f.createLongGauge("jtaSynchronizationsInProgress",
                   "Current number of jtaSynchronizations being executed", "sizes"),
-              f.createIntCounter("jtaSynchronizations",
+              f.createLongCounter("jtaSynchronizations",
                   "Total number of jtaSynchronizations completed successfully",
                   "jtaSynchronizations"),
-              f.createIntCounter("jtaSynchronizationFailures",
+              f.createLongCounter("jtaSynchronizationFailures",
                   "Total number of jtaSynchronization attempts that have failed",
                   "jtaSynchronizations"),
-              f.createIntCounter("jtaSynchronizationTimeouts",
+              f.createLongCounter("jtaSynchronizationTimeouts",
                   "Total number of jtaSynchronization attempts that have timed out",
                   "jtaSynchronizations"),
               f.createLongCounter("jtaSynchronizationTime",
                   "Total amount of time, in nanoseconds spent doing jtaSynchronizations",
                   "nanoseconds"),
-              f.createIntGauge("keySetsInProgress", "Current number of keySets being executed",
+              f.createLongGauge("keySetsInProgress", "Current number of keySets being executed",
                   "keySets"),
-              f.createIntCounter("keySets", "Total number of keySets completed successfully",
+              f.createLongCounter("keySets", "Total number of keySets completed successfully",
                   "keySets"),
-              f.createIntCounter("keySetFailures",
+              f.createLongCounter("keySetFailures",
                   "Total number of keySet attempts that have failed", "keySets"),
-              f.createIntCounter("keySetTimeouts",
+              f.createLongCounter("keySetTimeouts",
                   "Total number of keySet attempts that have timed out", "keySets"),
               f.createLongCounter("keySetTime",
                   "Total amount of time, in nanoseconds spent doing keySets", "nanoseconds"),
-              f.createIntGauge("makePrimarysInProgress",
+              f.createLongGauge("makePrimarysInProgress",
                   "Current number of makePrimarys being executed", "makePrimarys"),
-              f.createIntCounter("makePrimarys",
+              f.createLongCounter("makePrimarys",
                   "Total number of makePrimarys completed successfully", "makePrimarys"),
-              f.createIntCounter("makePrimaryFailures",
+              f.createLongCounter("makePrimaryFailures",
                   "Total number of makePrimary attempts that have failed", "makePrimarys"),
-              f.createIntCounter("makePrimaryTimeouts",
+              f.createLongCounter("makePrimaryTimeouts",
                   "Total number of makePrimary attempts that have timed out", "makePrimarys"),
               f.createLongCounter("makePrimaryTime",
                   "Total amount of time, in nanoseconds spent doing makePrimarys", "nanoseconds"),
-              f.createIntGauge("pingsInProgress", "Current number of pings being executed",
+              f.createLongGauge("pingsInProgress", "Current number of pings being executed",
                   "pings"),
-              f.createIntCounter("pings", "Total number of pings completed successfully", "pings"),
-              f.createIntCounter("pingFailures", "Total number of ping attempts that have failed",
+              f.createLongCounter("pings", "Total number of pings completed successfully", "pings"),
+              f.createLongCounter("pingFailures", "Total number of ping attempts that have failed",
                   "pings"),
-              f.createIntCounter("pingTimeouts",
+              f.createLongCounter("pingTimeouts",
                   "Total number of ping attempts that have timed out", "pings"),
               f.createLongCounter("pingTime",
                   "Total amount of time, in nanoseconds spent doing pings", "nanoseconds"),
-              f.createIntGauge("primaryAcksInProgress",
+              f.createLongGauge("primaryAcksInProgress",
                   "Current number of primaryAcks being executed", "primaryAcks"),
-              f.createIntCounter("primaryAcks",
+              f.createLongCounter("primaryAcks",
                   "Total number of primaryAcks completed successfully", "primaryAcks"),
-              f.createIntCounter("primaryAckFailures",
+              f.createLongCounter("primaryAckFailures",
                   "Total number of primaryAck attempts that have failed", "primaryAcks"),
-              f.createIntCounter("primaryAckTimeouts",
+              f.createLongCounter("primaryAckTimeouts",
                   "Total number of primaryAck attempts that have timed out", "primaryAcks"),
               f.createLongCounter("primaryAckTime",
                   "Total amount of time, in nanoseconds spent doing primaryAcks", "nanoseconds"),
-              f.createIntGauge("putAllsInProgress", "Current number of putAlls being executed",
+              f.createLongGauge("putAllsInProgress", "Current number of putAlls being executed",
                   "putAlls"),
-              f.createIntCounter("putAlls", "Total number of putAlls completed successfully",
+              f.createLongCounter("putAlls", "Total number of putAlls completed successfully",
                   "putAlls"),
-              f.createIntCounter("putAllFailures",
+              f.createLongCounter("putAllFailures",
                   "Total number of putAll attempts that have failed", "putAlls"),
-              f.createIntCounter("putAllTimeouts",
+              f.createLongCounter("putAllTimeouts",
                   "Total number of putAll attempts that have timed out", "putAlls"),
               f.createLongCounter("putAllTime",
                   "Total amount of time, in nanoseconds spent doing putAlls", "nanoseconds"),
-              f.createIntGauge("putsInProgress", "Current number of puts being executed", "puts"),
+              f.createLongGauge("putsInProgress", "Current number of puts being executed", "puts"),
               f.createLongCounter("puts", "Total number of puts completed successfully", "puts"),
               f.createLongCounter("putFailures", "Total number of put attempts that have failed",
                   "puts"),
@@ -743,137 +743,139 @@ public class ConnectionStats implements MessageStats {
                   "puts"),
               f.createLongCounter("putTime",
                   "Total amount of time, in nanoseconds spent doing puts", "nanoseconds"),
-              f.createIntGauge("querysInProgress", "Current number of querys being executed",
+              f.createLongGauge("querysInProgress", "Current number of querys being executed",
                   "querys"),
-              f.createIntCounter("querys", "Total number of querys completed successfully",
+              f.createLongCounter("querys", "Total number of querys completed successfully",
                   "querys"),
-              f.createIntCounter("queryFailures", "Total number of query attempts that have failed",
+              f.createLongCounter("queryFailures",
+                  "Total number of query attempts that have failed",
                   "querys"),
-              f.createIntCounter("queryTimeouts",
+              f.createLongCounter("queryTimeouts",
                   "Total number of query attempts that have timed out", "querys"),
               f.createLongCounter("queryTime",
                   "Total amount of time, in nanoseconds spent doing querys", "nanoseconds"),
-              f.createIntGauge("readyForEventsInProgress",
+              f.createLongGauge("readyForEventsInProgress",
                   "Current number of readyForEvents being executed", "readyForEvents"),
-              f.createIntCounter("readyForEvents",
+              f.createLongCounter("readyForEvents",
                   "Total number of readyForEvents completed successfully", "readyForEvents"),
-              f.createIntCounter("readyForEventsFailures",
+              f.createLongCounter("readyForEventsFailures",
                   "Total number of readyForEvents attempts that have failed", "readyForEvents"),
-              f.createIntCounter("readyForEventsTimeouts",
+              f.createLongCounter("readyForEventsTimeouts",
                   "Total number of readyForEvents attempts that have timed out", "readyForEvents"),
               f.createLongCounter("readyForEventsTime",
                   "Total amount of time, in nanoseconds spent doing readyForEvents", "nanoseconds"),
-              f.createIntGauge("registerDataSerializersInProgress",
+              f.createLongGauge("registerDataSerializersInProgress",
                   "Current number of registerDataSerializers being executed",
                   "registerDataSerializers"),
-              f.createIntCounter("registerDataSerializers",
+              f.createLongCounter("registerDataSerializers",
                   "Total number of registerDataSerializers completed successfully",
                   "registerDataSerializers"),
-              f.createIntCounter("registerDataSerializersFailures",
+              f.createLongCounter("registerDataSerializersFailures",
                   "Total number of registerDataSerializers attempts that have failed",
                   "registerDataSerializers"),
-              f.createIntCounter("registerDataSerializersTimeouts",
+              f.createLongCounter("registerDataSerializersTimeouts",
                   "Total number of registerDataSerializers attempts that have timed out",
                   "registerDataSerializers"),
               f.createLongCounter("registerDataSerializersTime",
                   "Total amount of time, in nanoseconds spent doing registerDataSerializers",
                   "nanoseconds"),
-              f.createIntGauge("registerInstantiatorsInProgress",
+              f.createLongGauge("registerInstantiatorsInProgress",
                   "Current number of registerInstantiators being executed",
                   "registerInstantiators"),
-              f.createIntCounter("registerInstantiators",
+              f.createLongCounter("registerInstantiators",
                   "Total number of registerInstantiators completed successfully",
                   "registerInstantiators"),
-              f.createIntCounter("registerInstantiatorsFailures",
+              f.createLongCounter("registerInstantiatorsFailures",
                   "Total number of registerInstantiators attempts that have failed",
                   "registerInstantiators"),
-              f.createIntCounter("registerInstantiatorsTimeouts",
+              f.createLongCounter("registerInstantiatorsTimeouts",
                   "Total number of registerInstantiators attempts that have timed out",
                   "registerInstantiators"),
               f.createLongCounter("registerInstantiatorsTime",
                   "Total amount of time, in nanoseconds spent doing registerInstantiators",
                   "nanoseconds"),
-              f.createIntGauge("registerInterestsInProgress",
+              f.createLongGauge("registerInterestsInProgress",
                   "Current number of registerInterests being executed", "registerInterests"),
-              f.createIntCounter("registerInterests",
+              f.createLongCounter("registerInterests",
                   "Total number of registerInterests completed successfully", "registerInterests"),
-              f.createIntCounter("registerInterestFailures",
+              f.createLongCounter("registerInterestFailures",
                   "Total number of registerInterest attempts that have failed",
                   "registerInterests"),
-              f.createIntCounter("registerInterestTimeouts",
+              f.createLongCounter("registerInterestTimeouts",
                   "Total number of registerInterest attempts that have timed out",
                   "registerInterests"),
               f.createLongCounter("registerInterestTime",
                   "Total amount of time, in nanoseconds spent doing registerInterests",
                   "nanoseconds"),
-              f.createIntGauge("removeAllsInProgress",
+              f.createLongGauge("removeAllsInProgress",
                   "Current number of removeAlls being executed", "removeAlls"),
-              f.createIntCounter("removeAlls", "Total number of removeAlls completed successfully",
+              f.createLongCounter("removeAlls", "Total number of removeAlls completed successfully",
                   "removeAlls"),
-              f.createIntCounter("removeAllFailures",
+              f.createLongCounter("removeAllFailures",
                   "Total number of removeAll attempts that have failed", "removeAlls"),
-              f.createIntCounter("removeAllTimeouts",
+              f.createLongCounter("removeAllTimeouts",
                   "Total number of removeAll attempts that have timed out", "removeAlls"),
               f.createLongCounter("removeAllTime",
                   "Total amount of time, in nanoseconds spent doing removeAlls", "nanoseconds"),
-              f.createIntGauge("rollbacksInProgress", "Current number of rollbacks being executed",
+              f.createLongGauge("rollbacksInProgress", "Current number of rollbacks being executed",
                   "rollbacks"),
-              f.createIntCounter("rollbacks", "Total number of rollbacks completed successfully",
+              f.createLongCounter("rollbacks", "Total number of rollbacks completed successfully",
                   "rollbacks"),
-              f.createIntCounter("rollbackFailures",
+              f.createLongCounter("rollbackFailures",
                   "Total number of rollback attempts that have failed", "rollbacks"),
-              f.createIntCounter("rollbackTimeouts",
+              f.createLongCounter("rollbackTimeouts",
                   "Total number of rollback attempts that have timed out", "rollbacks"),
               f.createLongCounter("rollbackTime",
                   "Total amount of time, in nanoseconds spent doing rollbacks", "nanoseconds"),
-              f.createIntGauge("sizesInProgress", "Current number of sizes being executed",
+              f.createLongGauge("sizesInProgress", "Current number of sizes being executed",
                   "sizes"),
-              f.createIntCounter("sizes", "Total number of sizes completed successfully", "sizes"),
-              f.createIntCounter("sizeFailures", "Total number of size attempts that have failed",
+              f.createLongCounter("sizes", "Total number of sizes completed successfully", "sizes"),
+              f.createLongCounter("sizeFailures", "Total number of size attempts that have failed",
                   "sizes"),
-              f.createIntCounter("sizeTimeouts",
+              f.createLongCounter("sizeTimeouts",
                   "Total number of size attempts that have timed out", "sizes"),
               f.createLongCounter("sizeTime",
                   "Total amount of time, in nanoseconds spent doing sizes", "nanoseconds"),
-              f.createIntGauge("stopCQsInProgress", "Current number of stopCQs being executed",
+              f.createLongGauge("stopCQsInProgress", "Current number of stopCQs being executed",
                   "stopCQs"),
-              f.createIntCounter("stopCQs", "Total number of stopCQs completed successfully",
+              f.createLongCounter("stopCQs", "Total number of stopCQs completed successfully",
                   "stopCQs"),
-              f.createIntCounter("stopCQFailures",
+              f.createLongCounter("stopCQFailures",
                   "Total number of stopCQ attempts that have failed", "stopCQs"),
-              f.createIntCounter("stopCQTimeouts",
+              f.createLongCounter("stopCQTimeouts",
                   "Total number of stopCQ attempts that have timed out", "stopCQs"),
               f.createLongCounter("stopCQTime",
                   "Total amount of time, in nanoseconds spent doing stopCQs", "nanoseconds"),
-              f.createIntGauge("txFailoversInProgress",
+              f.createLongGauge("txFailoversInProgress",
                   "Current number of txFailovers being executed", "txFailovers"),
-              f.createIntCounter("txFailovers",
+              f.createLongCounter("txFailovers",
                   "Total number of txFailovers completed successfully", "txFailovers"),
-              f.createIntCounter("txFailoverFailures",
+              f.createLongCounter("txFailoverFailures",
                   "Total number of txFailover attempts that have failed", "txFailovers"),
-              f.createIntCounter("txFailoverTimeouts",
+              f.createLongCounter("txFailoverTimeouts",
                   "Total number of txFailover attempts that have timed out", "sizes"),
               f.createLongCounter("txFailoverTime",
                   "Total amount of time, in nanoseconds spent doing txFailovers", "nanoseconds"),
-              f.createIntGauge("unregisterInterestsInProgress",
+              f.createLongGauge("unregisterInterestsInProgress",
                   "Current number of unregisterInterests being executed", "unregisterInterests"),
-              f.createIntCounter("unregisterInterests",
+              f.createLongCounter("unregisterInterests",
                   "Total number of unregisterInterests completed successfully",
                   "unregisterInterests"),
-              f.createIntCounter("unregisterInterestFailures",
+              f.createLongCounter("unregisterInterestFailures",
                   "Total number of unregisterInterest attempts that have failed",
                   "unregisterInterests"),
-              f.createIntCounter("unregisterInterestTimeouts",
+              f.createLongCounter("unregisterInterestTimeouts",
                   "Total number of unregisterInterest attempts that have timed out",
                   "unregisterInterests"),
               f.createLongCounter("unregisterInterestTime",
                   "Total amount of time, in nanoseconds spent doing unregisterInterests",
                   "nanoseconds"),
 
-              f.createIntGauge("connections", "Current number of connections", "connections"),
-              f.createIntCounter("connects", "Total number of times a connection has been created.",
+              f.createLongGauge("connections", "Current number of connections", "connections"),
+              f.createLongCounter("connects",
+                  "Total number of times a connection has been created.",
                   "connects"),
-              f.createIntCounter("disconnects",
+              f.createLongCounter("disconnects",
                   "Total number of times a connection has been destroyed.", "disconnects"),
               f.createLongCounter("receivedBytes",
                   "Total number of bytes received (as responses) from server over a client-to-server connection.",
@@ -881,7 +883,7 @@ public class ConnectionStats implements MessageStats {
               f.createLongCounter("sentBytes",
                   "Total number of bytes sent to server over a client-to-server connection.",
                   "bytes"),
-              f.createIntGauge("messagesBeingReceived",
+              f.createLongGauge("messagesBeingReceived",
                   "Current number of message being received off the network or being processed after reception over a client-to-server connection.",
                   "messages"),
               f.createLongGauge("messageBytesBeingReceived",
@@ -891,347 +893,349 @@ public class ConnectionStats implements MessageStats {
 
       sendType = f.createType("ClientSendStats", "Statistics about client to server communication",
           new StatisticDescriptor[] {
-              f.createIntCounter("addPdxTypeSendFailures",
+              f.createLongCounter("addPdxTypeSendFailures",
                   "Total number of addPdxType operation's request messages not sent successfully from the client to server",
                   "sends"),
-              f.createIntCounter("addPdxTypeSendsSuccessful",
+              f.createLongCounter("addPdxTypeSendsSuccessful",
                   "Total number of addPdxType operation's request messages sent successfully from the client to server",
                   "sends"),
-              f.createIntGauge("addPdxTypeSendsInProgress",
+              f.createLongGauge("addPdxTypeSendsInProgress",
                   "Current number of addPdxType operation's request messages being send from the client to server",
                   "sends"),
               f.createLongCounter("addPdxTypeSendTime",
                   "Total amount of time, in nanoseconds spent sending addPdxType operation's request messages successfully/unsuccessfully from the client to server",
                   "nanoseconds"),
-              f.createIntCounter("clearSendFailures",
+              f.createLongCounter("clearSendFailures",
                   "Total number of clear sends that have failed", "sends"),
-              f.createIntCounter("clearSends",
+              f.createLongCounter("clearSends",
                   "Total number of clear sends that have completed successfully", "sends"),
-              f.createIntGauge("clearSendsInProgress",
+              f.createLongGauge("clearSendsInProgress",
                   "Current number of clear sends being executed", "sends"),
               f.createLongCounter("clearSendTime",
                   "Total amount of time, in nanoseconds spent doing clear sends", "nanoseconds"),
-              f.createIntCounter("closeConSendFailures",
+              f.createLongCounter("closeConSendFailures",
                   "Total number of closeCon sends that have failed", "sends"),
-              f.createIntCounter("closeConSends",
+              f.createLongCounter("closeConSends",
                   "Total number of closeCon sends that have completed successfully", "sends"),
-              f.createIntGauge("closeConSendsInProgress",
+              f.createLongGauge("closeConSendsInProgress",
                   "Current number of closeCon sends being executed", "sends"),
               f.createLongCounter("closeConSendTime",
                   "Total amount of time, in nanoseconds spent doing closeCon sends", "nanoseconds"),
-              f.createIntCounter("closeCQSendFailures",
+              f.createLongCounter("closeCQSendFailures",
                   "Total number of closeCQ sends that have failed", "sends"),
-              f.createIntCounter("closeCQSends",
+              f.createLongCounter("closeCQSends",
                   "Total number of closeCQ sends that have completed successfully", "sends"),
-              f.createIntGauge("closeCQSendsInProgress",
+              f.createLongGauge("closeCQSendsInProgress",
                   "Current number of closeCQ sends being executed", "sends"),
               f.createLongCounter("closeCQSendTime",
                   "Total amount of time, in nanoseconds spent doing closeCQ sends", "nanoseconds"),
-              f.createIntCounter("createCQSendFailures",
+              f.createLongCounter("createCQSendFailures",
                   "Total number of createCQ sends that have failed", "sends"),
-              f.createIntCounter("createCQSends",
+              f.createLongCounter("createCQSends",
                   "Total number of createCQ sends that have completed successfully", "sends"),
-              f.createIntGauge("createCQSendsInProgress",
+              f.createLongGauge("createCQSendsInProgress",
                   "Current number of createCQ sends being executed", "sends"),
               f.createLongCounter("createCQSendTime",
                   "Total amount of time, in nanoseconds spent doing createCQ sends", "nanoseconds"),
-              f.createIntCounter("commitSendFailures",
+              f.createLongCounter("commitSendFailures",
                   "Total number of commit sends that have failed", "sends"),
-              f.createIntCounter("commitSends",
+              f.createLongCounter("commitSends",
                   "Total number of commit sends that have completed successfully",
                   "sends"),
-              f.createIntGauge("commitSendsInProgress",
+              f.createLongGauge("commitSendsInProgress",
                   "Current number of commit sends being executed", "sends"),
               f.createLongCounter("commitSendTime",
                   "Total amount of time, in nanoseconds spent doing commits", "nanoseconds"),
-              f.createIntCounter("containsKeySendFailures",
+              f.createLongCounter("containsKeySendFailures",
                   "Total number of containsKey sends that have failed", "sends"),
-              f.createIntCounter("containsKeySends",
+              f.createLongCounter("containsKeySends",
                   "Total number of containsKey sends that have completed successfully", "sends"),
-              f.createIntGauge("containsKeySendsInProgress",
+              f.createLongGauge("containsKeySendsInProgress",
                   "Current number of containsKey sends being executed", "sends"),
               f.createLongCounter("containsKeySendTime",
                   "Total amount of time, in nanoseconds spent doing containsKey sends",
                   "nanoseconds"),
-              f.createIntCounter("destroyRegionSendFailures",
+              f.createLongCounter("destroyRegionSendFailures",
                   "Total number of destroyRegion sends that have failed", "sends"),
-              f.createIntCounter("destroyRegionSends",
+              f.createLongCounter("destroyRegionSends",
                   "Total number of destroyRegion sends that have completed successfully", "sends"),
-              f.createIntGauge("destroyRegionSendsInProgress",
+              f.createLongGauge("destroyRegionSendsInProgress",
                   "Current number of destroyRegion sends being executed", "sends"),
               f.createLongCounter("destroyRegionSendTime",
                   "Total amount of time, in nanoseconds spent doing destroyRegion sends",
                   "nanoseconds"),
-              f.createIntCounter("destroySendFailures",
+              f.createLongCounter("destroySendFailures",
                   "Total number of destroy sends that have failed", "sends"),
-              f.createIntCounter("destroySends",
+              f.createLongCounter("destroySends",
                   "Total number of destroy sends that have completed successfully", "sends"),
-              f.createIntGauge("destroySendsInProgress",
+              f.createLongGauge("destroySendsInProgress",
                   "Current number of destroy sends being executed", "sends"),
               f.createLongCounter("destroySendTime",
                   "Total amount of time, in nanoseconds spent doing destroy sends", "nanoseconds"),
-              f.createIntCounter("executeFunctionSendFailures",
+              f.createLongCounter("executeFunctionSendFailures",
                   "Total number of Function sends that have failed", "sends"),
-              f.createIntCounter("executeFunctionSends",
+              f.createLongCounter("executeFunctionSends",
                   "Total number of Function sends that have completed successfully", "sends"),
-              f.createIntGauge("executeFunctionSendsInProgress",
+              f.createLongGauge("executeFunctionSendsInProgress",
                   "Current number of Function sends being executed", "sends"),
               f.createLongCounter("executeFunctionSendTime",
                   "Total amount of time, in nanoseconds spent doing Function sends", "nanoseconds"),
-              f.createIntCounter("gatewayBatchSendFailures",
+              f.createLongCounter("gatewayBatchSendFailures",
                   "Total number of gatewayBatch sends that have failed", "sends"),
-              f.createIntCounter("gatewayBatchSends",
+              f.createLongCounter("gatewayBatchSends",
                   "Total number of gatewayBatch sends that have completed successfully", "sends"),
-              f.createIntGauge("gatewayBatchSendsInProgress",
+              f.createLongGauge("gatewayBatchSendsInProgress",
                   "Current number of gatewayBatch sends being executed", "sends"),
               f.createLongCounter("gatewayBatchSendTime",
                   "Total amount of time, in nanoseconds spent doing gatewayBatch sends",
                   "nanoseconds"),
-              f.createIntCounter("getAllSendFailures",
+              f.createLongCounter("getAllSendFailures",
                   "Total number of getAll sends that have failed", "sends"),
-              f.createIntCounter("getAllSends",
+              f.createLongCounter("getAllSends",
                   "Total number of getAll sends that have completed successfully", "sends"),
-              f.createIntGauge("getAllSendsInProgress",
+              f.createLongGauge("getAllSendsInProgress",
                   "Current number of getAll sends being executed", "sends"),
               f.createLongCounter("getAllSendTime",
                   "Total amount of time, in nanoseconds spent doing getAll sends", "nanoseconds"),
-              f.createIntCounter("getClientPartitionAttributesSendFailures",
+              f.createLongCounter("getClientPartitionAttributesSendFailures",
                   "Total number of getClientPartitionAttributes operation's request messages not sent successfully from the client to server",
                   "sends"),
-              f.createIntGauge("getClientPartitionAttributesSendsInProgress",
+              f.createLongGauge("getClientPartitionAttributesSendsInProgress",
                   "Current number of getClientPartitionAttributes operation's request messages being send from the client to server",
                   "sends"),
-              f.createIntCounter("getClientPartitionAttributesSendsSuccessful",
+              f.createLongCounter("getClientPartitionAttributesSendsSuccessful",
                   "Total number of getClientPartitionAttributes operation's request messages sent successfully from the client to server",
                   "sends"),
               f.createLongCounter("getClientPartitionAttributesSendTime",
                   "Total amount of time, in nanoseconds spent sending getClientPartitionAttributes operation's request messages successfully/unsuccessfully from the client to server",
                   "nanoseconds"),
-              f.createIntCounter("getClientPRMetadataSendFailures",
+              f.createLongCounter("getClientPRMetadataSendFailures",
                   "Total number of getClientPRMetadata operation's request messages not sent successfully from the client to server",
                   "sends"),
-              f.createIntGauge("getClientPRMetadataSendsInProgress",
+              f.createLongGauge("getClientPRMetadataSendsInProgress",
                   "Current number of getClientPRMetadata operation's request messages being send from the client to server",
                   "sends"),
-              f.createIntCounter("getClientPRMetadataSendsSuccessful",
+              f.createLongCounter("getClientPRMetadataSendsSuccessful",
                   "Total number of getClientPRMetadata operation's request messages sent successfully from the client to server",
                   "sends"),
               f.createLongCounter("getClientPRMetadataSendTime",
                   "Total amount of time, in nanoseconds spent sending getClientPRMetadata operation's request messages successfully/unsuccessfully from the client to server",
                   "nanoseconds"),
-              f.createIntCounter("getPDXIdForTypeSendFailures",
+              f.createLongCounter("getPDXIdForTypeSendFailures",
                   "Total number of getPDXIdForType operation's request messages not sent successfully from the client to server",
                   "sends"),
-              f.createIntGauge("getPDXIdForTypeSendsInProgress",
+              f.createLongGauge("getPDXIdForTypeSendsInProgress",
                   "Current number of getPDXIdForType operation's request messages being send from the client to server",
                   "sends"),
-              f.createIntCounter("getPDXIdForTypeSendsSuccessful",
+              f.createLongCounter("getPDXIdForTypeSendsSuccessful",
                   "Total number of getPDXIdForType operation's request messages sent successfully from the client to server",
                   "sends"),
               f.createLongCounter("getPDXIdForTypeSendTime",
                   "Total amount of time, in nanoseconds spent sending getPDXIdForType operation's request messages successfully/unsuccessfully from the client to server",
                   "nanoseconds"),
-              f.createIntCounter("getPDXTypeByIdSendFailures",
+              f.createLongCounter("getPDXTypeByIdSendFailures",
                   "Total number of getPDXTypeById operation's request messages not sent successfully from the client to server",
                   "sends"),
-              f.createIntGauge("getPDXTypeByIdSendsInProgress",
+              f.createLongGauge("getPDXTypeByIdSendsInProgress",
                   "Current number of getPDXTypeById operation's request messages being send from the client to server",
                   "sends"),
-              f.createIntCounter("getPDXTypeByIdSendsSuccessful",
+              f.createLongCounter("getPDXTypeByIdSendsSuccessful",
                   "Total number of getPDXTypeById operation's request messages sent successfully from the client to server",
                   "sends"),
               f.createLongCounter("getPDXTypeByIdSendTime",
                   "Total amount of time, in nanoseconds spent sending getPDXTypeById operation's request messages successfully/unsuccessfully from the client to server",
                   "nanoseconds"),
-              f.createIntCounter("getEntrySendFailures",
+              f.createLongCounter("getEntrySendFailures",
                   "Total number of getEntry sends that have failed", "sends"),
-              f.createIntCounter("getEntrySends",
+              f.createLongCounter("getEntrySends",
                   "Total number of getEntry sends that have completed successfully", "sends"),
-              f.createIntGauge("getEntrySendsInProgress",
+              f.createLongGauge("getEntrySendsInProgress",
                   "Current number of getEntry sends being executed", "sends"),
               f.createLongCounter("getEntrySendTime",
                   "Total amount of time, in nanoseconds spent sending getEntry messages",
                   "nanoseconds"),
-              f.createIntCounter("getDurableCQsSendFailures",
+              f.createLongCounter("getDurableCQsSendFailures",
                   "Total number of getDurableCQs sends that have failed", "sends"),
-              f.createIntCounter("getDurableCQsSends",
+              f.createLongCounter("getDurableCQsSends",
                   "Total number of getDurableCQs sends that have completed successfully", "sends"),
-              f.createIntGauge("getDurableCQsSendsInProgress",
+              f.createLongGauge("getDurableCQsSendsInProgress",
                   "Current number of getDurableCQs sends being executed", "sends"),
               f.createLongCounter("getDurableCQsSendTime",
                   "Total amount of time, in nanoseconds spent doing getDurableCQs sends",
                   "nanoseconds"),
-              f.createIntCounter("getSendFailures", "Total number of get sends that have failed",
+              f.createLongCounter("getSendFailures", "Total number of get sends that have failed",
                   "sends"),
-              f.createIntCounter("getSends",
+              f.createLongCounter("getSends",
                   "Total number of get sends that have completed successfully", "sends"),
-              f.createIntGauge("getSendsInProgress", "Current number of get sends being executed",
+              f.createLongGauge("getSendsInProgress", "Current number of get sends being executed",
                   "sends"),
               f.createLongCounter("getSendTime",
                   "Total amount of time, in nanoseconds spent doing get sends", "nanoseconds"),
-              f.createIntCounter("invalidateSendFailures",
+              f.createLongCounter("invalidateSendFailures",
                   "Total number of invalidate sends that have failed", "sends"),
-              f.createIntCounter("invalidateSends",
+              f.createLongCounter("invalidateSends",
                   "Total number of invalidate sends that have completed successfully", "sends"),
-              f.createIntGauge("invalidateSendsInProgress",
+              f.createLongGauge("invalidateSendsInProgress",
                   "Current number of invalidate sends being executed", "sends"),
               f.createLongCounter("invalidateSendTime",
                   "Total amount of time, in nanoseconds spent doing invalidates", "nanoseconds"),
-              f.createIntCounter("jtaSynchronizationSendFailures",
+              f.createLongCounter("jtaSynchronizationSendFailures",
                   "Total number of jtaSynchronization sends that have failed", "sends"),
-              f.createIntCounter("jtaSynchronizationSends",
+              f.createLongCounter("jtaSynchronizationSends",
                   "Total number of jtaSynchronization sends that have completed successfully",
                   "sends"),
-              f.createIntGauge("jtaSynchronizationSendsInProgress",
+              f.createLongGauge("jtaSynchronizationSendsInProgress",
                   "Current number of jtaSynchronization sends being executed", "sends"),
               f.createLongCounter("jtaSynchronizationSendTime",
                   "Total amount of time, in nanoseconds spent doing jtaSynchronizations",
                   "nanoseconds"),
-              f.createIntCounter("keySetSendFailures",
+              f.createLongCounter("keySetSendFailures",
                   "Total number of keySet sends that have failed", "sends"),
-              f.createIntCounter("keySetSends",
+              f.createLongCounter("keySetSends",
                   "Total number of keySet sends that have completed successfully", "sends"),
-              f.createIntGauge("keySetSendsInProgress",
+              f.createLongGauge("keySetSendsInProgress",
                   "Current number of keySet sends being executed", "sends"),
               f.createLongCounter("keySetSendTime",
                   "Total amount of time, in nanoseconds spent doing keySet sends", "nanoseconds"),
-              f.createIntCounter("makePrimarySendFailures",
+              f.createLongCounter("makePrimarySendFailures",
                   "Total number of makePrimary sends that have failed", "sends"),
-              f.createIntCounter("makePrimarySends",
+              f.createLongCounter("makePrimarySends",
                   "Total number of makePrimary sends that have completed successfully", "sends"),
-              f.createIntGauge("makePrimarySendsInProgress",
+              f.createLongGauge("makePrimarySendsInProgress",
                   "Current number of makePrimary sends being executed", "sends"),
               f.createLongCounter("makePrimarySendTime",
                   "Total amount of time, in nanoseconds spent doing makePrimary sends",
                   "nanoseconds"),
-              f.createIntCounter("pingSendFailures", "Total number of ping sends that have failed",
+              f.createLongCounter("pingSendFailures", "Total number of ping sends that have failed",
                   "sends"),
-              f.createIntCounter("pingSends",
+              f.createLongCounter("pingSends",
                   "Total number of ping sends that have completed successfully", "sends"),
-              f.createIntGauge("pingSendsInProgress", "Current number of ping sends being executed",
+              f.createLongGauge("pingSendsInProgress",
+                  "Current number of ping sends being executed",
                   "sends"),
               f.createLongCounter("pingSendTime",
                   "Total amount of time, in nanoseconds spent doing ping sends", "nanoseconds"),
-              f.createIntCounter("primaryAckSendFailures",
+              f.createLongCounter("primaryAckSendFailures",
                   "Total number of primaryAck sends that have failed", "sends"),
-              f.createIntCounter("primaryAckSends",
+              f.createLongCounter("primaryAckSends",
                   "Total number of primaryAck sends that have completed successfully", "sends"),
-              f.createIntGauge("primaryAckSendsInProgress",
+              f.createLongGauge("primaryAckSendsInProgress",
                   "Current number of primaryAck sends being executed", "sends"),
               f.createLongCounter("primaryAckSendTime",
                   "Total amount of time, in nanoseconds spent doing primaryAck sends",
                   "nanoseconds"),
-              f.createIntCounter("putAllSendFailures",
+              f.createLongCounter("putAllSendFailures",
                   "Total number of putAll sends that have failed", "sends"),
-              f.createIntCounter("putAllSends",
+              f.createLongCounter("putAllSends",
                   "Total number of putAll sends that have completed successfully", "sends"),
-              f.createIntGauge("putAllSendsInProgress",
+              f.createLongGauge("putAllSendsInProgress",
                   "Current number of putAll sends being executed", "sends"),
               f.createLongCounter("putAllSendTime",
                   "Total amount of time, in nanoseconds spent doing putAll sends", "nanoseconds"),
-              f.createIntCounter("putSendFailures", "Total number of put sends that have failed",
+              f.createLongCounter("putSendFailures", "Total number of put sends that have failed",
                   "sends"),
-              f.createIntCounter("putSends",
+              f.createLongCounter("putSends",
                   "Total number of put sends that have completed successfully", "sends"),
-              f.createIntGauge("putSendsInProgress", "Current number of put sends being executed",
+              f.createLongGauge("putSendsInProgress", "Current number of put sends being executed",
                   "sends"),
               f.createLongCounter("putSendTime",
                   "Total amount of time, in nanoseconds spent doing put sends", "nanoseconds"),
-              f.createIntCounter("querySendFailures",
+              f.createLongCounter("querySendFailures",
                   "Total number of query sends that have failed", "sends"),
-              f.createIntCounter("querySends",
+              f.createLongCounter("querySends",
                   "Total number of query sends that have completed successfully", "sends"),
-              f.createIntGauge("querySendsInProgress",
+              f.createLongGauge("querySendsInProgress",
                   "Current number of query sends being executed", "sends"),
               f.createLongCounter("querySendTime",
                   "Total amount of time, in nanoseconds spent doing query sends", "nanoseconds"),
-              f.createIntCounter("readyForEventsSendFailures",
+              f.createLongCounter("readyForEventsSendFailures",
                   "Total number of readyForEvents sends that have failed", "sends"),
-              f.createIntCounter("readyForEventsSends",
+              f.createLongCounter("readyForEventsSends",
                   "Total number of readyForEvents sends that have completed successfully", "sends"),
-              f.createIntGauge("readyForEventsSendsInProgress",
+              f.createLongGauge("readyForEventsSendsInProgress",
                   "Current number of readyForEvents sends being executed", "sends"),
               f.createLongCounter("readyForEventsSendTime",
                   "Total amount of time, in nanoseconds spent doing readyForEvents sends",
                   "nanoseconds"),
-              f.createIntCounter("registerDataSerializersSendFailures",
+              f.createLongCounter("registerDataSerializersSendFailures",
                   "Total number of registerDataSerializers sends that have failed", "sends"),
-              f.createIntCounter("registerDataSerializersSends",
+              f.createLongCounter("registerDataSerializersSends",
                   "Total number of registerDataSerializers sends that have completed successfully",
                   "sends"),
-              f.createIntGauge("registerDataSerializersSendInProgress",
+              f.createLongGauge("registerDataSerializersSendInProgress",
                   "Current number of registerDataSerializers sends being executed", "sends"),
               f.createLongCounter("registerDataSerializersSendTime",
                   "Total amount of time, in nanoseconds spent doing registerDataSerializers sends",
                   "nanoseconds"),
-              f.createIntCounter("registerInstantiatorsSendFailures",
+              f.createLongCounter("registerInstantiatorsSendFailures",
                   "Total number of registerInstantiators sends that have failed", "sends"),
-              f.createIntCounter("registerInstantiatorsSends",
+              f.createLongCounter("registerInstantiatorsSends",
                   "Total number of registerInstantiators sends that have completed successfully",
                   "sends"),
-              f.createIntGauge("registerInstantiatorsSendsInProgress",
+              f.createLongGauge("registerInstantiatorsSendsInProgress",
                   "Current number of registerInstantiators sends being executed", "sends"),
               f.createLongCounter("registerInstantiatorsSendTime",
                   "Total amount of time, in nanoseconds spent doing registerInstantiators sends",
                   "nanoseconds"),
-              f.createIntCounter("registerInterestSendFailures",
+              f.createLongCounter("registerInterestSendFailures",
                   "Total number of registerInterest sends that have failed", "sends"),
-              f.createIntCounter("registerInterestSends",
+              f.createLongCounter("registerInterestSends",
                   "Total number of registerInterest sends that have completed successfully",
                   "sends"),
-              f.createIntGauge("registerInterestSendsInProgress",
+              f.createLongGauge("registerInterestSendsInProgress",
                   "Current number of registerInterest sends being executed", "sends"),
               f.createLongCounter("registerInterestSendTime",
                   "Total amount of time, in nanoseconds spent doing registerInterest sends",
                   "nanoseconds"),
-              f.createIntCounter("removeAllSendFailures",
+              f.createLongCounter("removeAllSendFailures",
                   "Total number of removeAll sends that have failed", "sends"),
-              f.createIntCounter("removeAllSends",
+              f.createLongCounter("removeAllSends",
                   "Total number of removeAll sends that have completed successfully", "sends"),
-              f.createIntGauge("removeAllSendsInProgress",
+              f.createLongGauge("removeAllSendsInProgress",
                   "Current number of removeAll sends being executed", "sends"),
               f.createLongCounter("removeAllSendTime",
                   "Total amount of time, in nanoseconds spent doing removeAll sends",
                   "nanoseconds"),
-              f.createIntCounter("rollbackSendFailures",
+              f.createLongCounter("rollbackSendFailures",
                   "Total number of rollback sends that have failed", "sends"),
-              f.createIntCounter("rollbackSends",
+              f.createLongCounter("rollbackSends",
                   "Total number of rollback sends that have completed successfully", "sends"),
-              f.createIntGauge("rollbackSendsInProgress",
+              f.createLongGauge("rollbackSendsInProgress",
                   "Current number of rollback sends being executed", "sends"),
               f.createLongCounter("rollbackSendTime",
                   "Total amount of time, in nanoseconds spent doing rollbacks", "nanoseconds"),
-              f.createIntCounter("sizeSendFailures", "Total number of size sends that have failed",
+              f.createLongCounter("sizeSendFailures", "Total number of size sends that have failed",
                   "sends"),
-              f.createIntCounter("sizeSends",
+              f.createLongCounter("sizeSends",
                   "Total number of size sends that have completed successfully",
                   "sends"),
-              f.createIntGauge("sizeSendsInProgress", "Current number of size sends being executed",
+              f.createLongGauge("sizeSendsInProgress",
+                  "Current number of size sends being executed",
                   "sends"),
               f.createLongCounter("sizeSendTime",
                   "Total amount of time, in nanoseconds spent doing sizes", "nanoseconds"),
-              f.createIntCounter("stopCQSendFailures",
+              f.createLongCounter("stopCQSendFailures",
                   "Total number of stopCQ sends that have failed", "sends"),
-              f.createIntCounter("stopCQSends",
+              f.createLongCounter("stopCQSends",
                   "Total number of stopCQ sends that have completed successfully", "sends"),
-              f.createIntGauge("stopCQSendsInProgress",
+              f.createLongGauge("stopCQSendsInProgress",
                   "Current number of stopCQ sends being executed", "sends"),
               f.createLongCounter("stopCQSendTime",
                   "Total amount of time, in nanoseconds spent doing stopCQ sends", "nanoseconds"),
-              f.createIntCounter("txFailoverSendFailures",
+              f.createLongCounter("txFailoverSendFailures",
                   "Total number of txFailover sends that have failed", "sends"),
-              f.createIntCounter("txFailoverSends",
+              f.createLongCounter("txFailoverSends",
                   "Total number of txFailover sends that have completed successfully", "sends"),
-              f.createIntGauge("txFailoverSendsInProgress",
+              f.createLongGauge("txFailoverSendsInProgress",
                   "Current number of txFailover sends being executed", "sends"),
               f.createLongCounter("txFailoverSendTime",
                   "Total amount of time, in nanoseconds spent doing txFailovers", "nanoseconds"),
-              f.createIntCounter("unregisterInterestSendFailures",
+              f.createLongCounter("unregisterInterestSendFailures",
                   "Total number of unregisterInterest sends that have failed", "sends"),
-              f.createIntCounter("unregisterInterestSends",
+              f.createLongCounter("unregisterInterestSends",
                   "Total number of unregisterInterest sends that have completed successfully",
                   "sends"),
-              f.createIntGauge("unregisterInterestSendsInProgress",
+              f.createLongGauge("unregisterInterestSendsInProgress",
                   "Current number of unregisterInterest sends being executed", "sends"),
               f.createLongCounter("unregisterInterestSendTime",
                   "Total amount of time, in nanoseconds spent doing unregisterInterest sends",
@@ -1662,8 +1666,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this get
    */
   public long startGet() {
-    this.stats.incInt(getInProgressId, 1);
-    this.sendStats.incInt(getSendInProgressId, 1);
+    this.stats.incLong(getInProgressId, 1);
+    this.sendStats.incLong(getSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -1677,14 +1681,14 @@ public class ConnectionStats implements MessageStats {
   public void endGetSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(getSendInProgressId, -1);
+    this.sendStats.incLong(getSendInProgressId, -1);
     int endGetSendId;
     if (failed) {
       endGetSendId = getSendFailedId;
     } else {
       endGetSendId = getSendId;
     }
-    this.sendStats.incInt(endGetSendId, 1);
+    this.sendStats.incLong(endGetSendId, 1);
     this.sendStats.incLong(getSendDurationId, duration);
   }
 
@@ -1698,7 +1702,7 @@ public class ConnectionStats implements MessageStats {
   public void endGet(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(getInProgressId, -1);
+    this.stats.incLong(getInProgressId, -1);
     int endGetId;
     if (timedOut) {
       endGetId = getTimedOutId;
@@ -1711,8 +1715,8 @@ public class ConnectionStats implements MessageStats {
     this.stats.incLong(getDurationId, duration);
   }
 
-  public int getGets() {
-    return this.stats.getInt(getId);
+  public long getGets() {
+    return this.stats.getLong(getId);
   }
 
   public long getGetDuration() {
@@ -1728,8 +1732,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this put
    */
   public long startPut() {
-    this.stats.incInt(putInProgressId, 1);
-    this.sendStats.incInt(putSendInProgressId, 1);
+    this.stats.incLong(putInProgressId, 1);
+    this.sendStats.incLong(putSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -1743,14 +1747,14 @@ public class ConnectionStats implements MessageStats {
   public void endPutSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(putSendInProgressId, -1);
+    this.sendStats.incLong(putSendInProgressId, -1);
     int endPutSendId;
     if (failed) {
       endPutSendId = putSendFailedId;
     } else {
       endPutSendId = putSendId;
     }
-    this.sendStats.incInt(endPutSendId, 1);
+    this.sendStats.incLong(endPutSendId, 1);
     this.sendStats.incLong(putSendDurationId, duration);
   }
 
@@ -1764,7 +1768,7 @@ public class ConnectionStats implements MessageStats {
   public void endPut(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(putInProgressId, -1);
+    this.stats.incLong(putInProgressId, -1);
     int endPutId;
     if (timedOut) {
       endPutId = putTimedOutId;
@@ -1777,8 +1781,8 @@ public class ConnectionStats implements MessageStats {
     this.stats.incLong(putDurationId, duration);
   }
 
-  public int getPuts() {
-    return this.stats.getInt(putId);
+  public long getPuts() {
+    return this.stats.getLong(putId);
   }
 
   public long getPutDuration() {
@@ -1794,8 +1798,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this destroy
    */
   public long startDestroy() {
-    this.stats.incInt(destroyInProgressId, 1);
-    this.sendStats.incInt(destroySendInProgressId, 1);
+    this.stats.incLong(destroyInProgressId, 1);
+    this.sendStats.incLong(destroySendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -1809,14 +1813,14 @@ public class ConnectionStats implements MessageStats {
   public void endDestroySend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(destroySendInProgressId, -1);
+    this.sendStats.incLong(destroySendInProgressId, -1);
     int endDestroySendId;
     if (failed) {
       endDestroySendId = destroySendFailedId;
     } else {
       endDestroySendId = destroySendId;
     }
-    this.sendStats.incInt(endDestroySendId, 1);
+    this.sendStats.incLong(endDestroySendId, 1);
     this.sendStats.incLong(destroySendDurationId, duration);
   }
 
@@ -1830,7 +1834,7 @@ public class ConnectionStats implements MessageStats {
   public void endDestroy(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(destroyInProgressId, -1);
+    this.stats.incLong(destroyInProgressId, -1);
     int endDestroyId;
     if (timedOut) {
       endDestroyId = destroyTimedOutId;
@@ -1852,8 +1856,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this destroyRegion
    */
   public long startDestroyRegion() {
-    this.stats.incInt(destroyRegionInProgressId, 1);
-    this.sendStats.incInt(destroyRegionSendInProgressId, 1);
+    this.stats.incLong(destroyRegionInProgressId, 1);
+    this.sendStats.incLong(destroyRegionSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -1867,14 +1871,14 @@ public class ConnectionStats implements MessageStats {
   public void endDestroyRegionSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(destroyRegionSendInProgressId, -1);
+    this.sendStats.incLong(destroyRegionSendInProgressId, -1);
     int endDestroyRegionSendId;
     if (failed) {
       endDestroyRegionSendId = destroyRegionSendFailedId;
     } else {
       endDestroyRegionSendId = destroyRegionSendId;
     }
-    this.sendStats.incInt(endDestroyRegionSendId, 1);
+    this.sendStats.incLong(endDestroyRegionSendId, 1);
     this.sendStats.incLong(destroyRegionSendDurationId, duration);
   }
 
@@ -1888,7 +1892,7 @@ public class ConnectionStats implements MessageStats {
   public void endDestroyRegion(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(destroyRegionInProgressId, -1);
+    this.stats.incLong(destroyRegionInProgressId, -1);
     int endDestroyRegionId;
     if (timedOut) {
       endDestroyRegionId = destroyRegionTimedOutId;
@@ -1897,7 +1901,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endDestroyRegionId = destroyRegionId;
     }
-    this.stats.incInt(endDestroyRegionId, 1);
+    this.stats.incLong(endDestroyRegionId, 1);
     this.stats.incLong(destroyRegionDurationId, duration);
   }
 
@@ -1910,8 +1914,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this clear
    */
   public long startClear() {
-    this.stats.incInt(clearInProgressId, 1);
-    this.sendStats.incInt(clearSendInProgressId, 1);
+    this.stats.incLong(clearInProgressId, 1);
+    this.sendStats.incLong(clearSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -1925,14 +1929,14 @@ public class ConnectionStats implements MessageStats {
   public void endClearSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(clearSendInProgressId, -1);
+    this.sendStats.incLong(clearSendInProgressId, -1);
     int endClearSendId;
     if (failed) {
       endClearSendId = clearSendFailedId;
     } else {
       endClearSendId = clearSendId;
     }
-    this.sendStats.incInt(endClearSendId, 1);
+    this.sendStats.incLong(endClearSendId, 1);
     this.sendStats.incLong(clearSendDurationId, duration);
   }
 
@@ -1946,7 +1950,7 @@ public class ConnectionStats implements MessageStats {
   public void endClear(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(clearInProgressId, -1);
+    this.stats.incLong(clearInProgressId, -1);
     int endClearId;
     if (timedOut) {
       endClearId = clearTimedOutId;
@@ -1968,8 +1972,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this containsKey
    */
   public long startContainsKey() {
-    this.stats.incInt(containsKeyInProgressId, 1);
-    this.sendStats.incInt(containsKeySendInProgressId, 1);
+    this.stats.incLong(containsKeyInProgressId, 1);
+    this.sendStats.incLong(containsKeySendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -1983,14 +1987,14 @@ public class ConnectionStats implements MessageStats {
   public void endContainsKeySend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(containsKeySendInProgressId, -1);
+    this.sendStats.incLong(containsKeySendInProgressId, -1);
     int endContainsKeySendId;
     if (failed) {
       endContainsKeySendId = containsKeySendFailedId;
     } else {
       endContainsKeySendId = containsKeySendId;
     }
-    this.sendStats.incInt(endContainsKeySendId, 1);
+    this.sendStats.incLong(endContainsKeySendId, 1);
     this.sendStats.incLong(containsKeySendDurationId, duration);
   }
 
@@ -2004,7 +2008,7 @@ public class ConnectionStats implements MessageStats {
   public void endContainsKey(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(containsKeyInProgressId, -1);
+    this.stats.incLong(containsKeyInProgressId, -1);
     int endContainsKeyId;
     if (timedOut) {
       endContainsKeyId = containsKeyTimedOutId;
@@ -2013,7 +2017,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endContainsKeyId = containsKeyId;
     }
-    this.stats.incInt(endContainsKeyId, 1);
+    this.stats.incLong(endContainsKeyId, 1);
     this.stats.incLong(containsKeyDurationId, duration);
   }
 
@@ -2026,8 +2030,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this keySet
    */
   public long startKeySet() {
-    this.stats.incInt(keySetInProgressId, 1);
-    this.sendStats.incInt(keySetSendInProgressId, 1);
+    this.stats.incLong(keySetInProgressId, 1);
+    this.sendStats.incLong(keySetSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2041,14 +2045,14 @@ public class ConnectionStats implements MessageStats {
   public void endKeySetSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(keySetSendInProgressId, -1);
+    this.sendStats.incLong(keySetSendInProgressId, -1);
     int endKeySetSendId;
     if (failed) {
       endKeySetSendId = keySetSendFailedId;
     } else {
       endKeySetSendId = keySetSendId;
     }
-    this.sendStats.incInt(endKeySetSendId, 1);
+    this.sendStats.incLong(endKeySetSendId, 1);
     this.sendStats.incLong(keySetSendDurationId, duration);
   }
 
@@ -2062,7 +2066,7 @@ public class ConnectionStats implements MessageStats {
   public void endKeySet(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(keySetInProgressId, -1);
+    this.stats.incLong(keySetInProgressId, -1);
     int endKeySetId;
     if (timedOut) {
       endKeySetId = keySetTimedOutId;
@@ -2071,7 +2075,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endKeySetId = keySetId;
     }
-    this.stats.incInt(endKeySetId, 1);
+    this.stats.incLong(endKeySetId, 1);
     this.stats.incLong(keySetDurationId, duration);
   }
 
@@ -2084,8 +2088,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this registerInterest
    */
   public long startRegisterInterest() {
-    this.stats.incInt(registerInterestInProgressId, 1);
-    this.sendStats.incInt(registerInterestSendInProgressId, 1);
+    this.stats.incLong(registerInterestInProgressId, 1);
+    this.sendStats.incLong(registerInterestSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2099,14 +2103,14 @@ public class ConnectionStats implements MessageStats {
   public void endRegisterInterestSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(registerInterestSendInProgressId, -1);
+    this.sendStats.incLong(registerInterestSendInProgressId, -1);
     int endRegisterInterestSendId;
     if (failed) {
       endRegisterInterestSendId = registerInterestSendFailedId;
     } else {
       endRegisterInterestSendId = registerInterestSendId;
     }
-    this.sendStats.incInt(endRegisterInterestSendId, 1);
+    this.sendStats.incLong(endRegisterInterestSendId, 1);
     this.sendStats.incLong(registerInterestSendDurationId, duration);
   }
 
@@ -2120,7 +2124,7 @@ public class ConnectionStats implements MessageStats {
   public void endRegisterInterest(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(registerInterestInProgressId, -1);
+    this.stats.incLong(registerInterestInProgressId, -1);
     int endRegisterInterestId;
     if (timedOut) {
       endRegisterInterestId = registerInterestTimedOutId;
@@ -2129,7 +2133,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endRegisterInterestId = registerInterestId;
     }
-    this.stats.incInt(endRegisterInterestId, 1);
+    this.stats.incLong(endRegisterInterestId, 1);
     this.stats.incLong(registerInterestDurationId, duration);
   }
 
@@ -2142,8 +2146,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this unregisterInterest
    */
   public long startUnregisterInterest() {
-    this.stats.incInt(unregisterInterestInProgressId, 1);
-    this.sendStats.incInt(unregisterInterestSendInProgressId, 1);
+    this.stats.incLong(unregisterInterestInProgressId, 1);
+    this.sendStats.incLong(unregisterInterestSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2157,14 +2161,14 @@ public class ConnectionStats implements MessageStats {
   public void endUnregisterInterestSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(unregisterInterestSendInProgressId, -1);
+    this.sendStats.incLong(unregisterInterestSendInProgressId, -1);
     int endUnregisterInterestSendId;
     if (failed) {
       endUnregisterInterestSendId = unregisterInterestSendFailedId;
     } else {
       endUnregisterInterestSendId = unregisterInterestSendId;
     }
-    this.sendStats.incInt(endUnregisterInterestSendId, 1);
+    this.sendStats.incLong(endUnregisterInterestSendId, 1);
     this.sendStats.incLong(unregisterInterestSendDurationId, duration);
   }
 
@@ -2178,7 +2182,7 @@ public class ConnectionStats implements MessageStats {
   public void endUnregisterInterest(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(unregisterInterestInProgressId, -1);
+    this.stats.incLong(unregisterInterestInProgressId, -1);
     int endUnregisterInterestId;
     if (timedOut) {
       endUnregisterInterestId = unregisterInterestTimedOutId;
@@ -2187,7 +2191,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endUnregisterInterestId = unregisterInterestId;
     }
-    this.stats.incInt(endUnregisterInterestId, 1);
+    this.stats.incLong(endUnregisterInterestId, 1);
     this.stats.incLong(unregisterInterestDurationId, duration);
   }
 
@@ -2200,8 +2204,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this query
    */
   public long startQuery() {
-    this.stats.incInt(queryInProgressId, 1);
-    this.sendStats.incInt(querySendInProgressId, 1);
+    this.stats.incLong(queryInProgressId, 1);
+    this.sendStats.incLong(querySendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2215,14 +2219,14 @@ public class ConnectionStats implements MessageStats {
   public void endQuerySend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(querySendInProgressId, -1);
+    this.sendStats.incLong(querySendInProgressId, -1);
     int endQuerySendId;
     if (failed) {
       endQuerySendId = querySendFailedId;
     } else {
       endQuerySendId = querySendId;
     }
-    this.sendStats.incInt(endQuerySendId, 1);
+    this.sendStats.incLong(endQuerySendId, 1);
     this.sendStats.incLong(querySendDurationId, duration);
   }
 
@@ -2236,7 +2240,7 @@ public class ConnectionStats implements MessageStats {
   public void endQuery(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(queryInProgressId, -1);
+    this.stats.incLong(queryInProgressId, -1);
     int endQueryId;
     if (timedOut) {
       endQueryId = queryTimedOutId;
@@ -2245,7 +2249,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endQueryId = queryId;
     }
-    this.stats.incInt(endQueryId, 1);
+    this.stats.incLong(endQueryId, 1);
     this.stats.incLong(queryDurationId, duration);
   }
 
@@ -2258,8 +2262,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this createCQ
    */
   public long startCreateCQ() {
-    this.stats.incInt(createCQInProgressId, 1);
-    this.sendStats.incInt(createCQSendInProgressId, 1);
+    this.stats.incLong(createCQInProgressId, 1);
+    this.sendStats.incLong(createCQSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2273,14 +2277,14 @@ public class ConnectionStats implements MessageStats {
   public void endCreateCQSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(createCQSendInProgressId, -1);
+    this.sendStats.incLong(createCQSendInProgressId, -1);
     int endCreateCQSendId;
     if (failed) {
       endCreateCQSendId = createCQSendFailedId;
     } else {
       endCreateCQSendId = createCQSendId;
     }
-    this.sendStats.incInt(endCreateCQSendId, 1);
+    this.sendStats.incLong(endCreateCQSendId, 1);
     this.sendStats.incLong(createCQSendDurationId, duration);
   }
 
@@ -2294,7 +2298,7 @@ public class ConnectionStats implements MessageStats {
   public void endCreateCQ(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(createCQInProgressId, -1);
+    this.stats.incLong(createCQInProgressId, -1);
     int endCreateCQId;
     if (timedOut) {
       endCreateCQId = createCQTimedOutId;
@@ -2303,7 +2307,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endCreateCQId = createCQId;
     }
-    this.stats.incInt(endCreateCQId, 1);
+    this.stats.incLong(endCreateCQId, 1);
     this.stats.incLong(createCQDurationId, duration);
   }
 
@@ -2316,8 +2320,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this stopCQ
    */
   public long startStopCQ() {
-    this.stats.incInt(stopCQInProgressId, 1);
-    this.sendStats.incInt(stopCQSendInProgressId, 1);
+    this.stats.incLong(stopCQInProgressId, 1);
+    this.sendStats.incLong(stopCQSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2331,14 +2335,14 @@ public class ConnectionStats implements MessageStats {
   public void endStopCQSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(stopCQSendInProgressId, -1);
+    this.sendStats.incLong(stopCQSendInProgressId, -1);
     int endStopCQSendId;
     if (failed) {
       endStopCQSendId = stopCQSendFailedId;
     } else {
       endStopCQSendId = stopCQSendId;
     }
-    this.sendStats.incInt(endStopCQSendId, 1);
+    this.sendStats.incLong(endStopCQSendId, 1);
     this.sendStats.incLong(stopCQSendDurationId, duration);
   }
 
@@ -2352,7 +2356,7 @@ public class ConnectionStats implements MessageStats {
   public void endStopCQ(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(stopCQInProgressId, -1);
+    this.stats.incLong(stopCQInProgressId, -1);
     int endStopCQId;
     if (timedOut) {
       endStopCQId = stopCQTimedOutId;
@@ -2361,7 +2365,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endStopCQId = stopCQId;
     }
-    this.stats.incInt(endStopCQId, 1);
+    this.stats.incLong(endStopCQId, 1);
     this.stats.incLong(stopCQDurationId, duration);
   }
 
@@ -2374,8 +2378,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this closeCQ
    */
   public long startCloseCQ() {
-    this.stats.incInt(closeCQInProgressId, 1);
-    this.sendStats.incInt(closeCQSendInProgressId, 1);
+    this.stats.incLong(closeCQInProgressId, 1);
+    this.sendStats.incLong(closeCQSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2389,14 +2393,14 @@ public class ConnectionStats implements MessageStats {
   public void endCloseCQSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(closeCQSendInProgressId, -1);
+    this.sendStats.incLong(closeCQSendInProgressId, -1);
     int endCloseCQSendId;
     if (failed) {
       endCloseCQSendId = closeCQSendFailedId;
     } else {
       endCloseCQSendId = closeCQSendId;
     }
-    this.sendStats.incInt(endCloseCQSendId, 1);
+    this.sendStats.incLong(endCloseCQSendId, 1);
     this.sendStats.incLong(closeCQSendDurationId, duration);
   }
 
@@ -2410,7 +2414,7 @@ public class ConnectionStats implements MessageStats {
   public void endCloseCQ(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(closeCQInProgressId, -1);
+    this.stats.incLong(closeCQInProgressId, -1);
     int endCloseCQId;
     if (timedOut) {
       endCloseCQId = closeCQTimedOutId;
@@ -2419,7 +2423,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endCloseCQId = closeCQId;
     }
-    this.stats.incInt(endCloseCQId, 1);
+    this.stats.incLong(endCloseCQId, 1);
     this.stats.incLong(closeCQDurationId, duration);
   }
 
@@ -2432,8 +2436,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this stopCQ
    */
   public long startGetDurableCQs() {
-    this.stats.incInt(getDurableCQsInProgressId, 1);
-    this.sendStats.incInt(getDurableCQsSendsInProgressId, 1);
+    this.stats.incLong(getDurableCQsInProgressId, 1);
+    this.sendStats.incLong(getDurableCQsSendsInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2447,14 +2451,14 @@ public class ConnectionStats implements MessageStats {
   public void endGetDurableCQsSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(getDurableCQsSendsInProgressId, -1);
+    this.sendStats.incLong(getDurableCQsSendsInProgressId, -1);
     int endGetDurableCQsSendId;
     if (failed) {
       endGetDurableCQsSendId = getDurableCQsSendFailedId;
     } else {
       endGetDurableCQsSendId = getDurableCQsSendId;
     }
-    this.sendStats.incInt(endGetDurableCQsSendId, 1);
+    this.sendStats.incLong(endGetDurableCQsSendId, 1);
     this.sendStats.incLong(getDurableCQsSendDurationId, duration);
   }
 
@@ -2468,7 +2472,7 @@ public class ConnectionStats implements MessageStats {
   public void endGetDurableCQs(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(getDurableCQsInProgressId, -1);
+    this.stats.incLong(getDurableCQsInProgressId, -1);
     int endGetDurableCQsId;
     if (timedOut) {
       endGetDurableCQsId = getDurableCQsTimedOutId;
@@ -2477,7 +2481,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endGetDurableCQsId = getDurableCQsId;
     }
-    this.stats.incInt(endGetDurableCQsId, 1);
+    this.stats.incLong(endGetDurableCQsId, 1);
     this.stats.incLong(getDurableCQsDurationId, duration);
   }
 
@@ -2490,8 +2494,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this gatewayBatch
    */
   public long startGatewayBatch() {
-    this.stats.incInt(gatewayBatchInProgressId, 1);
-    this.sendStats.incInt(gatewayBatchSendInProgressId, 1);
+    this.stats.incLong(gatewayBatchInProgressId, 1);
+    this.sendStats.incLong(gatewayBatchSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2505,14 +2509,14 @@ public class ConnectionStats implements MessageStats {
   public void endGatewayBatchSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(gatewayBatchSendInProgressId, -1);
+    this.sendStats.incLong(gatewayBatchSendInProgressId, -1);
     int endGatewayBatchSendId;
     if (failed) {
       endGatewayBatchSendId = gatewayBatchSendFailedId;
     } else {
       endGatewayBatchSendId = gatewayBatchSendId;
     }
-    this.sendStats.incInt(endGatewayBatchSendId, 1);
+    this.sendStats.incLong(endGatewayBatchSendId, 1);
     this.sendStats.incLong(gatewayBatchSendDurationId, duration);
   }
 
@@ -2526,7 +2530,7 @@ public class ConnectionStats implements MessageStats {
   public void endGatewayBatch(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(gatewayBatchInProgressId, -1);
+    this.stats.incLong(gatewayBatchInProgressId, -1);
     int endGatewayBatchId;
     if (timedOut) {
       endGatewayBatchId = gatewayBatchTimedOutId;
@@ -2535,7 +2539,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endGatewayBatchId = gatewayBatchId;
     }
-    this.stats.incInt(endGatewayBatchId, 1);
+    this.stats.incLong(endGatewayBatchId, 1);
     this.stats.incLong(gatewayBatchDurationId, duration);
   }
 
@@ -2548,8 +2552,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this readyForEvents
    */
   public long startReadyForEvents() {
-    this.stats.incInt(readyForEventsInProgressId, 1);
-    this.sendStats.incInt(readyForEventsSendInProgressId, 1);
+    this.stats.incLong(readyForEventsInProgressId, 1);
+    this.sendStats.incLong(readyForEventsSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2563,14 +2567,14 @@ public class ConnectionStats implements MessageStats {
   public void endReadyForEventsSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(readyForEventsSendInProgressId, -1);
+    this.sendStats.incLong(readyForEventsSendInProgressId, -1);
     int endReadyForEventsSendId;
     if (failed) {
       endReadyForEventsSendId = readyForEventsSendFailedId;
     } else {
       endReadyForEventsSendId = readyForEventsSendId;
     }
-    this.sendStats.incInt(endReadyForEventsSendId, 1);
+    this.sendStats.incLong(endReadyForEventsSendId, 1);
     this.sendStats.incLong(readyForEventsSendDurationId, duration);
   }
 
@@ -2584,7 +2588,7 @@ public class ConnectionStats implements MessageStats {
   public void endReadyForEvents(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(readyForEventsInProgressId, -1);
+    this.stats.incLong(readyForEventsInProgressId, -1);
     int endReadyForEventsId;
     if (timedOut) {
       endReadyForEventsId = readyForEventsTimedOutId;
@@ -2593,7 +2597,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endReadyForEventsId = readyForEventsId;
     }
-    this.stats.incInt(endReadyForEventsId, 1);
+    this.stats.incLong(endReadyForEventsId, 1);
     this.stats.incLong(readyForEventsDurationId, duration);
   }
 
@@ -2606,8 +2610,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this makePrimary
    */
   public long startMakePrimary() {
-    this.stats.incInt(makePrimaryInProgressId, 1);
-    this.sendStats.incInt(makePrimarySendInProgressId, 1);
+    this.stats.incLong(makePrimaryInProgressId, 1);
+    this.sendStats.incLong(makePrimarySendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2621,14 +2625,14 @@ public class ConnectionStats implements MessageStats {
   public void endMakePrimarySend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(makePrimarySendInProgressId, -1);
+    this.sendStats.incLong(makePrimarySendInProgressId, -1);
     int endMakePrimarySendId;
     if (failed) {
       endMakePrimarySendId = makePrimarySendFailedId;
     } else {
       endMakePrimarySendId = makePrimarySendId;
     }
-    this.sendStats.incInt(endMakePrimarySendId, 1);
+    this.sendStats.incLong(endMakePrimarySendId, 1);
     this.sendStats.incLong(makePrimarySendDurationId, duration);
   }
 
@@ -2642,7 +2646,7 @@ public class ConnectionStats implements MessageStats {
   public void endMakePrimary(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(makePrimaryInProgressId, -1);
+    this.stats.incLong(makePrimaryInProgressId, -1);
     int endMakePrimaryId;
     if (timedOut) {
       endMakePrimaryId = makePrimaryTimedOutId;
@@ -2651,7 +2655,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endMakePrimaryId = makePrimaryId;
     }
-    this.stats.incInt(endMakePrimaryId, 1);
+    this.stats.incLong(endMakePrimaryId, 1);
     this.stats.incLong(makePrimaryDurationId, duration);
   }
 
@@ -2664,8 +2668,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this closeCon
    */
   public long startCloseCon() {
-    this.stats.incInt(closeConInProgressId, 1);
-    this.sendStats.incInt(closeConSendInProgressId, 1);
+    this.stats.incLong(closeConInProgressId, 1);
+    this.sendStats.incLong(closeConSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2679,14 +2683,14 @@ public class ConnectionStats implements MessageStats {
   public void endCloseConSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(closeConSendInProgressId, -1);
+    this.sendStats.incLong(closeConSendInProgressId, -1);
     int endCloseConSendId;
     if (failed) {
       endCloseConSendId = closeConSendFailedId;
     } else {
       endCloseConSendId = closeConSendId;
     }
-    this.sendStats.incInt(endCloseConSendId, 1);
+    this.sendStats.incLong(endCloseConSendId, 1);
     this.sendStats.incLong(closeConSendDurationId, duration);
   }
 
@@ -2700,7 +2704,7 @@ public class ConnectionStats implements MessageStats {
   public void endCloseCon(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(closeConInProgressId, -1);
+    this.stats.incLong(closeConInProgressId, -1);
     int endCloseConId;
     if (timedOut) {
       endCloseConId = closeConTimedOutId;
@@ -2709,7 +2713,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endCloseConId = closeConId;
     }
-    this.stats.incInt(endCloseConId, 1);
+    this.stats.incLong(endCloseConId, 1);
     this.stats.incLong(closeConDurationId, duration);
   }
 
@@ -2722,8 +2726,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this primaryAck
    */
   public long startPrimaryAck() {
-    this.stats.incInt(primaryAckInProgressId, 1);
-    this.sendStats.incInt(primaryAckSendInProgressId, 1);
+    this.stats.incLong(primaryAckInProgressId, 1);
+    this.sendStats.incLong(primaryAckSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2737,14 +2741,14 @@ public class ConnectionStats implements MessageStats {
   public void endPrimaryAckSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(primaryAckSendInProgressId, -1);
+    this.sendStats.incLong(primaryAckSendInProgressId, -1);
     int endPrimaryAckSendId;
     if (failed) {
       endPrimaryAckSendId = primaryAckSendFailedId;
     } else {
       endPrimaryAckSendId = primaryAckSendId;
     }
-    this.sendStats.incInt(endPrimaryAckSendId, 1);
+    this.sendStats.incLong(endPrimaryAckSendId, 1);
     this.sendStats.incLong(primaryAckSendDurationId, duration);
   }
 
@@ -2758,7 +2762,7 @@ public class ConnectionStats implements MessageStats {
   public void endPrimaryAck(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(primaryAckInProgressId, -1);
+    this.stats.incLong(primaryAckInProgressId, -1);
     int endPrimaryAckId;
     if (timedOut) {
       endPrimaryAckId = primaryAckTimedOutId;
@@ -2767,7 +2771,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endPrimaryAckId = primaryAckId;
     }
-    this.stats.incInt(endPrimaryAckId, 1);
+    this.stats.incLong(endPrimaryAckId, 1);
     this.stats.incLong(primaryAckDurationId, duration);
   }
 
@@ -2780,8 +2784,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this ping
    */
   public long startPing() {
-    this.stats.incInt(pingInProgressId, 1);
-    this.sendStats.incInt(pingSendInProgressId, 1);
+    this.stats.incLong(pingInProgressId, 1);
+    this.sendStats.incLong(pingSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2795,14 +2799,14 @@ public class ConnectionStats implements MessageStats {
   public void endPingSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(pingSendInProgressId, -1);
+    this.sendStats.incLong(pingSendInProgressId, -1);
     int endPingSendId;
     if (failed) {
       endPingSendId = pingSendFailedId;
     } else {
       endPingSendId = pingSendId;
     }
-    this.sendStats.incInt(endPingSendId, 1);
+    this.sendStats.incLong(endPingSendId, 1);
     this.sendStats.incLong(pingSendDurationId, duration);
   }
 
@@ -2816,7 +2820,7 @@ public class ConnectionStats implements MessageStats {
   public void endPing(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(pingInProgressId, -1);
+    this.stats.incLong(pingInProgressId, -1);
     int endPingId;
     if (timedOut) {
       endPingId = pingTimedOutId;
@@ -2825,7 +2829,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endPingId = pingId;
     }
-    this.stats.incInt(endPingId, 1);
+    this.stats.incLong(endPingId, 1);
     this.stats.incLong(pingDurationId, duration);
   }
 
@@ -2838,15 +2842,15 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this registerInstantiators
    */
   public long startRegisterInstantiators() {
-    this.stats.incInt(registerInstantiatorsInProgressId, 1);
-    this.sendStats.incInt(registerInstantiatorsSendInProgressId, 1);
+    this.stats.incLong(registerInstantiatorsInProgressId, 1);
+    this.sendStats.incLong(registerInstantiatorsSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
 
   public long startRegisterDataSerializers() {
-    this.stats.incInt(registerDataSerializersInProgressId, 1);
-    this.sendStats.incInt(registerDataSerializersSendInProgressId, 1);
+    this.stats.incLong(registerDataSerializersInProgressId, 1);
+    this.sendStats.incLong(registerDataSerializersSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2860,28 +2864,28 @@ public class ConnectionStats implements MessageStats {
   public void endRegisterInstantiatorsSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(registerInstantiatorsSendInProgressId, -1);
+    this.sendStats.incLong(registerInstantiatorsSendInProgressId, -1);
     int endRegisterInstantiatorsSendId;
     if (failed) {
       endRegisterInstantiatorsSendId = registerInstantiatorsSendFailedId;
     } else {
       endRegisterInstantiatorsSendId = registerInstantiatorsSendId;
     }
-    this.sendStats.incInt(endRegisterInstantiatorsSendId, 1);
+    this.sendStats.incLong(endRegisterInstantiatorsSendId, 1);
     this.sendStats.incLong(registerInstantiatorsSendDurationId, duration);
   }
 
   public void endRegisterDataSerializersSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(registerDataSerializersSendInProgressId, -1);
+    this.sendStats.incLong(registerDataSerializersSendInProgressId, -1);
     int endDataSerializersSendId;
     if (failed) {
       endDataSerializersSendId = registerDataSerializersSendFailedId;
     } else {
       endDataSerializersSendId = registerDataSerializersSendId;
     }
-    this.sendStats.incInt(endDataSerializersSendId, 1);
+    this.sendStats.incLong(endDataSerializersSendId, 1);
     this.sendStats.incLong(registerDataSerializersSendDurationId, duration);
   }
 
@@ -2895,7 +2899,7 @@ public class ConnectionStats implements MessageStats {
   public void endRegisterInstantiators(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(registerInstantiatorsInProgressId, -1);
+    this.stats.incLong(registerInstantiatorsInProgressId, -1);
     int endRegisterInstantiatorsId;
     if (timedOut) {
       endRegisterInstantiatorsId = registerInstantiatorsTimedOutId;
@@ -2904,14 +2908,14 @@ public class ConnectionStats implements MessageStats {
     } else {
       endRegisterInstantiatorsId = registerInstantiatorsId;
     }
-    this.stats.incInt(endRegisterInstantiatorsId, 1);
+    this.stats.incLong(endRegisterInstantiatorsId, 1);
     this.stats.incLong(registerInstantiatorsDurationId, duration);
   }
 
   public void endRegisterDataSerializers(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(registerDataSerializersInProgressId, -1);
+    this.stats.incLong(registerDataSerializersInProgressId, -1);
     int endRegisterDataSerializersId;
     if (timedOut) {
       endRegisterDataSerializersId = registerDataSerializersTimedOutId;
@@ -2920,7 +2924,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endRegisterDataSerializersId = registerDataSerializersId;
     }
-    this.stats.incInt(endRegisterDataSerializersId, 1);
+    this.stats.incLong(endRegisterDataSerializersId, 1);
     this.stats.incLong(registerDataSerializersDurationId, duration);
   }
 
@@ -2933,8 +2937,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this putAll
    */
   public long startPutAll() {
-    this.stats.incInt(putAllInProgressId, 1);
-    this.sendStats.incInt(putAllSendInProgressId, 1);
+    this.stats.incLong(putAllInProgressId, 1);
+    this.sendStats.incLong(putAllSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -2948,14 +2952,14 @@ public class ConnectionStats implements MessageStats {
   public void endPutAllSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(putAllSendInProgressId, -1);
+    this.sendStats.incLong(putAllSendInProgressId, -1);
     int endPutAllSendId;
     if (failed) {
       endPutAllSendId = putAllSendFailedId;
     } else {
       endPutAllSendId = putAllSendId;
     }
-    this.sendStats.incInt(endPutAllSendId, 1);
+    this.sendStats.incLong(endPutAllSendId, 1);
     this.sendStats.incLong(putAllSendDurationId, duration);
   }
 
@@ -2969,7 +2973,7 @@ public class ConnectionStats implements MessageStats {
   public void endPutAll(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(putAllInProgressId, -1);
+    this.stats.incLong(putAllInProgressId, -1);
     int endPutAllId;
     if (timedOut) {
       endPutAllId = putAllTimedOutId;
@@ -2978,7 +2982,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endPutAllId = putAllId;
     }
-    this.stats.incInt(endPutAllId, 1);
+    this.stats.incLong(endPutAllId, 1);
     this.stats.incLong(putAllDurationId, duration);
   }
 
@@ -2991,8 +2995,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this removeAll
    */
   public long startRemoveAll() {
-    this.stats.incInt(removeAllInProgressId, 1);
-    this.sendStats.incInt(removeAllSendInProgressId, 1);
+    this.stats.incLong(removeAllInProgressId, 1);
+    this.sendStats.incLong(removeAllSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3006,14 +3010,14 @@ public class ConnectionStats implements MessageStats {
   public void endRemoveAllSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(removeAllSendInProgressId, -1);
+    this.sendStats.incLong(removeAllSendInProgressId, -1);
     int endRemoveAllSendId;
     if (failed) {
       endRemoveAllSendId = removeAllSendFailedId;
     } else {
       endRemoveAllSendId = removeAllSendId;
     }
-    this.sendStats.incInt(endRemoveAllSendId, 1);
+    this.sendStats.incLong(endRemoveAllSendId, 1);
     this.sendStats.incLong(removeAllSendDurationId, duration);
   }
 
@@ -3027,7 +3031,7 @@ public class ConnectionStats implements MessageStats {
   public void endRemoveAll(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(removeAllInProgressId, -1);
+    this.stats.incLong(removeAllInProgressId, -1);
     int endRemoveAllId;
     if (timedOut) {
       endRemoveAllId = removeAllTimedOutId;
@@ -3036,7 +3040,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endRemoveAllId = removeAllId;
     }
-    this.stats.incInt(endRemoveAllId, 1);
+    this.stats.incLong(endRemoveAllId, 1);
     this.stats.incLong(removeAllDurationId, duration);
   }
 
@@ -3049,8 +3053,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this getAll
    */
   public long startGetAll() {
-    this.stats.incInt(getAllInProgressId, 1);
-    this.sendStats.incInt(getAllSendInProgressId, 1);
+    this.stats.incLong(getAllInProgressId, 1);
+    this.sendStats.incLong(getAllSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3064,14 +3068,14 @@ public class ConnectionStats implements MessageStats {
   public void endGetAllSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(getAllSendInProgressId, -1);
+    this.sendStats.incLong(getAllSendInProgressId, -1);
     int endGetAllSendId;
     if (failed) {
       endGetAllSendId = getAllSendFailedId;
     } else {
       endGetAllSendId = getAllSendId;
     }
-    this.sendStats.incInt(endGetAllSendId, 1);
+    this.sendStats.incLong(endGetAllSendId, 1);
     this.sendStats.incLong(getAllSendDurationId, duration);
   }
 
@@ -3085,7 +3089,7 @@ public class ConnectionStats implements MessageStats {
   public void endGetAll(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(getAllInProgressId, -1);
+    this.stats.incLong(getAllInProgressId, -1);
     int endGetAllId;
     if (timedOut) {
       endGetAllId = getAllTimedOutId;
@@ -3094,28 +3098,28 @@ public class ConnectionStats implements MessageStats {
     } else {
       endGetAllId = getAllId;
     }
-    this.stats.incInt(endGetAllId, 1);
+    this.stats.incLong(endGetAllId, 1);
     this.stats.incLong(getAllDurationId, duration);
   }
 
-  public int getConnections() {
-    return this.stats.getInt(connectionsId);
+  public long getConnections() {
+    return this.stats.getLong(connectionsId);
   }
 
   public int getOps() {
     int ops = 0;
     for (int i = 0; i < opIds.length; i++) {
-      ops += this.stats.getInt(i);
+      ops += this.stats.getLong(i);
     }
     return ops;
   }
 
   public void incConnections(int delta) {
-    this.stats.incInt(connectionsId, delta);
+    this.stats.incLong(connectionsId, delta);
     if (delta > 0) {
-      this.stats.incInt(connectsId, delta);
+      this.stats.incLong(connectsId, delta);
     } else if (delta < 0) {
-      this.stats.incInt(disconnectsId, -delta);
+      this.stats.incLong(disconnectsId, -delta);
     }
     this.poolStats.incConnections(delta);
   }
@@ -3149,7 +3153,7 @@ public class ConnectionStats implements MessageStats {
 
   @Override
   public void incMessagesBeingReceived(int bytes) {
-    stats.incInt(messagesBeingReceivedId, 1);
+    stats.incLong(messagesBeingReceivedId, 1);
     if (bytes > 0) {
       stats.incLong(messageBytesBeingReceivedId, bytes);
     }
@@ -3157,7 +3161,7 @@ public class ConnectionStats implements MessageStats {
 
   @Override
   public void decMessagesBeingReceived(int bytes) {
-    stats.incInt(messagesBeingReceivedId, -1);
+    stats.incLong(messagesBeingReceivedId, -1);
     if (bytes > 0) {
       stats.incLong(messageBytesBeingReceivedId, -bytes);
     }
@@ -3172,8 +3176,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this ExecuteFunction
    */
   public long startExecuteFunction() {
-    this.stats.incInt(executeFunctionInProgressId, 1);
-    this.sendStats.incInt(executeFunctionSendInProgressId, 1);
+    this.stats.incLong(executeFunctionInProgressId, 1);
+    this.sendStats.incLong(executeFunctionSendInProgressId, 1);
     return getStatTime();
   }
 
@@ -3185,14 +3189,14 @@ public class ConnectionStats implements MessageStats {
    */
   public void endExecuteFunctionSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
-    this.sendStats.incInt(executeFunctionSendInProgressId, -1);
+    this.sendStats.incLong(executeFunctionSendInProgressId, -1);
     int endExecuteFunctionSendId;
     if (failed) {
       endExecuteFunctionSendId = executeFunctionSendFailedId;
     } else {
       endExecuteFunctionSendId = executeFunctionSendId;
     }
-    this.sendStats.incInt(endExecuteFunctionSendId, 1);
+    this.sendStats.incLong(endExecuteFunctionSendId, 1);
     this.sendStats.incLong(executeFunctionSendDurationId, duration);
   }
 
@@ -3205,7 +3209,7 @@ public class ConnectionStats implements MessageStats {
    */
   public void endExecuteFunction(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
-    this.stats.incInt(executeFunctionInProgressId, -1);
+    this.stats.incLong(executeFunctionInProgressId, -1);
     int endExecuteFunctionId;
     if (timedOut) {
       endExecuteFunctionId = executeFunctionTimedOutId;
@@ -3214,20 +3218,20 @@ public class ConnectionStats implements MessageStats {
     } else {
       endExecuteFunctionId = executeFunctionId;
     }
-    this.stats.incInt(endExecuteFunctionId, 1);
+    this.stats.incLong(endExecuteFunctionId, 1);
     this.stats.incLong(executeFunctionDurationId, duration);
   }
 
-  public int getExecuteFunctions() {
-    return this.stats.getInt(executeFunctionId);
+  public long getExecuteFunctions() {
+    return this.stats.getLong(executeFunctionId);
   }
 
   public long getExecuteFunctionDuration() {
     return this.stats.getLong(executeFunctionDurationId);
   }
 
-  public int getGetDurableCqs() {
-    return this.stats.getInt(getDurableCQsId);
+  public long getGetDurableCqs() {
+    return this.stats.getLong(getDurableCQsId);
   }
 
   /**
@@ -3239,8 +3243,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this ExecuteFunction
    */
   public long startGetClientPRMetadata() {
-    this.stats.incInt(getClientPRMetadataInProgressId, 1);
-    this.sendStats.incInt(getClientPRMetadataSendInProgressId, 1);
+    this.stats.incLong(getClientPRMetadataInProgressId, 1);
+    this.sendStats.incLong(getClientPRMetadataSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3254,14 +3258,14 @@ public class ConnectionStats implements MessageStats {
   public void endGetClientPRMetadataSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(getClientPRMetadataSendInProgressId, -1);
+    this.sendStats.incLong(getClientPRMetadataSendInProgressId, -1);
     int endGetClientPRMetadataSendId;
     if (failed) {
       endGetClientPRMetadataSendId = getClientPRMetadataSendFailedId;
     } else {
       endGetClientPRMetadataSendId = getClientPRMetadataSendId;
     }
-    this.sendStats.incInt(endGetClientPRMetadataSendId, 1);
+    this.sendStats.incLong(endGetClientPRMetadataSendId, 1);
     this.sendStats.incLong(getClientPRMetadataSendDurationId, duration);
   }
 
@@ -3275,7 +3279,7 @@ public class ConnectionStats implements MessageStats {
   public void endGetClientPRMetadata(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(getClientPRMetadataInProgressId, -1);
+    this.stats.incLong(getClientPRMetadataInProgressId, -1);
     int endGetClientPRMetadataId;
     if (timedOut) {
       endGetClientPRMetadataId = getClientPRMetadataTimedOutId;
@@ -3284,7 +3288,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endGetClientPRMetadataId = getClientPRMetadataId;
     }
-    this.stats.incInt(endGetClientPRMetadataId, 1);
+    this.stats.incLong(endGetClientPRMetadataId, 1);
     this.stats.incLong(getClientPRMetadataDurationId, duration);
   }
 
@@ -3297,8 +3301,8 @@ public class ConnectionStats implements MessageStats {
    * @return the start time of this GetClientPartitionAttributes
    */
   public long startGetClientPartitionAttributes() {
-    this.stats.incInt(getClientPartitionAttributesInProgressId, 1);
-    this.sendStats.incInt(getClientPartitionAttributesSendInProgressId, 1);
+    this.stats.incLong(getClientPartitionAttributesInProgressId, 1);
+    this.sendStats.incLong(getClientPartitionAttributesSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3312,14 +3316,14 @@ public class ConnectionStats implements MessageStats {
   public void endGetClientPartitionAttributesSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(getClientPartitionAttributesSendInProgressId, -1);
+    this.sendStats.incLong(getClientPartitionAttributesSendInProgressId, -1);
     int endGetClientPartitionAttributesSendId;
     if (failed) {
       endGetClientPartitionAttributesSendId = getClientPartitionAttributesSendFailedId;
     } else {
       endGetClientPartitionAttributesSendId = getClientPartitionAttributesSendId;
     }
-    this.sendStats.incInt(endGetClientPartitionAttributesSendId, 1);
+    this.sendStats.incLong(endGetClientPartitionAttributesSendId, 1);
     this.sendStats.incLong(getClientPartitionAttributesSendDurationId, duration);
   }
 
@@ -3333,7 +3337,7 @@ public class ConnectionStats implements MessageStats {
   public void endGetClientPartitionAttributes(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(getClientPartitionAttributesInProgressId, -1);
+    this.stats.incLong(getClientPartitionAttributesInProgressId, -1);
     int endGetClientPartitionAttributesId;
     if (timedOut) {
       endGetClientPartitionAttributesId = getClientPartitionAttributesTimedOutId;
@@ -3342,20 +3346,20 @@ public class ConnectionStats implements MessageStats {
     } else {
       endGetClientPartitionAttributesId = getClientPartitionAttributesId;
     }
-    this.stats.incInt(endGetClientPartitionAttributesId, 1);
+    this.stats.incLong(endGetClientPartitionAttributesId, 1);
     this.stats.incLong(getClientPartitionAttributesDurationId, duration);
   }
 
   public long startGetPDXTypeById() {
-    this.stats.incInt(getPDXTypeByIdInProgressId, 1);
-    this.sendStats.incInt(getPDXTypeByIdSendInProgressId, 1);
+    this.stats.incLong(getPDXTypeByIdInProgressId, 1);
+    this.sendStats.incLong(getPDXTypeByIdSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
 
   public long startGetPDXIdForType() {
-    this.stats.incInt(getPDXIdForTypeInProgressId, 1);
-    this.sendStats.incInt(getPDXIdForTypeSendInProgressId, 1);
+    this.stats.incLong(getPDXIdForTypeInProgressId, 1);
+    this.sendStats.incLong(getPDXIdForTypeSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3363,35 +3367,35 @@ public class ConnectionStats implements MessageStats {
   public void endGetPDXTypeByIdSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(getPDXTypeByIdSendInProgressId, -1);
+    this.sendStats.incLong(getPDXTypeByIdSendInProgressId, -1);
     int endGetPDXTypeByIdSendId;
     if (failed) {
       endGetPDXTypeByIdSendId = getPDXTypeByIdSendFailedId;
     } else {
       endGetPDXTypeByIdSendId = getPDXTypeByIdSendId;
     }
-    this.sendStats.incInt(endGetPDXTypeByIdSendId, 1);
+    this.sendStats.incLong(endGetPDXTypeByIdSendId, 1);
     this.sendStats.incLong(getPDXTypeByIdSendDurationId, duration);
   }
 
   public void endGetPDXIdForTypeSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(getPDXIdForTypeSendInProgressId, -1);
+    this.sendStats.incLong(getPDXIdForTypeSendInProgressId, -1);
     int endGetPDXIdForTypeSendId;
     if (failed) {
       endGetPDXIdForTypeSendId = getPDXIdForTypeSendFailedId;
     } else {
       endGetPDXIdForTypeSendId = getPDXIdForTypeSendId;
     }
-    this.sendStats.incInt(endGetPDXIdForTypeSendId, 1);
+    this.sendStats.incLong(endGetPDXIdForTypeSendId, 1);
     this.sendStats.incLong(getPDXIdForTypeSendDurationId, duration);
   }
 
   public void endGetPDXTypeById(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(getPDXTypeByIdInProgressId, -1);
+    this.stats.incLong(getPDXTypeByIdInProgressId, -1);
     int statId;
     if (timedOut) {
       statId = getPDXTypeByIdTimedOutId;
@@ -3400,14 +3404,14 @@ public class ConnectionStats implements MessageStats {
     } else {
       statId = getPDXTypeByIdId;
     }
-    this.stats.incInt(statId, 1);
+    this.stats.incLong(statId, 1);
     this.stats.incLong(getPDXTypeByIdDurationId, duration);
   }
 
   public void endGetPDXIdForType(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(getPDXIdForTypeInProgressId, -1);
+    this.stats.incLong(getPDXIdForTypeInProgressId, -1);
     int statId;
     if (timedOut) {
       statId = getPDXIdForTypeTimedOutId;
@@ -3416,13 +3420,13 @@ public class ConnectionStats implements MessageStats {
     } else {
       statId = getPDXIdForTypeId;
     }
-    this.stats.incInt(statId, 1);
+    this.stats.incLong(statId, 1);
     this.stats.incLong(getPDXIdForTypeDurationId, duration);
   }
 
   public long startAddPdxType() {
-    this.stats.incInt(addPdxTypeInProgressId, 1);
-    this.sendStats.incInt(addPdxTypeSendInProgressId, 1);
+    this.stats.incLong(addPdxTypeInProgressId, 1);
+    this.sendStats.incLong(addPdxTypeSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3430,21 +3434,21 @@ public class ConnectionStats implements MessageStats {
   public void endAddPdxTypeSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(addPdxTypeSendInProgressId, -1);
+    this.sendStats.incLong(addPdxTypeSendInProgressId, -1);
     int endAddPdxTypeSendId;
     if (failed) {
       endAddPdxTypeSendId = addPdxTypeSendFailedId;
     } else {
       endAddPdxTypeSendId = addPdxTypeSendId;
     }
-    this.sendStats.incInt(endAddPdxTypeSendId, 1);
+    this.sendStats.incLong(endAddPdxTypeSendId, 1);
     this.sendStats.incLong(addPdxTypeSendDurationId, duration);
   }
 
   public void endAddPdxType(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(addPdxTypeInProgressId, -1);
+    this.stats.incLong(addPdxTypeInProgressId, -1);
     int statId;
     if (timedOut) {
       statId = addPdxTypeTimedOutId;
@@ -3453,13 +3457,13 @@ public class ConnectionStats implements MessageStats {
     } else {
       statId = addPdxTypeId;
     }
-    this.stats.incInt(statId, 1);
+    this.stats.incLong(statId, 1);
     this.stats.incLong(addPdxTypeDurationId, duration);
   }
 
   public long startSize() {
-    this.stats.incInt(sizeInProgressId, 1);
-    this.sendStats.incInt(sizeSendInProgressId, 1);
+    this.stats.incLong(sizeInProgressId, 1);
+    this.sendStats.incLong(sizeSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3467,14 +3471,14 @@ public class ConnectionStats implements MessageStats {
   public void endSizeSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(sizeSendInProgressId, -1);
+    this.sendStats.incLong(sizeSendInProgressId, -1);
     int endSizeSendId;
     if (failed) {
       endSizeSendId = sizeSendFailedId;
     } else {
       endSizeSendId = sizeSendId;
     }
-    this.sendStats.incInt(endSizeSendId, 1);
+    this.sendStats.incLong(endSizeSendId, 1);
     this.sendStats.incLong(sizeSendDurationId, duration);
 
   }
@@ -3482,7 +3486,7 @@ public class ConnectionStats implements MessageStats {
   public void endSize(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(sizeInProgressId, -1);
+    this.stats.incLong(sizeInProgressId, -1);
     int endSizeId;
     if (timedOut) {
       endSizeId = sizeTimedOutId;
@@ -3491,15 +3495,15 @@ public class ConnectionStats implements MessageStats {
     } else {
       endSizeId = sizeId;
     }
-    this.stats.incInt(endSizeId, 1);
+    this.stats.incLong(endSizeId, 1);
     this.stats.incLong(sizeDurationId, duration);
   }
 
 
 
   public long startInvalidate() {
-    this.stats.incInt(invalidateInProgressId, 1);
-    this.sendStats.incInt(invalidateSendInProgressId, 1);
+    this.stats.incLong(invalidateInProgressId, 1);
+    this.sendStats.incLong(invalidateSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3507,21 +3511,21 @@ public class ConnectionStats implements MessageStats {
   public void endInvalidateSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(invalidateSendInProgressId, -1);
+    this.sendStats.incLong(invalidateSendInProgressId, -1);
     int endInvalidateSendId;
     if (failed) {
       endInvalidateSendId = invalidateSendFailedId;
     } else {
       endInvalidateSendId = invalidateSendId;
     }
-    this.sendStats.incInt(endInvalidateSendId, 1);
+    this.sendStats.incLong(endInvalidateSendId, 1);
     this.sendStats.incLong(invalidateSendDurationId, duration);
   }
 
   public void endInvalidate(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(invalidateInProgressId, -1);
+    this.stats.incLong(invalidateInProgressId, -1);
     int endInvalidateId;
     if (timedOut) {
       endInvalidateId = invalidateTimedOutId;
@@ -3535,8 +3539,8 @@ public class ConnectionStats implements MessageStats {
   }
 
   public long startCommit() {
-    this.stats.incInt(commitInProgressId, 1);
-    this.sendStats.incInt(commitSendInProgressId, 1);
+    this.stats.incLong(commitInProgressId, 1);
+    this.sendStats.incLong(commitSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3544,21 +3548,21 @@ public class ConnectionStats implements MessageStats {
   public void endCommitSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(commitSendInProgressId, -1);
+    this.sendStats.incLong(commitSendInProgressId, -1);
     int endcommitSendId;
     if (failed) {
       endcommitSendId = commitSendFailedId;
     } else {
       endcommitSendId = commitSendId;
     }
-    this.sendStats.incInt(endcommitSendId, 1);
+    this.sendStats.incLong(endcommitSendId, 1);
     this.sendStats.incLong(commitSendDurationId, duration);
   }
 
   public void endCommit(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(commitInProgressId, -1);
+    this.stats.incLong(commitInProgressId, -1);
     int endcommitId;
     if (timedOut) {
       endcommitId = commitTimedOutId;
@@ -3567,14 +3571,14 @@ public class ConnectionStats implements MessageStats {
     } else {
       endcommitId = commitId;
     }
-    this.stats.incInt(endcommitId, 1);
+    this.stats.incLong(endcommitId, 1);
     this.stats.incLong(commitDurationId, duration);
   }
 
 
   public long startGetEntry() {
-    this.stats.incInt(getEntryInProgressId, 1);
-    this.sendStats.incInt(getEntrySendInProgressId, 1);
+    this.stats.incLong(getEntryInProgressId, 1);
+    this.sendStats.incLong(getEntrySendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3582,21 +3586,21 @@ public class ConnectionStats implements MessageStats {
   public void endGetEntrySend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(getEntrySendInProgressId, -1);
+    this.sendStats.incLong(getEntrySendInProgressId, -1);
     int endGetEntrySendId;
     if (failed) {
       endGetEntrySendId = getEntrySendFailedId;
     } else {
       endGetEntrySendId = getEntrySendId;
     }
-    this.sendStats.incInt(endGetEntrySendId, 1);
+    this.sendStats.incLong(endGetEntrySendId, 1);
     this.sendStats.incLong(getEntrySendDurationId, duration);
   }
 
   public void endGetEntry(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(getEntryInProgressId, -1);
+    this.stats.incLong(getEntryInProgressId, -1);
     int endGetEntryId;
     if (timedOut) {
       endGetEntryId = getEntryTimedOutId;
@@ -3605,14 +3609,14 @@ public class ConnectionStats implements MessageStats {
     } else {
       endGetEntryId = getEntryId;
     }
-    this.stats.incInt(endGetEntryId, 1);
+    this.stats.incLong(endGetEntryId, 1);
     this.stats.incLong(getEntryDurationId, duration);
   }
 
 
   public long startRollback() {
-    this.stats.incInt(rollbackInProgressId, 1);
-    this.sendStats.incInt(rollbackSendInProgressId, 1);
+    this.stats.incLong(rollbackInProgressId, 1);
+    this.sendStats.incLong(rollbackSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3620,21 +3624,21 @@ public class ConnectionStats implements MessageStats {
   public void endRollbackSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(rollbackSendInProgressId, -1);
+    this.sendStats.incLong(rollbackSendInProgressId, -1);
     int endRollbackSendId;
     if (failed) {
       endRollbackSendId = rollbackSendFailedId;
     } else {
       endRollbackSendId = rollbackSendId;
     }
-    this.sendStats.incInt(endRollbackSendId, 1);
+    this.sendStats.incLong(endRollbackSendId, 1);
     this.sendStats.incLong(rollbackSendDurationId, duration);
   }
 
   public void endRollback(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(rollbackInProgressId, -1);
+    this.stats.incLong(rollbackInProgressId, -1);
     int endRollbackId;
     if (timedOut) {
       endRollbackId = rollbackTimedOutId;
@@ -3643,15 +3647,15 @@ public class ConnectionStats implements MessageStats {
     } else {
       endRollbackId = rollbackId;
     }
-    this.stats.incInt(endRollbackId, 1);
+    this.stats.incLong(endRollbackId, 1);
     this.stats.incLong(rollbackDurationId, duration);
   }
 
 
 
   public long startTxFailover() {
-    this.stats.incInt(txFailoverInProgressId, 1);
-    this.sendStats.incInt(txFailoverSendInProgressId, 1);
+    this.stats.incLong(txFailoverInProgressId, 1);
+    this.sendStats.incLong(txFailoverSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3659,21 +3663,21 @@ public class ConnectionStats implements MessageStats {
   public void endTxFailoverSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(txFailoverSendInProgressId, -1);
+    this.sendStats.incLong(txFailoverSendInProgressId, -1);
     int endTxFailoverSendId;
     if (failed) {
       endTxFailoverSendId = txFailoverSendFailedId;
     } else {
       endTxFailoverSendId = txFailoverSendId;
     }
-    this.sendStats.incInt(endTxFailoverSendId, 1);
+    this.sendStats.incLong(endTxFailoverSendId, 1);
     this.sendStats.incLong(txFailoverSendDurationId, duration);
   }
 
   public void endTxFailover(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(txFailoverInProgressId, -1);
+    this.stats.incLong(txFailoverInProgressId, -1);
     int endTxFailoverId;
     if (timedOut) {
       endTxFailoverId = txFailoverTimedOutId;
@@ -3682,14 +3686,14 @@ public class ConnectionStats implements MessageStats {
     } else {
       endTxFailoverId = txFailoverId;
     }
-    this.stats.incInt(endTxFailoverId, 1);
+    this.stats.incLong(endTxFailoverId, 1);
     this.stats.incLong(txFailoverDurationId, duration);
   }
 
 
   public long startTxSynchronization() {
-    this.stats.incInt(txSynchronizationInProgressId, 1);
-    this.sendStats.incInt(txSynchronizationSendInProgressId, 1);
+    this.stats.incLong(txSynchronizationInProgressId, 1);
+    this.sendStats.incLong(txSynchronizationSendInProgressId, 1);
     startClientOp();
     return getStatTime();
   }
@@ -3697,21 +3701,21 @@ public class ConnectionStats implements MessageStats {
   public void endTxSynchronizationSend(long startTime, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
-    this.sendStats.incInt(txSynchronizationSendInProgressId, -1);
+    this.sendStats.incLong(txSynchronizationSendInProgressId, -1);
     int endTxSynchronizationSendId;
     if (failed) {
       endTxSynchronizationSendId = txSynchronizationSendFailedId;
     } else {
       endTxSynchronizationSendId = txSynchronizationSendId;
     }
-    this.sendStats.incInt(endTxSynchronizationSendId, 1);
+    this.sendStats.incLong(endTxSynchronizationSendId, 1);
     this.sendStats.incLong(txSynchronizationSendDurationId, duration);
   }
 
   public void endTxSynchronization(long startTime, boolean timedOut, boolean failed) {
     long duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
-    this.stats.incInt(txSynchronizationInProgressId, -1);
+    this.stats.incLong(txSynchronizationInProgressId, -1);
     int endTxSynchronizationId;
     if (timedOut) {
       endTxSynchronizationId = txSynchronizationTimedOutId;
@@ -3720,7 +3724,7 @@ public class ConnectionStats implements MessageStats {
     } else {
       endTxSynchronizationId = txSynchronizationId;
     }
-    this.stats.incInt(endTxSynchronizationId, 1);
+    this.stats.incLong(endTxSynchronizationId, 1);
     this.stats.incLong(txSynchronizationDurationId, duration);
   }
 }

@@ -36,14 +36,14 @@ public interface FunctionStats {
    *
    * @return the current value of the "function Executions completed" stat
    */
-  int getFunctionExecutionsCompleted();
+  long getFunctionExecutionsCompleted();
 
   /**
    * Returns the current value of the "number of currently running invocations" stat.
    *
    * @return the current value of the "functionExecutionsRunning" stat
    */
-  int getFunctionExecutionsRunning();
+  long getFunctionExecutionsRunning();
 
   /**
    * Increments the "ResultsReturnedToResultCollector" stat.
@@ -56,7 +56,7 @@ public interface FunctionStats {
    *
    * @return the current value of the "resultsReturned" stat
    */
-  int getResultsReceived();
+  long getResultsReceived();
 
   /**
    * Increments the "ResultsReturnedToResultCollector" stat.
@@ -68,7 +68,7 @@ public interface FunctionStats {
    *
    * @return the current value of the "functionExecutionsCall" stat
    */
-  int getFunctionExecutionCalls();
+  long getFunctionExecutionCalls();
 
   /**
    * Increments the "_functionExecutionCallsId" and "_functionExecutionsRunningId" stats and

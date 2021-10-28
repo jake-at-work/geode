@@ -18,8 +18,8 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -115,23 +115,23 @@ public class ParallelWANConflationDUnitTest extends WANTestBase {
     vm6.invoke(() -> enableConflation("ln"));
     vm7.invoke(() -> enableConflation("ln"));
 
-    ArrayList<Integer> v4List =
-        (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 100));
-    ArrayList<Integer> v5List =
-        (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 100));
-    ArrayList<Integer> v6List =
-        (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 100));
-    ArrayList<Integer> v7List =
-        (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 100));
+    List<Long> v4List =
+        vm4.invoke(() -> WANTestBase.getSenderStats("ln", 100));
+    List<Long> v5List =
+        vm5.invoke(() -> WANTestBase.getSenderStats("ln", 100));
+    List<Long> v6List =
+        vm6.invoke(() -> WANTestBase.getSenderStats("ln", 100));
+    List<Long> v7List =
+        vm7.invoke(() -> WANTestBase.getSenderStats("ln", 100));
     assertTrue("Event in secondary queue should be 100",
         (v4List.get(10) + v5List.get(10) + v6List.get(10) + v7List.get(10)) == 100);
 
     resumeSenders();
 
-    v4List = (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    v5List = (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    v6List = (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    v7List = (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    v4List = vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    v5List = vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    v6List = vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    v7List = vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     assertTrue("No events conflated in batch",
         (v4List.get(8) + v5List.get(8) + v6List.get(8) + v7List.get(8)) > 0);
@@ -143,10 +143,10 @@ public class ParallelWANConflationDUnitTest extends WANTestBase {
 
   private void verifySecondaryEventQueuesDrained(final String senderId) {
     await().untilAsserted(() -> {
-      int vm4SecondarySize = vm4.invoke(() -> getSecondaryQueueSizeInStats("ln"));
-      int vm5SecondarySize = vm5.invoke(() -> getSecondaryQueueSizeInStats("ln"));
-      int vm6SecondarySize = vm6.invoke(() -> getSecondaryQueueSizeInStats("ln"));
-      int vm7SecondarySize = vm7.invoke(() -> getSecondaryQueueSizeInStats("ln"));
+      long vm4SecondarySize = vm4.invoke(() -> getSecondaryQueueSizeInStats("ln"));
+      long vm5SecondarySize = vm5.invoke(() -> getSecondaryQueueSizeInStats("ln"));
+      long vm6SecondarySize = vm6.invoke(() -> getSecondaryQueueSizeInStats("ln"));
+      long vm7SecondarySize = vm7.invoke(() -> getSecondaryQueueSizeInStats("ln"));
 
       assertEquals(
           "Event in secondary queue should be 0 after dispatched, but actual is " + vm4SecondarySize
@@ -212,14 +212,14 @@ public class ParallelWANConflationDUnitTest extends WANTestBase {
   }
 
   private void validateSecondaryEventQueueSize(int expectedNum, int redundancy) {
-    ArrayList<Integer> vm4List =
-        (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", expectedNum));
-    ArrayList<Integer> vm5List =
-        (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", expectedNum));
-    ArrayList<Integer> vm6List =
-        (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", expectedNum));
-    ArrayList<Integer> vm7List =
-        (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", expectedNum));
+    List<Long> vm4List =
+        vm4.invoke(() -> WANTestBase.getSenderStats("ln", expectedNum));
+    List<Long> vm5List =
+        vm5.invoke(() -> WANTestBase.getSenderStats("ln", expectedNum));
+    List<Long> vm6List =
+        vm6.invoke(() -> WANTestBase.getSenderStats("ln", expectedNum));
+    List<Long> vm7List =
+        vm7.invoke(() -> WANTestBase.getSenderStats("ln", expectedNum));
     assertTrue(
         "Event in secondary queue should be " + (expectedNum * redundancy) + ", but is "
             + (vm4List.get(10) + vm5List.get(10) + vm6List.get(10) + vm7List.get(10)),
@@ -228,14 +228,14 @@ public class ParallelWANConflationDUnitTest extends WANTestBase {
   }
 
   private void validateEventsProcessedByPQRM(int expectedNum, int redundancy) {
-    ArrayList<Integer> vm4List =
-        (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> vm5List =
-        (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> vm6List =
-        (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> vm7List =
-        (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    List<Long> vm4List =
+        vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    List<Long> vm5List =
+        vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    List<Long> vm6List =
+        vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    List<Long> vm7List =
+        vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
     assertTrue(
         "Event processed by queue removal message should be " + (expectedNum * redundancy)
             + ", but is " + (vm4List.get(11) + vm5List.get(11) + vm6List.get(11) + vm7List.get(11)),

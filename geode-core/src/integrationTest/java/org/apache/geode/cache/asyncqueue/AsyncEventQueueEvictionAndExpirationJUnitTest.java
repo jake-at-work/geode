@@ -448,14 +448,14 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
     return found;
   }
 
-  public int getEventsNotQueuedSize(String aeqId) {
+  public long getEventsNotQueuedSize(String aeqId) {
     AsyncEventQueueImpl aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue(aeqId);
     AbstractGatewaySender sender = (AbstractGatewaySender) aeq.getSender();
     return sender.getStatistics().getEventsNotQueued();
   }
 
 
-  public int getEventsReceived(String aeqId) {
+  public long getEventsReceived(String aeqId) {
     AsyncEventQueueImpl aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue(aeqId);
     AbstractGatewaySender sender = (AbstractGatewaySender) aeq.getSender();
     return sender.getStatistics().getEventsReceived();

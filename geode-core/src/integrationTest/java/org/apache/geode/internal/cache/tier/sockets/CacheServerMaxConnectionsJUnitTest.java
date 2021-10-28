@@ -138,8 +138,8 @@ public class CacheServerMaxConnectionsJUnitTest {
     createProxyAndRegionForClient();
     StatisticsType st = this.system.findType("CacheServerStats");
     final Statistics s = this.system.findStatisticsByType(st)[0];
-    assertEquals(0, s.getInt("currentClients"));
-    assertEquals(0, s.getInt("currentClientConnections"));
+    assertEquals(0, s.getLong("currentClients"));
+    assertEquals(0, s.getLong("currentClientConnections"));
     Connection[] cnxs = new Connection[MAX_CNXS];
     for (int i = 0; i < MAX_CNXS; i++) {
       cnxs[i] = proxy.acquireConnection();
@@ -148,7 +148,7 @@ public class CacheServerMaxConnectionsJUnitTest {
     WaitCriterion ev = new WaitCriterion() {
       @Override
       public boolean done() {
-        return s.getInt("currentClientConnections") == MAX_CNXS;
+        return s.getLong("currentClientConnections") == MAX_CNXS;
       }
 
       @Override
@@ -157,15 +157,15 @@ public class CacheServerMaxConnectionsJUnitTest {
       }
     };
     GeodeAwaitility.await().untilAsserted(ev);
-    assertEquals(MAX_CNXS, s.getInt("currentClientConnections"));
-    assertEquals(1, s.getInt("currentClients"));
+    assertEquals(MAX_CNXS, s.getLong("currentClientConnections"));
+    assertEquals(1, s.getLong("currentClients"));
     this.system.getLogWriter().info(
         "<ExpectedException action=add>" + "exceeded max-connections" + "</ExpectedException>");
     try {
       Connection cnx = proxy.acquireConnection();
       if (cnx != null) {
         fail("should not have been able to connect more than " + MAX_CNXS
-            + " times but was able to connect " + s.getInt("currentClientConnections")
+            + " times but was able to connect " + s.getLong("currentClientConnections")
             + " times. Last connection=" + cnx);
       }
       this.system.getLogWriter().info("acquire connection returned null which is ok");
@@ -188,7 +188,7 @@ public class CacheServerMaxConnectionsJUnitTest {
     ev = new WaitCriterion() {
       @Override
       public boolean done() {
-        return s.getInt("currentClients") == 0;
+        return s.getLong("currentClients") == 0;
       }
 
       @Override
@@ -197,9 +197,9 @@ public class CacheServerMaxConnectionsJUnitTest {
       }
     };
     GeodeAwaitility.await().untilAsserted(ev);
-    this.system.getLogWriter().info("currentClients=" + s.getInt("currentClients")
-        + " currentClientConnections=" + s.getInt("currentClientConnections"));
-    assertEquals(0, s.getInt("currentClientConnections"));
-    assertEquals(0, s.getInt("currentClients"));
+    this.system.getLogWriter().info("currentClients=" + s.getLong("currentClients")
+        + " currentClientConnections=" + s.getLong("currentClientConnections"));
+    assertEquals(0, s.getLong("currentClientConnections"));
+    assertEquals(0, s.getLong("currentClients"));
   }
 }

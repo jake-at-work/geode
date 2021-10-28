@@ -84,63 +84,63 @@ public class PoolStats {
 
     _type = f.createType(statName, statName,
         new StatisticDescriptor[] {
-            f.createIntGauge(INITIAL_CONTACTS, "Number of contacts initially by user", "contacts"),
-            f.createIntGauge(KNOWN_LOCATORS, "Current number of locators discovered", LOCATORS),
-            f.createIntGauge(ENDPOINTS_KNOWN, "Current number of servers discovered", "servers"),
-            f.createIntGauge(SUBSCRIPTION_SERVERS,
+            f.createLongGauge(INITIAL_CONTACTS, "Number of contacts initially by user", "contacts"),
+            f.createLongGauge(KNOWN_LOCATORS, "Current number of locators discovered", LOCATORS),
+            f.createLongGauge(ENDPOINTS_KNOWN, "Current number of servers discovered", "servers"),
+            f.createLongGauge(SUBSCRIPTION_SERVERS,
                 "Number of servers hosting this clients subscriptions", "servers"),
             f.createLongCounter(REQUESTS_TO_LOCATOR,
                 "Number of requests from this connection pool to a locator", "requests"),
             f.createLongCounter(RESPONSES_FROM_LOCATOR,
                 "Number of responses from the locator to this connection pool", "responses"),
 
-            f.createIntGauge("connections", "Current number of connections", "connections"),
-            // f.createIntGauge("conCount", "Current number of connections", "connections"),
-            f.createIntGauge("poolConnections", "Current number of pool connections",
+            f.createLongGauge("connections", "Current number of connections", "connections"),
+            // f.createLongGauge("conCount", "Current number of connections", "connections"),
+            f.createLongGauge("poolConnections", "Current number of pool connections",
                 "connections"),
-            f.createIntCounter("connects", "Total number of times a connection has been created.",
+            f.createLongCounter("connects", "Total number of times a connection has been created.",
                 "connects"),
-            f.createIntCounter("disconnects",
+            f.createLongCounter("disconnects",
                 "Total number of times a connection has been destroyed.", "disconnects"),
-            f.createIntCounter("minPoolSizeConnects",
+            f.createLongCounter("minPoolSizeConnects",
                 "Total number of connects done to maintain minimum pool size.", "connects"),
-            f.createIntCounter("loadConditioningConnects",
+            f.createLongCounter("loadConditioningConnects",
                 "Total number of connects done due to load conditioning.", "connects"),
-            f.createIntCounter("loadConditioningReplaceTimeouts",
+            f.createLongCounter("loadConditioningReplaceTimeouts",
                 "Total number of times a load conditioning connect was done but was not used.",
                 "timeouts"),
-            f.createIntCounter("idleDisconnects",
+            f.createLongCounter("idleDisconnects",
                 "Total number of disconnects done due to idle expiration.", "disconnects"),
-            f.createIntCounter("loadConditioningDisconnects",
+            f.createLongCounter("loadConditioningDisconnects",
                 "Total number of disconnects done due to load conditioning expiration.",
                 "disconnects"),
-            f.createIntCounter("idleChecks", "Total number of checks done for idle expiration.",
+            f.createLongCounter("idleChecks", "Total number of checks done for idle expiration.",
                 "checks"),
-            f.createIntCounter("loadConditioningChecks",
+            f.createLongCounter("loadConditioningChecks",
                 "Total number of checks done for load conditioning expiration.", "checks"),
-            f.createIntCounter("loadConditioningExtensions",
+            f.createLongCounter("loadConditioningExtensions",
                 "Total number of times a connection's load conditioning has been extended because the servers are still balanced.",
                 "extensions"),
-            f.createIntGauge("connectionWaitsInProgress",
+            f.createLongGauge("connectionWaitsInProgress",
                 "Current number of threads waiting for a connection", "threads"),
-            f.createIntCounter("connectionWaits",
+            f.createLongCounter("connectionWaits",
                 "Total number of times a thread completed waiting for a connection (by timing out or by getting a connection).",
                 "waits"),
             f.createLongCounter("connectionWaitTime",
                 "Total number of nanoseconds spent waiting for a connection.", "nanoseconds"),
-            f.createIntGauge("clientOpsInProgress", "Current number of clientOps being executed",
+            f.createLongGauge("clientOpsInProgress", "Current number of clientOps being executed",
                 "clientOps"),
-            f.createIntGauge("clientOpSendsInProgress",
+            f.createLongGauge("clientOpSendsInProgress",
                 "Current number of clientOp sends being executed", "sends"),
-            f.createIntCounter("clientOpSends",
+            f.createLongCounter("clientOpSends",
                 "Total number of clientOp sends that have completed successfully", "sends"),
-            f.createIntCounter("clientOpSendFailures",
+            f.createLongCounter("clientOpSendFailures",
                 "Total number of clientOp sends that have failed", "sends"),
-            f.createIntCounter("clientOps", "Total number of clientOps completed successfully",
+            f.createLongCounter("clientOps", "Total number of clientOps completed successfully",
                 "clientOps"),
-            f.createIntCounter("clientOpFailures",
+            f.createLongCounter("clientOpFailures",
                 "Total number of clientOp attempts that have failed", "clientOps"),
-            f.createIntCounter("clientOpTimeouts",
+            f.createLongCounter("clientOpTimeouts",
                 "Total number of clientOp attempts that have timed out", "clientOps"),
             f.createLongCounter("clientOpSendTime",
                 "Total amount of time, in nanoseconds spent doing clientOp sends", "nanoseconds"),
@@ -205,19 +205,19 @@ public class PoolStats {
   }
 
   public void setInitialContacts(int ic) {
-    this._stats.setInt(_INITIAL_CONTACTS, ic);
+    this._stats.setLong(_INITIAL_CONTACTS, ic);
   }
 
   public void setServerCount(int sc) {
-    this._stats.setInt(_ENDPOINTS_KNOWN, sc);
+    this._stats.setLong(_ENDPOINTS_KNOWN, sc);
   }
 
   public void setSubscriptionCount(int qc) {
-    this._stats.setInt(_SUBSCRIPTION_SERVERS, qc);
+    this._stats.setLong(_SUBSCRIPTION_SERVERS, qc);
   }
 
   public void setLocatorCount(int lc) {
-    this._stats.setInt(_KNOWN_LOCATORS, lc);
+    this._stats.setLong(_KNOWN_LOCATORS, lc);
   }
 
   public long getLocatorRequests() {
@@ -241,31 +241,31 @@ public class PoolStats {
   }
 
   // public void incConCount(int delta) {
-  // this._stats.incInt(conCountId, delta);
+  // this._stats.incLong(conCountId, delta);
   // }
   public void incConnections(int delta) {
-    this._stats.incInt(connectionsId, delta);
+    this._stats.incLong(connectionsId, delta);
     if (delta > 0) {
-      this._stats.incInt(connectsId, delta);
+      this._stats.incLong(connectsId, delta);
     } else if (delta < 0) {
-      this._stats.incInt(disconnectsId, -delta);
+      this._stats.incLong(disconnectsId, -delta);
     }
   }
 
   public void incPoolConnections(int delta) {
-    this._stats.incInt(poolConnectionsId, delta);
+    this._stats.incLong(poolConnectionsId, delta);
   }
 
-  public int getPoolConnections() {
-    return this._stats.getInt(poolConnectionsId);
+  public long getPoolConnections() {
+    return this._stats.getLong(poolConnectionsId);
   }
 
-  public int getConnects() {
-    return this._stats.getInt(connectsId);
+  public long getConnects() {
+    return this._stats.getLong(connectsId);
   }
 
-  public int getDisConnects() {
-    return this._stats.getInt(disconnectsId);
+  public long getDisConnects() {
+    return this._stats.getLong(disconnectsId);
   }
 
   private static long getStatTime() {
@@ -273,92 +273,92 @@ public class PoolStats {
   }
 
   public void incPrefillConnect() {
-    this._stats.incInt(_PREFILL_CONNECT, 1);
+    this._stats.incLong(_PREFILL_CONNECT, 1);
   }
 
-  public int getLoadConditioningCheck() {
-    return this._stats.getInt(_LOAD_CONDITIONING_CHECK);
+  public long getLoadConditioningCheck() {
+    return this._stats.getLong(_LOAD_CONDITIONING_CHECK);
   }
 
   public void incLoadConditioningCheck() {
-    this._stats.incInt(_LOAD_CONDITIONING_CHECK, 1);
+    this._stats.incLong(_LOAD_CONDITIONING_CHECK, 1);
   }
 
-  public int getLoadConditioningExtensions() {
-    return this._stats.getInt(_LOAD_CONDITIONING_EXTENSIONS);
+  public long getLoadConditioningExtensions() {
+    return this._stats.getLong(_LOAD_CONDITIONING_EXTENSIONS);
   }
 
   public void incLoadConditioningExtensions() {
-    this._stats.incInt(_LOAD_CONDITIONING_EXTENSIONS, 1);
+    this._stats.incLong(_LOAD_CONDITIONING_EXTENSIONS, 1);
   }
 
   public void incIdleCheck() {
-    this._stats.incInt(_IDLE_CHECK, 1);
+    this._stats.incLong(_IDLE_CHECK, 1);
   }
 
-  public int getLoadConditioningConnect() {
-    return this._stats.getInt(_LOAD_CONDITIONING_CONNECT);
+  public long getLoadConditioningConnect() {
+    return this._stats.getLong(_LOAD_CONDITIONING_CONNECT);
   }
 
   public void incLoadConditioningConnect() {
-    this._stats.incInt(_LOAD_CONDITIONING_CONNECT, 1);
+    this._stats.incLong(_LOAD_CONDITIONING_CONNECT, 1);
   }
 
-  public int getLoadConditioningReplaceTimeouts() {
-    return this._stats.getInt(_LOAD_CONDITIONING_REPLACE_TIMEOUT);
+  public long getLoadConditioningReplaceTimeouts() {
+    return this._stats.getLong(_LOAD_CONDITIONING_REPLACE_TIMEOUT);
   }
 
   public void incLoadConditioningReplaceTimeouts() {
-    this._stats.incInt(_LOAD_CONDITIONING_REPLACE_TIMEOUT, 1);
+    this._stats.incLong(_LOAD_CONDITIONING_REPLACE_TIMEOUT, 1);
   }
 
-  public int getLoadConditioningDisconnect() {
-    return this._stats.getInt(_LOAD_CONDITIONING_DISCONNECT);
+  public long getLoadConditioningDisconnect() {
+    return this._stats.getLong(_LOAD_CONDITIONING_DISCONNECT);
   }
 
   public void incLoadConditioningDisconnect() {
-    this._stats.incInt(_LOAD_CONDITIONING_DISCONNECT, 1);
+    this._stats.incLong(_LOAD_CONDITIONING_DISCONNECT, 1);
   }
 
-  public int getIdleExpire() {
-    return this._stats.getInt(_IDLE_EXPIRE);
+  public long getIdleExpire() {
+    return this._stats.getLong(_IDLE_EXPIRE);
   }
 
   public void incIdleExpire(int delta) {
-    this._stats.incInt(_IDLE_EXPIRE, delta);
+    this._stats.incLong(_IDLE_EXPIRE, delta);
   }
 
   public long beginConnectionWait() {
-    this._stats.incInt(_CONNECTION_WAIT_IN_PROGRESS, 1);
+    this._stats.incLong(_CONNECTION_WAIT_IN_PROGRESS, 1);
     return getStatTime();
   }
 
   public void endConnectionWait(long start) {
     long duration = getStatTime() - start;
-    this._stats.incInt(_CONNECTION_WAIT_IN_PROGRESS, -1);
-    this._stats.incInt(_CONNECTION_WAITS, 1);
+    this._stats.incLong(_CONNECTION_WAIT_IN_PROGRESS, -1);
+    this._stats.incLong(_CONNECTION_WAITS, 1);
     this._stats.incLong(_CONNECTION_WAIT_TIME, duration);
   }
 
   public void startClientOp() {
-    this._stats.incInt(clientOpInProgressId, 1);
-    this._stats.incInt(clientOpSendInProgressId, 1);
+    this._stats.incLong(clientOpInProgressId, 1);
+    this._stats.incLong(clientOpSendInProgressId, 1);
   }
 
   public void endClientOpSend(long duration, boolean failed) {
-    this._stats.incInt(clientOpSendInProgressId, -1);
+    this._stats.incLong(clientOpSendInProgressId, -1);
     int endClientOpSendId;
     if (failed) {
       endClientOpSendId = clientOpSendFailedId;
     } else {
       endClientOpSendId = clientOpSendId;
     }
-    this._stats.incInt(endClientOpSendId, 1);
+    this._stats.incLong(endClientOpSendId, 1);
     this._stats.incLong(clientOpSendDurationId, duration);
   }
 
   public void endClientOp(long duration, boolean timedOut, boolean failed) {
-    this._stats.incInt(clientOpInProgressId, -1);
+    this._stats.incLong(clientOpInProgressId, -1);
     int endClientOpId;
     if (timedOut) {
       endClientOpId = clientOpTimedOutId;
@@ -367,7 +367,7 @@ public class PoolStats {
     } else {
       endClientOpId = clientOpId;
     }
-    this._stats.incInt(endClientOpId, 1);
+    this._stats.incLong(endClientOpId, 1);
     this._stats.incLong(clientOpDurationId, duration);
   }
 }

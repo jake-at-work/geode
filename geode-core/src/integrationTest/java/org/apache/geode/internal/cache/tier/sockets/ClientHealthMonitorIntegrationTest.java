@@ -181,34 +181,34 @@ public class ClientHealthMonitorIntegrationTest {
     createProxyAndRegionForClient();
     StatisticsType statisticsType = this.system.findType("CacheServerStats");
     final Statistics statistics = this.system.findStatisticsByType(statisticsType)[0];
-    assertEquals(0, statistics.getInt("currentClients"));
-    assertEquals(0, statistics.getInt("currentClientConnections"));
+    assertEquals(0, statistics.getLong("currentClients"));
+    assertEquals(0, statistics.getLong("currentClientConnections"));
     this.system.getLogWriter()
-        .info("beforeAcquireConnection clients=" + statistics.getInt("currentClients") + " cnxs="
-            + statistics.getInt("currentClientConnections"));
+        .info("beforeAcquireConnection clients=" + statistics.getLong("currentClients") + " cnxs="
+            + statistics.getLong("currentClientConnections"));
     Connection connection1 = proxy.acquireConnection();
     this.system.getLogWriter()
-        .info("afterAcquireConnection clients=" + statistics.getInt("currentClients") + " cnxs="
-            + statistics.getInt("currentClientConnections"));
+        .info("afterAcquireConnection clients=" + statistics.getLong("currentClients") + " cnxs="
+            + statistics.getLong("currentClientConnections"));
     this.system.getLogWriter().info("acquired connection " + connection1);
 
     await().pollDelay(0, TimeUnit.MILLISECONDS)
-        .until(() -> statistics.getInt("currentClients") == 1);
+        .until(() -> statistics.getLong("currentClients") == 1);
 
-    assertEquals(1, statistics.getInt("currentClients"));
-    assertEquals(1, statistics.getInt("currentClientConnections"));
+    assertEquals(1, statistics.getLong("currentClients"));
+    assertEquals(1, statistics.getLong("currentClientConnections"));
     ServerRegionProxy srp = new ServerRegionProxy("region1", proxy);
 
     srp.putOnForTestsOnly(connection1, "key-1", "value-1", new EventID(new byte[] {1}, 1, 1), null);
     this.system.getLogWriter().info("did put 1");
 
     await().pollDelay(0, TimeUnit.MILLISECONDS)
-        .until(() -> statistics.getInt("currentClients") == 0);
+        .until(() -> statistics.getLong("currentClients") == 0);
 
-    this.system.getLogWriter().info("currentClients=" + statistics.getInt("currentClients")
-        + " currentClientConnections=" + statistics.getInt("currentClientConnections"));
-    assertEquals(0, statistics.getInt("currentClients"));
-    assertEquals(0, statistics.getInt("currentClientConnections"));
+    this.system.getLogWriter().info("currentClients=" + statistics.getLong("currentClients")
+        + " currentClientConnections=" + statistics.getLong("currentClientConnections"));
+    assertEquals(0, statistics.getLong("currentClients"));
+    assertEquals(0, statistics.getLong("currentClientConnections"));
 
     // the connection should now fail since the server timed it out
     try {

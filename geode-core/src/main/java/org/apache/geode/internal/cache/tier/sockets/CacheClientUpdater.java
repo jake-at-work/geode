@@ -1861,7 +1861,7 @@ public class CacheClientUpdater extends LoggingThread implements ClientUpdater, 
           new StatisticDescriptor[] {
               f.createLongCounter("receivedBytes",
                   "Total number of bytes received from the server.", "bytes"),
-              f.createIntGauge("messagesBeingReceived",
+              f.createLongGauge("messagesBeingReceived",
                   "Current number of message being received off the network or being processed after reception.",
                   "messages"),
               f.createLongGauge("messageBytesBeingReceived",
@@ -1896,7 +1896,7 @@ public class CacheClientUpdater extends LoggingThread implements ClientUpdater, 
 
     @Override
     public void incMessagesBeingReceived(int bytes) {
-      this.stats.incInt(messagesBeingReceivedId, 1);
+      this.stats.incLong(messagesBeingReceivedId, 1);
       if (bytes > 0) {
         this.stats.incLong(messageBytesBeingReceivedId, bytes);
       }
@@ -1904,7 +1904,7 @@ public class CacheClientUpdater extends LoggingThread implements ClientUpdater, 
 
     @Override
     public void decMessagesBeingReceived(int bytes) {
-      this.stats.incInt(messagesBeingReceivedId, -1);
+      this.stats.incLong(messagesBeingReceivedId, -1);
       if (bytes > 0) {
         this.stats.incLong(messageBytesBeingReceivedId, -bytes);
       }

@@ -57,7 +57,7 @@ public class NullOffHeapMemoryStats implements OffHeapMemoryStats {
   }
 
   @Override
-  public int getObjects() {
+  public long getObjects() {
     return 0;
   }
 
@@ -70,12 +70,12 @@ public class NullOffHeapMemoryStats implements OffHeapMemoryStats {
   }
 
   @Override
-  public int getDefragmentations() {
+  public long getDefragmentations() {
     return 0;
   }
 
   @Override
-  public int getDefragmentationsInProgress() {
+  public long getDefragmentationsInProgress() {
     return 0;
   }
 
@@ -88,10 +88,10 @@ public class NullOffHeapMemoryStats implements OffHeapMemoryStats {
   }
 
   @Override
-  public void setLargestFragment(int value) {}
+  public void setLargestFragment(long value) {}
 
   @Override
-  public int getLargestFragment() {
+  public long getLargestFragment() {
     return 0;
   }
 
@@ -104,7 +104,7 @@ public class NullOffHeapMemoryStats implements OffHeapMemoryStats {
   public void endDefragmentation(long start) {}
 
   @Override
-  public void setFragmentation(int value) {}
+  public void setFragmentation(long value) {}
 
   @Override
   public int getFragmentation() {

@@ -89,7 +89,7 @@ public class FileSystemStatsJUnitTest {
 
   private void verifyIncInt(final String statName, final int value) {
     final int statId = type.nameToId(statName);
-    verify(statistics).incInt(eq(statId), eq(value));
+    verify(statistics).incLong(eq(statId), eq(value));
   }
 
   private void verifyIncLong(final String statName, final long value) {

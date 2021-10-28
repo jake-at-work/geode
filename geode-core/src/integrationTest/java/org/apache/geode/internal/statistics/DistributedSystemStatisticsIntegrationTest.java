@@ -88,9 +88,9 @@ public class DistributedSystemStatisticsIntegrationTest {
     for (int j = 0; j < this.statNames.length; j++) {
       String statName = this.statNames[j];
       for (int i = 0; i < 10; i++) {
-        stats.setInt(statName, i);
-        stats.incInt(statName, 1);
-        assertThat(stats.getInt(statName)).isEqualTo(i + 1);
+        stats.setLong(statName, i);
+        stats.incLong(statName, 1);
+        assertThat(stats.getLong(statName)).isEqualTo(i + 1);
       }
     }
   }
@@ -160,22 +160,22 @@ public class DistributedSystemStatisticsIntegrationTest {
   public void testAccessingIntStat() {
     Statistics stats = setUpIntStatistics(1);
 
-    assertThat(stats.getInt(this.statName1)).isEqualTo(0);
+    assertThat(stats.getLong(this.statName1)).isEqualTo(0);
     assertThat(stats.getLong(this.statName1)).isEqualTo(0);
     assertThatThrownBy(() -> stats.getDouble(this.statName1))
         .isExactlyInstanceOf(IllegalArgumentException.class);
 
-    stats.setInt(this.statName1, 4);
-    assertThat(stats.getInt(this.statName1)).isEqualTo(4);
+    stats.setLong(this.statName1, 4);
+    assertThat(stats.getLong(this.statName1)).isEqualTo(4);
     stats.setLong(this.statName1, 5);
-    assertThat(stats.getInt(this.statName1)).isEqualTo(5);
+    assertThat(stats.getLong(this.statName1)).isEqualTo(5);
     assertThatThrownBy(() -> stats.setDouble(this.statName1, 4.0))
         .isExactlyInstanceOf(IllegalArgumentException.class);
 
-    stats.incInt(this.statName1, 4);
-    assertThat(stats.getInt(this.statName1)).isEqualTo(9);
     stats.incLong(this.statName1, 4);
-    assertThat(stats.getInt(this.statName1)).isEqualTo(13);
+    assertThat(stats.getLong(this.statName1)).isEqualTo(9);
+    stats.incLong(this.statName1, 4);
+    assertThat(stats.getLong(this.statName1)).isEqualTo(13);
     assertThatThrownBy(() -> stats.incDouble(this.statName1, 4.0))
         .isExactlyInstanceOf(IllegalArgumentException.class);
   }
@@ -188,20 +188,20 @@ public class DistributedSystemStatisticsIntegrationTest {
     Statistics stats = setUpLongStatistics(1);
 
     assertThat(stats.getLong(this.statName1)).isEqualTo(0L);
-    assertThat(stats.getInt(this.statName1)).isEqualTo(0);
+    assertThat(stats.getLong(this.statName1)).isEqualTo(0);
     assertThatThrownBy(() -> stats.getDouble(this.statName1))
         .isExactlyInstanceOf(IllegalArgumentException.class);
 
     stats.setLong(this.statName1, 4L);
     assertThat(stats.getLong(this.statName1)).isEqualTo(4L);
-    stats.setInt(this.statName1, 5);
+    stats.setLong(this.statName1, 5);
     assertThat(stats.getLong(this.statName1)).isEqualTo(5L);
     assertThatThrownBy(() -> stats.setDouble(this.statName1, 4.0))
         .isExactlyInstanceOf(IllegalArgumentException.class);
 
     stats.incLong(this.statName1, 4L);
     assertThat(stats.getLong(this.statName1)).isEqualTo(9L);
-    stats.incInt(this.statName1, 4);
+    stats.incLong(this.statName1, 4);
     assertThat(stats.getLong(this.statName1)).isEqualTo(13L);
     assertThatThrownBy(() -> stats.incDouble(this.statName1, 4.0))
         .isExactlyInstanceOf(IllegalArgumentException.class);
@@ -215,19 +215,19 @@ public class DistributedSystemStatisticsIntegrationTest {
     Statistics stats = setUpDoubleStatistics(1);
 
     assertThat(stats.getDouble(this.statName1)).isEqualTo(0.0);
-    assertThatThrownBy(() -> stats.getInt(this.statName1))
+    assertThatThrownBy(() -> stats.getLong(this.statName1))
         .isExactlyInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> stats.getLong(this.statName1))
         .isExactlyInstanceOf(IllegalArgumentException.class);
 
     stats.setDouble(this.statName1, 4.0);
-    assertThatThrownBy(() -> stats.setInt(this.statName1, 4))
+    assertThatThrownBy(() -> stats.setLong(this.statName1, 4))
         .isExactlyInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> stats.setLong(this.statName1, 4L))
         .isExactlyInstanceOf(IllegalArgumentException.class);
 
     stats.incDouble(this.statName1, 4.0);
-    assertThatThrownBy(() -> stats.incInt(this.statName1, 4))
+    assertThatThrownBy(() -> stats.incLong(this.statName1, 4))
         .isExactlyInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> stats.incLong(this.statName1, 4L))
         .isExactlyInstanceOf(IllegalArgumentException.class);
@@ -241,14 +241,14 @@ public class DistributedSystemStatisticsIntegrationTest {
     String[] descriptions = new String[] {"ONE", "TWO", "THREE"};
     StatisticDescriptor[] descriptors = new StatisticDescriptor[count];
     for (int i = 0; i < count; i++) {
-      descriptors[i] = factory().createIntGauge(this.statNames[i], descriptions[i], "x");
+      descriptors[i] = factory().createLongGauge(this.statNames[i], descriptions[i], "x");
     }
 
     StatisticsType type = factory().createType(getUniqueName(), "", descriptors);
     Statistics stats = factory().createStatistics(type, "Display");
 
     for (int i = 0; i < count; i++) {
-      stats.setInt(this.statNames[i], 0);
+      stats.setLong(this.statNames[i], 0);
     }
     return stats;
   }

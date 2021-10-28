@@ -501,7 +501,7 @@ public class DeltaPropagationStatsDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void verifyCCPStatsBug49539(Long expected) {
-    int actual = CacheClientNotifier.getInstance().getClientProxies().iterator().next()
+    long actual = CacheClientNotifier.getInstance().getClientProxies().iterator().next()
         .getStatistics().getMessagesNotQueuedOriginator();
     assertEquals("Bug #49539: stats do not match, expected messageNotQueuedOriginator: " + expected
         + ", actual: " + actual, (long) expected, actual);

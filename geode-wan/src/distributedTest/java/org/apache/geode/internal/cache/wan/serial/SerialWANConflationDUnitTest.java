@@ -28,8 +28,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -204,14 +204,14 @@ public class SerialWANConflationDUnitTest extends WANTestBase {
     vm6.invoke(() -> resumeSender("ln"));
     vm7.invoke(() -> resumeSender("ln"));
 
-    ArrayList<Integer> v4List =
-        (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v5List =
-        (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v6List =
-        (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v7List =
-        (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    List<Long> v4List =
+        vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    List<Long> v5List =
+        vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    List<Long> v6List =
+        vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    List<Long> v7List =
+        vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     assertTrue("No events conflated in batch",
         (v4List.get(8) + v5List.get(8) + v6List.get(8) + v7List.get(8)) > 0);
@@ -258,23 +258,23 @@ public class SerialWANConflationDUnitTest extends WANTestBase {
       vm4.invoke(() -> putGivenKeyValue(getTestMethodName(), keyValues));
     }
 
-    ArrayList<Integer> v4List =
-        (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 20));
+    List<Long> v4List =
+        vm4.invoke(() -> WANTestBase.getSenderStats("ln", 20));
     assertEquals("After conflation during enqueue, there should be only 20 events", 20,
-        (int) v4List.get(0));
+        (long) v4List.get(0));
 
     vm4.invoke(() -> resumeSender("ln"));
     vm5.invoke(() -> resumeSender("ln"));
     vm6.invoke(() -> resumeSender("ln"));
     vm7.invoke(() -> resumeSender("ln"));
 
-    v4List = (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v5List =
-        (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v6List =
-        (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v7List =
-        (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    v4List = vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    List<Long> v5List =
+        vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    List<Long> v6List =
+        vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    List<Long> v7List =
+        vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     assertEquals("No events in secondary queue stats since it's serial sender", 0,
         (v4List.get(10) + v5List.get(10) + v6List.get(10) + v7List.get(10)));

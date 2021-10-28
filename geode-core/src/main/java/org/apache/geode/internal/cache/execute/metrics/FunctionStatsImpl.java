@@ -110,26 +110,26 @@ public class FunctionStatsImpl implements FunctionStats {
     StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
 
     STATISTICS_TYPE = f.createType(STATISTICS_NAME, statDescription, new StatisticDescriptor[] {
-        f.createIntCounter(FUNCTION_EXECUTIONS_COMPLETED,
+        f.createLongCounter(FUNCTION_EXECUTIONS_COMPLETED,
             "Total number of completed function.execute() calls for given function", "operations"),
         f.createLongCounter(FUNCTION_EXECUTIONS_COMPLETED_PROCESSING_TIME,
             "Total time consumed for all completed invocations of the given function",
             "nanoseconds"),
-        f.createIntGauge(FUNCTION_EXECUTIONS_RUNNING,
+        f.createLongGauge(FUNCTION_EXECUTIONS_RUNNING,
             "number of currently running invocations of the given function", "operations"),
-        f.createIntCounter(RESULTS_SENT_TO_RESULT_COLLECTOR,
+        f.createLongCounter(RESULTS_SENT_TO_RESULT_COLLECTOR,
             "Total number of results sent to the ResultCollector", "operations"),
-        f.createIntCounter(RESULTS_RECEIVED,
+        f.createLongCounter(RESULTS_RECEIVED,
             "Total number of results received and passed to the ResultCollector", "operations"),
-        f.createIntCounter(FUNCTION_EXECUTION_CALLS,
+        f.createLongCounter(FUNCTION_EXECUTION_CALLS,
             "Total number of FunctionService.execute() calls for given function", "operations"),
         f.createLongCounter(FUNCTION_EXECUTIONS_HAS_RESULT_COMPLETED_PROCESSING_TIME,
             "Total time consumed for all completed given function.execute() calls where hasResult() returns true.",
             "nanoseconds"),
-        f.createIntGauge(FUNCTION_EXECUTIONS_HAS_RESULT_RUNNING,
+        f.createLongGauge(FUNCTION_EXECUTIONS_HAS_RESULT_RUNNING,
             "A gauge indicating the number of currently active execute() calls for functions where hasResult() returns true.",
             "operations"),
-        f.createIntCounter(FUNCTION_EXECUTION_EXCEPTIONS,
+        f.createLongCounter(FUNCTION_EXECUTION_EXCEPTIONS,
             "Total number of Exceptions Occurred while executing function", "operations"),
     });
 
@@ -220,44 +220,44 @@ public class FunctionStatsImpl implements FunctionStats {
   }
 
   @Override
-  public int getFunctionExecutionsCompleted() {
-    return statistics.getInt(functionExecutionsCompletedId);
+  public long getFunctionExecutionsCompleted() {
+    return statistics.getLong(functionExecutionsCompletedId);
   }
 
   @Override
-  public int getFunctionExecutionsRunning() {
-    return statistics.getInt(functionExecutionsRunningId);
+  public long getFunctionExecutionsRunning() {
+    return statistics.getLong(functionExecutionsRunningId);
   }
 
   @Override
   public void incResultsReturned() {
-    statistics.incInt(resultsSentToResultCollectorId, 1);
+    statistics.incLong(resultsSentToResultCollectorId, 1);
     aggregateStatistics.incResultsReturned();
   }
 
   @Override
-  public int getResultsReceived() {
-    return statistics.getInt(resultsReceivedId);
+  public long getResultsReceived() {
+    return statistics.getLong(resultsReceivedId);
   }
 
   @Override
   public void incResultsReceived() {
-    statistics.incInt(resultsReceivedId, 1);
+    statistics.incLong(resultsReceivedId, 1);
     aggregateStatistics.incResultsReceived();
   }
 
   @Override
-  public int getFunctionExecutionCalls() {
-    return statistics.getInt(functionExecutionCallsId);
+  public long getFunctionExecutionCalls() {
+    return statistics.getLong(functionExecutionCallsId);
   }
 
   @Override
   public long startFunctionExecution(boolean haveResult) {
-    statistics.incInt(functionExecutionCallsId, 1);
-    statistics.incInt(functionExecutionsRunningId, 1);
+    statistics.incLong(functionExecutionCallsId, 1);
+    statistics.incLong(functionExecutionsRunningId, 1);
 
     if (haveResult) {
-      statistics.incInt(functionExecutionsHasResultRunningId, 1);
+      statistics.incLong(functionExecutionsHasResultRunningId, 1);
     }
 
     aggregateStatistics.startFunctionExecution(haveResult);
@@ -271,15 +271,15 @@ public class FunctionStatsImpl implements FunctionStats {
 
     successTimer.record(elapsedNanos, NANOSECONDS);
 
-    statistics.incInt(functionExecutionsCompletedId, 1);
-    statistics.incInt(functionExecutionsRunningId, -1);
+    statistics.incLong(functionExecutionsCompletedId, 1);
+    statistics.incLong(functionExecutionsRunningId, -1);
 
     if (timeStatisticsEnabled.getAsBoolean()) {
       statistics.incLong(functionExecutionsCompletedProcessingTimeId, elapsedNanos);
     }
 
     if (haveResult) {
-      statistics.incInt(functionExecutionsHasResultRunningId, -1);
+      statistics.incLong(functionExecutionsHasResultRunningId, -1);
 
       if (timeStatisticsEnabled.getAsBoolean()) {
         statistics.incLong(functionExecutionsHasResultCompletedProcessingTimeId, elapsedNanos);
@@ -295,11 +295,11 @@ public class FunctionStatsImpl implements FunctionStats {
 
     failureTimer.record(elapsedNanos, NANOSECONDS);
 
-    statistics.incInt(functionExecutionsRunningId, -1);
-    statistics.incInt(functionExecutionExceptionsId, 1);
+    statistics.incLong(functionExecutionsRunningId, -1);
+    statistics.incLong(functionExecutionExceptionsId, 1);
 
     if (haveResult) {
-      statistics.incInt(functionExecutionsHasResultRunningId, -1);
+      statistics.incLong(functionExecutionsHasResultRunningId, -1);
     }
 
     aggregateStatistics.endFunctionExecutionWithException(haveResult);

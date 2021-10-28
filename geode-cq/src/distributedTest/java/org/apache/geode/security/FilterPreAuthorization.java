@@ -32,6 +32,7 @@ import org.apache.geode.cache.operations.PutOperationContext;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.InternalDataSerializer;
+import org.apache.geode.internal.InternalInstantiator;
 import org.apache.geode.internal.serialization.KnownVersion;
 
 /**
@@ -45,7 +46,7 @@ public class FilterPreAuthorization implements AccessControl {
   private LogWriter logger;
 
   static {
-    Instantiator.register(new Instantiator(ObjectWithAuthz.class, ObjectWithAuthz.CLASSID) {
+    InternalInstantiator.register(new Instantiator(ObjectWithAuthz.class, ObjectWithAuthz.CLASSID) {
       @Override
       public DataSerializable newInstance() {
         return new ObjectWithAuthz();

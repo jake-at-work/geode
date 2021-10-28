@@ -15,7 +15,6 @@
 package org.apache.geode.internal.statistics;
 
 import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 
 import org.apache.geode.StatisticDescriptor;
@@ -99,15 +98,6 @@ public class DummyStatisticsImpl implements Statistics {
   //////////////////////// set() Methods ///////////////////////
 
   @Override
-  public void setInt(int id, int value) {}
-
-  @Override
-  public void setInt(StatisticDescriptor descriptor, int value) {}
-
-  @Override
-  public void setInt(String name, int value) {}
-
-  @Override
   public void setLong(int id, long value) {}
 
   @Override
@@ -127,20 +117,6 @@ public class DummyStatisticsImpl implements Statistics {
 
   /////////////////////// get() Methods ///////////////////////
 
-  @Override
-  public int getInt(int id) {
-    return 0;
-  }
-
-  @Override
-  public int getInt(StatisticDescriptor descriptor) {
-    return 0;
-  }
-
-  @Override
-  public int getInt(String name) {
-    return 0;
-  }
 
   @Override
   public long getLong(int id) {
@@ -197,15 +173,6 @@ public class DummyStatisticsImpl implements Statistics {
   //////////////////////// inc() Methods ////////////////////////
 
   @Override
-  public void incInt(int id, int delta) {}
-
-  @Override
-  public void incInt(StatisticDescriptor descriptor, int delta) {}
-
-  @Override
-  public void incInt(String name, int delta) {}
-
-  @Override
   public void incLong(int id, long delta) {}
 
   @Override
@@ -222,22 +189,6 @@ public class DummyStatisticsImpl implements Statistics {
 
   @Override
   public void incDouble(String name, double delta) {}
-
-  @Override
-  public IntSupplier setIntSupplier(final int id, final IntSupplier supplier) {
-    return null;
-  }
-
-  @Override
-  public IntSupplier setIntSupplier(final String name, final IntSupplier supplier) {
-    return null;
-  }
-
-  @Override
-  public IntSupplier setIntSupplier(final StatisticDescriptor descriptor,
-      final IntSupplier supplier) {
-    return null;
-  }
 
   @Override
   public LongSupplier setLongSupplier(final int id, final LongSupplier supplier) {

@@ -34,7 +34,7 @@ public class LuceneIndexDetails extends LuceneFunctionSerializable
   private final String serverName;
   private final String[] searchableFieldNames;
   private Map<String, String> fieldAnalyzers = null;
-  private final Map<String, Integer> indexStats;
+  private final Map<String, Long> indexStats;
   private LuceneIndexStatus status;
   private String serializer;
 
@@ -79,12 +79,12 @@ public class LuceneIndexDetails extends LuceneFunctionSerializable
     this.serializer = indexProfile.getSerializerClass();
   }
 
-  public Map<String, Integer> getIndexStats() {
+  public Map<String, Long> getIndexStats() {
     return indexStats;
   }
 
-  private Map<String, Integer> getIndexStatsMap(LuceneIndexStats indexStats) {
-    Map<String, Integer> statsMap = new HashMap<>();
+  private Map<String, Long> getIndexStatsMap(LuceneIndexStats indexStats) {
+    Map<String, Long> statsMap = new HashMap<>();
     if (indexStats == null) {
       return statsMap;
     }

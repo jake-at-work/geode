@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -88,14 +88,14 @@ public class ParallelGatewaySenderAlertThresholdDUnitTest extends WANTestBase {
     vm2.invoke(serializableRunnableIF);
     vm3.invoke(serializableRunnableIF);
 
-    ArrayList<Integer> v4List =
-        (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v5List =
-        (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v6List =
-        (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v7List =
-        (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", -1));
+    List<Long> v4List =
+        vm4.invoke(() -> WANTestBase.getSenderStats("ln", -1));
+    List<Long> v5List =
+        vm5.invoke(() -> WANTestBase.getSenderStats("ln", -1));
+    List<Long> v6List =
+        vm6.invoke(() -> WANTestBase.getSenderStats("ln", -1));
+    List<Long> v7List =
+        vm7.invoke(() -> WANTestBase.getSenderStats("ln", -1));
 
     assertTrue("GatewaySenders Stats should contain number of EventsExceedingAlertThreshold > 0",
         (v4List.get(12) + v5List.get(12) + v6List.get(12) + v7List.get(12)) > 0);
@@ -163,14 +163,14 @@ public class ParallelGatewaySenderAlertThresholdDUnitTest extends WANTestBase {
     vm2.invoke(serializableRunnableIF);
     vm3.invoke(serializableRunnableIF);
 
-    ArrayList<Integer> v4List =
-        (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v5List =
-        (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v6List =
-        (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v7List =
-        (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", -1));
+    List<Long> v4List =
+        vm4.invoke(() -> WANTestBase.getSenderStats("ln", -1));
+    List<Long> v5List =
+        vm5.invoke(() -> WANTestBase.getSenderStats("ln", -1));
+    List<Long> v6List =
+        vm6.invoke(() -> WANTestBase.getSenderStats("ln", -1));
+    List<Long> v7List =
+        vm7.invoke(() -> WANTestBase.getSenderStats("ln", -1));
 
     assertEquals("GatewaySenders Stats should contain number of EventsExceedingAlertThreshold = 0",
         (v4List.get(12) + v5List.get(12) + v6List.get(12) + v7List.get(12)), 0);

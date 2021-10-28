@@ -70,7 +70,7 @@ public class OffHeapLRURecoveryRegressionTest {
       try {
         createDiskStore(gfc);
         try {
-          int offHeapObjects = MemoryAllocatorImpl.getAllocator().getStats().getObjects();
+          long offHeapObjects = MemoryAllocatorImpl.getAllocator().getStats().getObjects();
           if (offHeapObjects < 10) {
             fail("expected at least 10 offheap values to be recovered but only did "
                 + offHeapObjects);

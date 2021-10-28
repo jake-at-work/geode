@@ -102,10 +102,6 @@ public class StatisticDescriptorImpl implements StatisticDescriptor {
     }
   }
 
-  public static StatisticDescriptor createIntCounter(String name, String description, String units,
-      boolean isLargerBetter) {
-    return createLongCounter(name, description, units, isLargerBetter);
-  }
 
   public static StatisticDescriptor createLongCounter(String name, String description, String units,
       boolean isLargerBetter) {
@@ -115,11 +111,6 @@ public class StatisticDescriptorImpl implements StatisticDescriptor {
   public static StatisticDescriptor createDoubleCounter(String name, String description,
       String units, boolean isLargerBetter) {
     return new StatisticDescriptorImpl(name, DOUBLE, description, units, true, isLargerBetter);
-  }
-
-  public static StatisticDescriptor createIntGauge(String name, String description, String units,
-      boolean isLargerBetter) {
-    return createLongGauge(name, description, units, isLargerBetter);
   }
 
   public static StatisticDescriptor createLongGauge(String name, String description, String units,

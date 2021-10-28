@@ -36,7 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.regex.Matcher;
@@ -97,8 +97,8 @@ public class StatisticsDistributedTest extends JUnit4CacheTestCase {
   private static final int NUM_PUBS = 2;
   private static final boolean RANDOMIZE_PUTS = true;
 
-  private static AtomicInteger updateEvents = new AtomicInteger();
-  private static AtomicInteger puts = new AtomicInteger();
+  private static AtomicLong updateEvents = new AtomicLong();
+  private static AtomicLong puts = new AtomicLong();
   private static AtomicReference<PubSubStats> subStatsRef = new AtomicReference<>();
   private static AtomicReferenceArray<PubSubStats> pubStatsRef =
       new AtomicReferenceArray<>(NUM_PUB_THREADS);
@@ -287,10 +287,10 @@ public class StatisticsDistributedTest extends JUnit4CacheTestCase {
               assertEquals(1, statsArray.length);
 
               Statistics statSamplerStats = statsArray[0];
-              int initialSampleCount = statSamplerStats.getInt(StatSamplerStats.SAMPLE_COUNT);
+              long initialSampleCount = statSamplerStats.getLong(StatSamplerStats.SAMPLE_COUNT);
 
               await("awaiting sampleCount >= 2").until(() -> statSamplerStats
-                  .getInt(StatSamplerStats.SAMPLE_COUNT) >= initialSampleCount + 2);
+                  .getLong(StatSamplerStats.SAMPLE_COUNT) >= initialSampleCount + 2);
             });
       }
 
@@ -309,10 +309,10 @@ public class StatisticsDistributedTest extends JUnit4CacheTestCase {
       assertEquals(1, statsArray.length);
 
       Statistics statSamplerStats = statsArray[0];
-      int initialSampleCount = statSamplerStats.getInt(StatSamplerStats.SAMPLE_COUNT);
+      long initialSampleCount = statSamplerStats.getLong(StatSamplerStats.SAMPLE_COUNT);
 
       await("awaiting sampleCount >= 2").until(
-          () -> statSamplerStats.getInt(StatSamplerStats.SAMPLE_COUNT) >= initialSampleCount + 2);
+          () -> statSamplerStats.getLong(StatSamplerStats.SAMPLE_COUNT) >= initialSampleCount + 2);
 
       // now post total updateEvents to static
       PubSubStats statistics = subStatsRef.get();
@@ -321,7 +321,7 @@ public class StatisticsDistributedTest extends JUnit4CacheTestCase {
     });
 
     // validate pub values against sub values
-    int totalUpdateEvents = sub.invoke(() -> getUpdateEvents());
+    long totalUpdateEvents = sub.invoke(() -> getUpdateEvents());
 
     // validate pub values against pub statistics against pub archive
     for (int i = 0; i < NUM_PUBS; i++) {
@@ -329,7 +329,7 @@ public class StatisticsDistributedTest extends JUnit4CacheTestCase {
       pubs[pubIdx].invoke("pub-validation", () -> {
         // add up all the puts
         assertEquals(NUM_PUB_THREADS, pubStatsRef.length());
-        int totalPuts = 0;
+        long totalPuts = 0;
         for (int pubThreadIdx = 0; pubThreadIdx < NUM_PUB_THREADS; pubThreadIdx++) {
           PubSubStats statistics = pubStatsRef.get(pubThreadIdx);
           assertNotNull(statistics);
@@ -397,7 +397,7 @@ public class StatisticsDistributedTest extends JUnit4CacheTestCase {
     int totalCombinedPuts = 0;
     for (int i = 0; i < NUM_PUBS; i++) {
       int pubIdx = i;
-      int totalPuts = pubs[pubIdx].invoke(() -> getPuts());
+      long totalPuts = pubs[pubIdx].invoke(() -> getPuts());
       assertEquals(MAX_PUTS * NUM_PUB_THREADS, totalPuts);
       totalCombinedPuts += totalPuts;
     }
@@ -409,7 +409,7 @@ public class StatisticsDistributedTest extends JUnit4CacheTestCase {
     sub.invoke("sub-validation", () -> {
       PubSubStats statistics = subStatsRef.get();
       assertNotNull(statistics);
-      int updateEvents = statistics.getUpdateEvents();
+      long updateEvents = statistics.getUpdateEvents();
       assertEquals(totalPuts, updateEvents);
       assertEquals(totalUpdateEvents, updateEvents);
       assertEquals(MAX_PUTS * NUM_PUB_THREADS * NUM_PUBS, updateEvents);
@@ -506,12 +506,12 @@ public class StatisticsDistributedTest extends JUnit4CacheTestCase {
   }
 
   /** invoked by reflection */
-  private static int getUpdateEvents() {
+  private static long getUpdateEvents() {
     return updateEvents.get();
   }
 
   /** invoked by reflection */
-  private static int getPuts() {
+  private static long getPuts() {
     return puts.get();
   }
 
@@ -579,10 +579,10 @@ public class StatisticsDistributedTest extends JUnit4CacheTestCase {
     private static StatisticDescriptor[] createDescriptors(final StatisticsFactory f) {
       boolean largerIsBetter = true;
       return new StatisticDescriptor[] {
-          f.createIntCounter(PUTS, "Number of puts completed.", "operations", largerIsBetter),
+          f.createLongCounter(PUTS, "Number of puts completed.", "operations", largerIsBetter),
           f.createLongCounter(PUT_TIME, "Total time spent doing puts.", "nanoseconds",
               !largerIsBetter),
-          f.createIntCounter(UPDATE_EVENTS, "Number of update events.", "events", largerIsBetter)};
+          f.createLongCounter(UPDATE_EVENTS, "Number of update events.", "events", largerIsBetter)};
     }
 
     private final Statistics statistics;
@@ -599,8 +599,8 @@ public class StatisticsDistributedTest extends JUnit4CacheTestCase {
       this.statistics.close();
     }
 
-    int getUpdateEvents() {
-      return statistics().getInt(UPDATE_EVENTS);
+    long getUpdateEvents() {
+      return statistics().getLong(UPDATE_EVENTS);
     }
 
     void incUpdateEvents() {
@@ -611,8 +611,8 @@ public class StatisticsDistributedTest extends JUnit4CacheTestCase {
       incStat(UPDATE_EVENTS, amount);
     }
 
-    int getPuts() {
-      return statistics().getInt(PUTS);
+    long getPuts() {
+      return statistics().getLong(PUTS);
     }
 
     void incPuts() {
@@ -642,7 +642,7 @@ public class StatisticsDistributedTest extends JUnit4CacheTestCase {
     }
 
     private void incStat(final String statName, final int intValue) {
-      statistics().incInt(statName, intValue);
+      statistics().incLong(statName, intValue);
     }
 
     private void incStat(final String statName, final long longValue) {

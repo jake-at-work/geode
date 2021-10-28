@@ -35,13 +35,13 @@ public interface OffHeapMemoryStats {
 
   void setFragments(long value);
 
-  void setLargestFragment(int value);
+  void setLargestFragment(long value);
 
   long startDefragmentation();
 
   void endDefragmentation(long start);
 
-  void setFragmentation(int value);
+  void setFragmentation(long value);
 
   long getFreeMemory();
 
@@ -51,15 +51,15 @@ public interface OffHeapMemoryStats {
 
   long getReads();
 
-  int getObjects();
+  long getObjects();
 
-  int getDefragmentations();
+  long getDefragmentations();
 
-  int getDefragmentationsInProgress();
+  long getDefragmentationsInProgress();
 
   long getFragments();
 
-  int getLargestFragment();
+  long getLargestFragment();
 
   int getFragmentation();
 

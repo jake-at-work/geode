@@ -102,15 +102,15 @@ public class OffHeapStorage implements OffHeapMemoryStats {
 
     statsType = f.createType(statsTypeName, statsTypeDescription,
         new StatisticDescriptor[] {f.createLongGauge(usedMemory, usedMemoryDesc, "bytes"),
-            f.createIntCounter(defragmentations, defragmentationDesc, "operations"),
-            f.createIntGauge(defragmentationsInProgress, defragmentationsInProgressDesc,
+            f.createLongCounter(defragmentations, defragmentationDesc, "operations"),
+            f.createLongGauge(defragmentationsInProgress, defragmentationsInProgressDesc,
                 "operations"),
             f.createLongCounter(defragmentationTime, defragmentationTimeDesc, "nanoseconds", false),
-            f.createIntGauge(fragmentation, fragmentationDesc, "percentage"),
+            f.createLongGauge(fragmentation, fragmentationDesc, "percentage"),
             f.createLongGauge(fragments, fragmentsDesc, "fragments"),
             f.createLongGauge(freeMemory, freeMemoryDesc, "bytes"),
-            f.createIntGauge(largestFragment, largestFragmentDesc, "bytes"),
-            f.createIntGauge(objects, objectsDesc, "objects"),
+            f.createLongGauge(largestFragment, largestFragmentDesc, "bytes"),
+            f.createLongGauge(objects, objectsDesc, "objects"),
             f.createLongCounter(reads, readsDesc, "operations"),
             f.createLongGauge(maxMemory, maxMemoryDesc, "bytes"),});
 
@@ -290,7 +290,7 @@ public class OffHeapStorage implements OffHeapMemoryStats {
 
   @Override
   public void incObjects(int value) {
-    this.stats.incInt(objectsId, value);
+    this.stats.incLong(objectsId, value);
   }
 
   @Override
@@ -309,8 +309,8 @@ public class OffHeapStorage implements OffHeapMemoryStats {
   }
 
   @Override
-  public int getObjects() {
-    return this.stats.getInt(objectsId);
+  public long getObjects() {
+    return this.stats.getLong(objectsId);
   }
 
   @Override
@@ -324,12 +324,12 @@ public class OffHeapStorage implements OffHeapMemoryStats {
   }
 
   private void incDefragmentations() {
-    this.stats.incInt(defragmentationId, 1);
+    this.stats.incLong(defragmentationId, 1);
   }
 
   @Override
-  public int getDefragmentations() {
-    return this.stats.getInt(defragmentationId);
+  public long getDefragmentations() {
+    return this.stats.getLong(defragmentationId);
   }
 
   @Override
@@ -343,30 +343,30 @@ public class OffHeapStorage implements OffHeapMemoryStats {
   }
 
   @Override
-  public void setLargestFragment(int value) {
-    this.stats.setInt(largestFragmentId, value);
+  public void setLargestFragment(long value) {
+    this.stats.setLong(largestFragmentId, value);
   }
 
   @Override
-  public int getLargestFragment() {
-    return this.stats.getInt(largestFragmentId);
+  public long getLargestFragment() {
+    return this.stats.getLong(largestFragmentId);
   }
 
   @Override
-  public int getDefragmentationsInProgress() {
-    return this.stats.getInt(defragmentationsInProgressId);
+  public long getDefragmentationsInProgress() {
+    return this.stats.getLong(defragmentationsInProgressId);
   }
 
   @Override
   public long startDefragmentation() {
-    this.stats.incInt(defragmentationsInProgressId, 1);
+    this.stats.incLong(defragmentationsInProgressId, 1);
     return DistributionStats.getStatTime();
   }
 
   @Override
   public void endDefragmentation(long start) {
     incDefragmentations();
-    this.stats.incInt(defragmentationsInProgressId, -1);
+    this.stats.incLong(defragmentationsInProgressId, -1);
     if (DistributionStats.enableClockStats) {
       stats.incLong(defragmentationTimeId, DistributionStats.getStatTime() - start);
     }
@@ -378,13 +378,13 @@ public class OffHeapStorage implements OffHeapMemoryStats {
   }
 
   @Override
-  public void setFragmentation(int value) {
-    this.stats.setInt(fragmentationId, value);
+  public void setFragmentation(long value) {
+    this.stats.setLong(fragmentationId, value);
   }
 
   @Override
   public int getFragmentation() {
-    return this.stats.getInt(fragmentationId);
+    return (int) this.stats.getLong(fragmentationId);
   }
 
   @Override
@@ -418,20 +418,20 @@ public class OffHeapStorage implements OffHeapMemoryStats {
     stats.setLong(defragmentationTimeId, value);
   }
 
-  private void setDefragmentations(int value) {
-    this.stats.setInt(defragmentationId, value);
+  private void setDefragmentations(long value) {
+    this.stats.setLong(defragmentationId, value);
   }
 
-  private void setDefragmentationsInProgress(int value) {
-    this.stats.setInt(defragmentationsInProgressId, value);
+  private void setDefragmentationsInProgress(long value) {
+    this.stats.setLong(defragmentationsInProgressId, value);
   }
 
   private void setReads(long value) {
     this.stats.setLong(readsId, value);
   }
 
-  private void setObjects(int value) {
-    this.stats.setInt(objectsId, value);
+  private void setObjects(long value) {
+    this.stats.setLong(objectsId, value);
   }
 
   private void setUsedMemory(long value) {

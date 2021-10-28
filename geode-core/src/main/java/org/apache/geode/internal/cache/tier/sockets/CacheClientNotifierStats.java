@@ -74,31 +74,32 @@ public class CacheClientNotifierStats {
 
     StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
 
-    _type = f.createType(statName, statName, new StatisticDescriptor[] {f.createIntCounter(EVENTS,
+    _type = f.createType(statName, statName, new StatisticDescriptor[] {f.createLongCounter(EVENTS,
         "Number of events processed by the cache client notifier.", "operations"),
 
         f.createLongCounter(EVENT_PROCESSING_TIME,
             "Total time spent by the cache client notifier processing events.", "nanoseconds"),
 
-        f.createIntCounter(CLIENT_REGISTRATIONS,
+        f.createLongCounter(CLIENT_REGISTRATIONS,
             "Number of clients that have registered for updates.", "operations"),
 
         f.createLongCounter(CLIENT_REGISTRATION_TIME,
             "Total time spent doing client registrations.", "nanoseconds"),
 
-        f.createIntGauge("clientHealthMonitorRegister", "Number of client Register.", "registered"),
+        f.createLongGauge("clientHealthMonitorRegister", "Number of client Register.",
+            "registered"),
 
-        f.createIntGauge("clientHealthMonitorUnRegister", "Number of client UnRegister.",
+        f.createLongGauge("clientHealthMonitorUnRegister", "Number of client UnRegister.",
             "unregistered"),
 
-        f.createIntCounter(DURABLE_RECONNECTION_COUNT,
+        f.createLongCounter(DURABLE_RECONNECTION_COUNT,
             "Number of times the same durable client connects to the server", "operations"),
 
-        f.createIntCounter(QUEUE_DROPPED_COUNT,
+        f.createLongCounter(QUEUE_DROPPED_COUNT,
             "Number of times client queue for a particular durable client is dropped",
             "operations"),
 
-        f.createIntCounter(EVENTS_ENQUEUED_WHILE_CLIENT_AWAY_COUNT,
+        f.createLongCounter(EVENTS_ENQUEUED_WHILE_CLIENT_AWAY_COUNT,
             "Number of events enqueued in queue for a durable client ", "operations"),
 
         f.createLongCounter(CQ_PROCESSING_TIME,
@@ -154,8 +155,8 @@ public class CacheClientNotifierStats {
   /**
    * Returns the current value of the "events" stat.
    */
-  public int getEvents() {
-    return this._stats.getInt(_eventsId);
+  public long getEvents() {
+    return this._stats.getLong(_eventsId);
   }
 
   /**
@@ -172,7 +173,7 @@ public class CacheClientNotifierStats {
   public void endEvent(long start) {
     long ts = DistributionStats.getStatTime();
     // Increment number of notifications
-    this._stats.incInt(_eventsId, 1);
+    this._stats.incLong(_eventsId, 1);
 
     if (start != 0L && ts != 0L) {
       // Increment notification time
@@ -185,7 +186,7 @@ public class CacheClientNotifierStats {
     long ts = DistributionStats.getStatTime();
 
     // Increment number of notifications
-    this._stats.incInt(_clientRegistrationsId, 1);
+    this._stats.incLong(_clientRegistrationsId, 1);
 
     if (start != 0L && ts != 0L) {
       // Increment notification time
@@ -202,23 +203,23 @@ public class CacheClientNotifierStats {
   }
 
   public void incClientRegisterRequests() {
-    this._stats.incInt(_clientHealthMonitorRegisterId, 1);
+    this._stats.incLong(_clientHealthMonitorRegisterId, 1);
   }
 
-  public int getClientRegisterRequests() {
-    return this._stats.getInt(_clientHealthMonitorRegisterId);
+  public long getClientRegisterRequests() {
+    return this._stats.getLong(_clientHealthMonitorRegisterId);
   }
 
-  public int get_durableReconnectionCount() {
-    return this._stats.getInt(_durableReconnectionCount);
+  public long get_durableReconnectionCount() {
+    return this._stats.getLong(_durableReconnectionCount);
   }
 
-  public int get_queueDroppedCount() {
-    return this._stats.getInt(_queueDroppedCount);
+  public long get_queueDroppedCount() {
+    return this._stats.getLong(_queueDroppedCount);
   }
 
-  public int get_eventEnqueuedWhileClientAwayCount() {
-    return this._stats.getInt(_eventEnqueuedWhileClientAwayCount);
+  public long get_eventEnqueuedWhileClientAwayCount() {
+    return this._stats.getLong(_eventEnqueuedWhileClientAwayCount);
   }
 
   public long getCqProcessingTime() {
@@ -234,19 +235,19 @@ public class CacheClientNotifierStats {
   }
 
   public void incDurableReconnectionCount() {
-    this._stats.incInt(_durableReconnectionCount, 1);
+    this._stats.incLong(_durableReconnectionCount, 1);
   }
 
   public void incQueueDroppedCount() {
-    this._stats.incInt(_queueDroppedCount, 1);
+    this._stats.incLong(_queueDroppedCount, 1);
   }
 
   public void incEventEnqueuedWhileClientAwayCount() {
-    this._stats.incInt(_eventEnqueuedWhileClientAwayCount, 1);
+    this._stats.incLong(_eventEnqueuedWhileClientAwayCount, 1);
   }
 
   public void incClientUnRegisterRequests() {
-    this._stats.incInt(_clientHealthMonitorUnRegisterId, 1);
+    this._stats.incLong(_clientHealthMonitorUnRegisterId, 1);
   }
 
   public void incCompiledQueryCount(long count) {
@@ -257,8 +258,8 @@ public class CacheClientNotifierStats {
     this._stats.incLong(_compiledQueryUsedCount, count);
   }
 
-  public int getClientUnRegisterRequests() {
-    return this._stats.getInt(_clientHealthMonitorUnRegisterId);
+  public long getClientUnRegisterRequests() {
+    return this._stats.getLong(_clientHealthMonitorUnRegisterId);
   }
 
 }

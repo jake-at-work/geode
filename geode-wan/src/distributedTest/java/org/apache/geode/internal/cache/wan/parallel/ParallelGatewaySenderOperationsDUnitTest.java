@@ -456,10 +456,10 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
     vm2.invoke(() -> validateRegionSizeRemainsSame(getUniqueName() + "_PR", 200));
 
     // SECOND RUN: start async puts on region
-    ArrayList<Integer> vm4List = null;
-    ArrayList<Integer> vm5List = null;
-    ArrayList<Integer> vm6List = null;
-    ArrayList<Integer> vm7List = null;
+    List<Long> vm4List = null;
+    List<Long> vm5List = null;
+    List<Long> vm6List = null;
+    List<Long> vm7List = null;
     boolean foundEventsDroppedDueToPrimarySenderNotRunning = false;
     int count = 0;
 
@@ -472,13 +472,13 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
       async.join();
       vm4List =
-          (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStatsForDroppedEvents("ln"));
+          vm4.invoke(() -> WANTestBase.getSenderStatsForDroppedEvents("ln"));
       vm5List =
-          (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStatsForDroppedEvents("ln"));
+          vm5.invoke(() -> WANTestBase.getSenderStatsForDroppedEvents("ln"));
       vm6List =
-          (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStatsForDroppedEvents("ln"));
+          vm6.invoke(() -> WANTestBase.getSenderStatsForDroppedEvents("ln"));
       vm7List =
-          (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStatsForDroppedEvents("ln"));
+          vm7.invoke(() -> WANTestBase.getSenderStatsForDroppedEvents("ln"));
       if (vm4List.get(0) + vm5List.get(0) + vm6List.get(0) + vm7List.get(0) > 0) {
         foundEventsDroppedDueToPrimarySenderNotRunning = true;
       }

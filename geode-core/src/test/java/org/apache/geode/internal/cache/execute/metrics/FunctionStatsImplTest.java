@@ -132,13 +132,13 @@ public class FunctionStatsImplTest {
     functionStats.endFunctionExecution(0, false);
 
     verify(statistics)
-        .incInt(functionExecutionsCompletedId(), 1);
+        .incLong(functionExecutionsCompletedId(), 1);
     verify(statistics)
-        .incInt(functionExecutionsRunningId(), -1);
+        .incLong(functionExecutionsRunningId(), -1);
     verify(statistics, never())
         .incLong(eq(functionExecutionsCompletedProcessingTimeId()), anyLong());
     verify(statistics, never())
-        .incInt(eq(functionExecutionsHasResultRunningId()), anyInt());
+        .incLong(eq(functionExecutionsHasResultRunningId()), anyInt());
     verify(statistics, never())
         .incLong(eq(functionExecutionsHasResultCompletedProcessingTimeId()), anyLong());
   }
@@ -152,13 +152,13 @@ public class FunctionStatsImplTest {
     functionStats.endFunctionExecution(0, true);
 
     verify(statistics)
-        .incInt(functionExecutionsCompletedId(), 1);
+        .incLong(functionExecutionsCompletedId(), 1);
     verify(statistics)
-        .incInt(functionExecutionsRunningId(), -1);
+        .incLong(functionExecutionsRunningId(), -1);
     verify(statistics, never())
         .incLong(eq(functionExecutionsCompletedProcessingTimeId()), anyLong());
     verify(statistics)
-        .incInt(functionExecutionsHasResultRunningId(), -1);
+        .incLong(functionExecutionsHasResultRunningId(), -1);
     verify(statistics, never())
         .incLong(eq(functionExecutionsHasResultCompletedProcessingTimeId()), anyLong());
   }
@@ -175,13 +175,13 @@ public class FunctionStatsImplTest {
 
     long elapsedNanos = endTime - startTime;
     verify(statistics)
-        .incInt(functionExecutionsCompletedId(), 1);
+        .incLong(functionExecutionsCompletedId(), 1);
     verify(statistics)
-        .incInt(functionExecutionsRunningId(), -1);
+        .incLong(functionExecutionsRunningId(), -1);
     verify(statistics)
         .incLong(functionExecutionsCompletedProcessingTimeId(), elapsedNanos);
     verify(statistics, never())
-        .incInt(eq(functionExecutionsHasResultRunningId()), anyInt());
+        .incLong(eq(functionExecutionsHasResultRunningId()), anyInt());
     verify(statistics, never())
         .incLong(eq(functionExecutionsHasResultCompletedProcessingTimeId()), anyLong());
   }
@@ -198,13 +198,13 @@ public class FunctionStatsImplTest {
 
     long elapsedNanos = endTime - startTime;
     verify(statistics)
-        .incInt(functionExecutionsCompletedId(), 1);
+        .incLong(functionExecutionsCompletedId(), 1);
     verify(statistics)
-        .incInt(functionExecutionsRunningId(), -1);
+        .incLong(functionExecutionsRunningId(), -1);
     verify(statistics)
         .incLong(functionExecutionsCompletedProcessingTimeId(), elapsedNanos);
     verify(statistics)
-        .incInt(functionExecutionsHasResultRunningId(), -1);
+        .incLong(functionExecutionsHasResultRunningId(), -1);
     verify(statistics)
         .incLong(functionExecutionsHasResultCompletedProcessingTimeId(), elapsedNanos);
   }
@@ -261,11 +261,11 @@ public class FunctionStatsImplTest {
     functionStats.endFunctionExecutionWithException(0, false);
 
     verify(statistics)
-        .incInt(functionExecutionsRunningId(), -1);
+        .incLong(functionExecutionsRunningId(), -1);
     verify(statistics)
-        .incInt(functionExecutionExceptionsId(), 1);
+        .incLong(functionExecutionExceptionsId(), 1);
     verify(statistics, never())
-        .incInt(eq(functionExecutionsHasResultRunningId()), anyInt());
+        .incLong(eq(functionExecutionsHasResultRunningId()), anyInt());
   }
 
   @Test
@@ -276,11 +276,11 @@ public class FunctionStatsImplTest {
     functionStats.endFunctionExecutionWithException(0, true);
 
     verify(statistics)
-        .incInt(functionExecutionsRunningId(), -1);
+        .incLong(functionExecutionsRunningId(), -1);
     verify(statistics)
-        .incInt(functionExecutionExceptionsId(), 1);
+        .incLong(functionExecutionExceptionsId(), 1);
     verify(statistics)
-        .incInt(functionExecutionsHasResultRunningId(), -1);
+        .incLong(functionExecutionsHasResultRunningId(), -1);
   }
 
   @Test

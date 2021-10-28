@@ -29,6 +29,7 @@ import org.apache.geode.Instantiator;
 import org.apache.geode.cache.operations.OperationContext.OperationCode;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.AvailablePortHelper;
+import org.apache.geode.internal.InternalInstantiator;
 import org.apache.geode.security.generator.CredentialGenerator;
 import org.apache.geode.security.generator.DummyAuthzCredentialGenerator;
 import org.apache.geode.security.generator.DummyCredentialGenerator;
@@ -64,9 +65,9 @@ public class ClientAuthzObjectModDUnitTest extends ClientAuthorizationTestCase {
     // a previous test may have already loaded these classes. We clear the instantiators
     // between each test.
     server1.invoke("registerInstantiator",
-        () -> Instantiator.register(new MyInstantiator(), false));
+        () -> InternalInstantiator.register(new MyInstantiator(), false));
     server2.invoke("registerInstantiator",
-        () -> Instantiator.register(new MyInstantiator(), false));
+        () -> InternalInstantiator.register(new MyInstantiator(), false));
   }
 
   @Test

@@ -277,7 +277,7 @@ public class LocatorLoadBalancingDUnitTest extends LocatorTestBase {
     Cache cache = (Cache) remoteObjects.get(CACHE_KEY);
     final CacheServerImpl server = (CacheServerImpl) cache.getCacheServers().get(0);
     await().timeout(300, TimeUnit.SECONDS).until(() -> {
-      int sz = server.getAcceptor().getStats().getCurrentClientConnections();
+      long sz = server.getAcceptor().getStats().getCurrentClientConnections();
       if (Math.abs(sz - count) <= ALLOWABLE_ERROR_IN_COUNT) {
         return true;
       }

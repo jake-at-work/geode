@@ -529,13 +529,13 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     AsyncInvocation inv2 = client.invokeAsync("Initialize Client", () -> {
       Region<Object, Object> region = getRootRegion().getSubregion(name);
       PoolStats stats = ((PoolImpl) PoolManager.find(poolName)).getStats();
-      int oldConnects = stats.getConnects();
-      int oldDisConnects = stats.getDisConnects();
+      long oldConnects = stats.getConnects();
+      long oldDisConnects = stats.getDisConnects();
       for (int i = 0; i < numberOfKeys; i++) {
         region.get("key-" + i);
       }
-      int newConnects = stats.getConnects();
-      int newDisConnects = stats.getDisConnects();
+      long newConnects = stats.getConnects();
+      long newDisConnects = stats.getDisConnects();
 
       // newDisConnects);
       if (newConnects != oldConnects && newDisConnects != oldDisConnects) {
@@ -770,10 +770,10 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
   private static volatile boolean stopTestLifetimeExpire = false;
 
-  private static volatile int baselineLifetimeCheck;
-  private static volatile int baselineLifetimeExtensions;
-  private static volatile int baselineLifetimeConnect;
-  private static volatile int baselineLifetimeDisconnect;
+  private static volatile long baselineLifetimeCheck;
+  private static volatile long baselineLifetimeExtensions;
+  private static volatile long baselineLifetimeConnect;
+  private static volatile long baselineLifetimeDisconnect;
 
   @Test
   public void basicTestLifetimeExpire()
@@ -2983,7 +2983,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     srv1.invoke("Validate Server1 update", () -> {
       CacheClientNotifier ccn = getInstance();
       final CacheClientNotifierStats ccnStats = ccn.getStats();
-      final int eventCount = ccnStats.getEvents();
+      final long eventCount = ccnStats.getEvents();
       Region<Object, Object> region = getRootRegion(name);
       assertThat(region).isNotNull();
       assertThat(value2)

@@ -16,7 +16,6 @@ package org.apache.geode;
 
 
 import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 
 /**
@@ -116,37 +115,6 @@ public interface Statistics {
   //////////////////////// set() Methods ///////////////////////
 
   /**
-   * Sets the value of a statistic with the given <code>id</code> whose type is <code>int</code>.
-   *
-   * @param id a statistic id obtained with {@link #nameToId} or {@link StatisticsType#nameToId}.
-   *
-   * @throws ArrayIndexOutOfBoundsException If the id is invalid.
-   * @deprecated as of Geode 1.10, use {@link #setLong(int, long)} instead
-   */
-  @Deprecated
-  void setInt(int id, int value);
-
-  /**
-   * Sets the value of a named statistic of type <code>int</code>
-   *
-   * @throws IllegalArgumentException If no statistic exists named <code>name</code> or if the
-   *         statistic with name <code>name</code> is not of type <code>int</code>.
-   * @deprecated as of Geode 1.10, use {@link #setLong(String, long)} instead
-   */
-  @Deprecated
-  void setInt(String name, int value);
-
-  /**
-   * Sets the value of a described statistic of type <code>int</code>
-   *
-   * @throws IllegalArgumentException If no statistic exists for the given <code>descriptor</code>
-   *         or if the described statistic is not of type <code>int</code>.
-   * @deprecated as of Geode 1.10, use {@link #setLong(StatisticDescriptor, long)} instead
-   */
-  @Deprecated
-  void setInt(StatisticDescriptor descriptor, int value);
-
-  /**
    * Sets the value of a statistic with the given <code>id</code> whose type is <code>long</code>.
    *
    * @param id a statistic id obtained with {@link #nameToId} or {@link StatisticsType#nameToId}.
@@ -197,36 +165,6 @@ public interface Statistics {
   void setDouble(String name, double value);
 
   /////////////////////// get() Methods ///////////////////////
-
-  /**
-   * Returns the value of the identified statistic of type <code>int</code>.
-   *
-   * @param id a statistic id obtained with {@link #nameToId} or {@link StatisticsType#nameToId}.
-   * @throws ArrayIndexOutOfBoundsException If the id is invalid.
-   * @deprecated as of Geode 1.10, use {@link #getLong(int)} instead
-   */
-  @Deprecated
-  int getInt(int id);
-
-  /**
-   * Returns the value of the described statistic of type <code>int</code>.
-   *
-   * @throws IllegalArgumentException If no statistic exists with the specified
-   *         <code>descriptor</code> or if the described statistic is not of type <code>int</code>.
-   * @deprecated as of Geode 1.10, use {@link #getLong(StatisticDescriptor)} instead
-   */
-  @Deprecated
-  int getInt(StatisticDescriptor descriptor);
-
-  /**
-   * Returns the value of the statistic of type <code>int</code> at the given name.
-   *
-   * @throws IllegalArgumentException If no statistic exists with name <code>name</code> or if the
-   *         statistic named <code>name</code> is not of type <code>int</code>.
-   * @deprecated as of Geode 1.10, use {@link #getLong(String)} instead
-   */
-  @Deprecated
-  int getInt(String name);
 
   /**
    * Returns the value of the identified statistic of type <code>long</code>.
@@ -313,38 +251,6 @@ public interface Statistics {
   //////////////////////// inc() Methods ////////////////////////
 
   /**
-   * Increments the value of the identified statistic of type <code>int</code> by the given amount.
-   *
-   * @param id a statistic id obtained with {@link #nameToId} or {@link StatisticsType#nameToId}.
-   *
-   * @throws ArrayIndexOutOfBoundsException If the id is invalid.
-   * @deprecated as of Geode 1.10, use {@link #incLong(int, long)} instead
-   */
-  @Deprecated
-  void incInt(int id, int delta);
-
-  /**
-   * Increments the value of the described statistic of type <code>int</code> by the given amount.
-   *
-   * @throws IllegalArgumentException If no statistic exists with the given <code>descriptor</code>
-   *         or if the described statistic is not of type <code>int</code>.
-   * @deprecated as of Geode 1.10, use {@link #incLong(StatisticDescriptor, long)} instead
-   */
-  @Deprecated
-  void incInt(StatisticDescriptor descriptor, int delta);
-
-  /**
-   * Increments the value of the statistic of type <code>int</code> with the given name by a given
-   * amount.
-   *
-   * @throws IllegalArgumentException If no statistic exists with name <code>name</code> or if the
-   *         statistic named <code>name</code> is not of type <code>int</code>.
-   * @deprecated as of Geode 1.10, use {@link #incLong(String, long)} instead
-   */
-  @Deprecated
-  void incInt(String name, int delta);
-
-  /**
    * Increments the value of the identified statistic of type <code>long</code> by the given amount.
    *
    * @param id a statistic id obtained with {@link #nameToId} or {@link StatisticsType#nameToId}.
@@ -397,91 +303,6 @@ public interface Statistics {
    *         statistic named <code>name</code> is not of type <code>double</code>.
    */
   void incDouble(String name, double delta);
-
-  /**
-   * Provide a callback to compute the value of this statistic every sample interval and use that as
-   * the value of the stat.
-   * <p>
-   * The callback should return quickly because it is invoked on a shared thread. It should not do
-   * any expensive computations, network calls, or access any resources under locks that may be
-   * locked by long running processes.
-   * <p>
-   * This callback will only be invoked if the distributed system property
-   * statistic-sampling-enabled is set to true, and it will be invoked at intervals determined by
-   * the statistic-sampling-rate.
-   * <p>
-   * Get methods are not guaranteed to recompute a new value, they may return the last sampled value
-   *
-   * @param id a statistic id obtained with {@link #nameToId} or {@link StatisticsType#nameToId}.
-   * @param supplier a callback that will return the value of the stat. This replaces any previously
-   *        registered supplier. If the passed in supplier is null, it will remove any existing
-   *        supplier
-   * @return the previously registered supplier, or null if there was no previously registered
-   *         supplier
-   * @throws IllegalArgumentException If the id is invalid.
-   * @since Geode 1.0
-   * @deprecated as of Geode 1.10, use {@link #setLongSupplier(int, LongSupplier)} instead
-   */
-  @Deprecated
-  IntSupplier setIntSupplier(int id, IntSupplier supplier);
-
-  /**
-   * Provide a callback to compute the value of this statistic every sample interval and use that as
-   * the value of the stat.
-   * <p>
-   * The callback should return quickly because it is invoked on a shared thread. It should not do
-   * any expensive computations, network calls, or access any resources under locks that may be
-   * locked by long running processes.
-   * <p>
-   * This callback will only be invoked if the distributed system property
-   * statistic-sampling-enabled is set to true, and it will be invoked at intervals determined by
-   * the statistic-sampling-rate.
-   * <p>
-   * Get methods are not guaranteed to recompute a new value, they may return the last sampled value
-   *
-   * @param name the name of the statistic to update
-   * @param supplier a callback that will return the value of the stat. This replaces any previously
-   *        registered supplier. If the passed in supplier is null, it will remove any existing
-   *        supplier
-   * @return the previously registered supplier, or null if there was no previously registered
-   *         supplier
-   * @throws IllegalArgumentException If no statistic exists with name <code>name</code> or if the
-   *         statistic named <code>name</code> is not of type <code>int</code>.
-   * @since Geode 1.0
-   * @deprecated as of Geode 1.10, use {@link #setLongSupplier(String, LongSupplier)} instead
-   */
-  @Deprecated
-  IntSupplier setIntSupplier(String name, IntSupplier supplier);
-
-
-  /**
-   * Provide a callback to compute the value of this statistic every sample interval and use that as
-   * the value of the stat.
-   * <p>
-   * The callback should return quickly because it is invoked on a shared thread. It should not do
-   * any expensive computations, network calls, or access any resources under locks that may be
-   * locked by long running processes.
-   * <p>
-   * This callback will only be invoked if the distributed system property
-   * statistic-sampling-enabled is set to true, and it will be invoked at intervals determined by
-   * the statistic-sampling-rate.
-   * <p>
-   * Get methods are not guaranteed to recompute a new value, they may return the last sampled value
-   *
-   * @param descriptor the descriptor of the statistic to update
-   * @param supplier a callback that will return the value of the stat. This replaces any previously
-   *        registered supplier. If the passed in supplier is null, it will remove any existing
-   *        supplier
-   * @return the previously registered supplier, or null if there was no previously registered
-   *         supplier
-   * @throws IllegalArgumentException If no statistic exists with the given <code>descriptor</code>
-   *         or if the described statistic is not of type <code>int</code>.
-   * @since Geode 1.0
-   * @deprecated as of Geode 1.10, use {@link #setLongSupplier(StatisticDescriptor, LongSupplier)}
-   *             instead
-   */
-  @Deprecated
-  IntSupplier setIntSupplier(StatisticDescriptor descriptor, IntSupplier supplier);
 
   /**
    * Provide a callback to compute the value of this statistic every sample interval and use that as

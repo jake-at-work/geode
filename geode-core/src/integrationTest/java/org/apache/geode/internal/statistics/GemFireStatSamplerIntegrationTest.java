@@ -260,8 +260,8 @@ public class GemFireStatSamplerIntegrationTest extends StatSamplerTestCase {
         .isEqualTo(1);
 
     final Statistics statSamplerStats = statsArray[0];
-    final int initialSampleCount = statSamplerStats.getInt("sampleCount");
-    final int expectedSampleCount = initialSampleCount + 2;
+    final long initialSampleCount = statSamplerStats.getLong("sampleCount");
+    final long expectedSampleCount = initialSampleCount + 2;
 
     waitForExpectedStatValue(statSamplerStats, "sampleCount", expectedSampleCount, 5000, 10);
   }
@@ -372,8 +372,8 @@ public class GemFireStatSamplerIntegrationTest extends StatSamplerTestCase {
         .isEqualTo(1);
 
     final Statistics statSamplerStats = statsArray[0];
-    final int initialSampleCount = statSamplerStats.getInt("sampleCount");
-    final int expectedSampleCount = initialSampleCount + 2;
+    final long initialSampleCount = statSamplerStats.getLong("sampleCount");
+    final long expectedSampleCount = initialSampleCount + 2;
 
     waitForStatSample(statSamplerStats, expectedSampleCount, 20000, 10);
 
@@ -381,12 +381,12 @@ public class GemFireStatSamplerIntegrationTest extends StatSamplerTestCase {
     statSampler.stop();
 
     // validate the stat sampler has stopped
-    final int stoppedSampleCount = statSamplerStats.getInt("sampleCount");
+    final long stoppedSampleCount = statSamplerStats.getLong("sampleCount");
 
     // the following should timeout rather than complete
     assertStatValueDoesNotChange(statSamplerStats, "sampleCount", stoppedSampleCount, 5000, 10);
 
-    assertThat(statSamplerStats.getInt("sampleCount"))
+    assertThat(statSamplerStats.getLong("sampleCount"))
         .as("value of sample count stat after timing out")
         .isEqualTo(stoppedSampleCount);
   }

@@ -96,11 +96,6 @@ public class StatisticsTypeFactoryImpl implements StatisticsTypeFactory {
   }
 
   @Override
-  public StatisticDescriptor createIntCounter(String name, String description, String units) {
-    return createLongCounter(name, description, units);
-  }
-
-  @Override
   public StatisticDescriptor createLongCounter(String name, String description, String units) {
     return StatisticDescriptorImpl.createLongCounter(name, description, units, true);
   }
@@ -108,11 +103,6 @@ public class StatisticsTypeFactoryImpl implements StatisticsTypeFactory {
   @Override
   public StatisticDescriptor createDoubleCounter(String name, String description, String units) {
     return StatisticDescriptorImpl.createDoubleCounter(name, description, units, true);
-  }
-
-  @Override
-  public StatisticDescriptor createIntGauge(String name, String description, String units) {
-    return createLongGauge(name, description, units);
   }
 
   @Override
@@ -125,11 +115,6 @@ public class StatisticsTypeFactoryImpl implements StatisticsTypeFactory {
     return StatisticDescriptorImpl.createDoubleGauge(name, description, units, false);
   }
 
-  @Override
-  public StatisticDescriptor createIntCounter(String name, String description, String units,
-      boolean largerBetter) {
-    return createLongCounter(name, description, units, largerBetter);
-  }
 
   @Override
   public StatisticDescriptor createLongCounter(String name, String description, String units,
@@ -141,12 +126,6 @@ public class StatisticsTypeFactoryImpl implements StatisticsTypeFactory {
   public StatisticDescriptor createDoubleCounter(String name, String description, String units,
       boolean largerBetter) {
     return StatisticDescriptorImpl.createDoubleCounter(name, description, units, largerBetter);
-  }
-
-  @Override
-  public StatisticDescriptor createIntGauge(String name, String description, String units,
-      boolean largerBetter) {
-    return createLongGauge(name, description, units, largerBetter);
   }
 
   @Override

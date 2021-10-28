@@ -127,32 +127,33 @@ public class FunctionServiceStats {
     StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
 
     _type = f.createType(statName, statDescription,
-        new StatisticDescriptor[] {f.createIntCounter(FUNCTION_EXECUTIONS_COMPLETED,
+        new StatisticDescriptor[] {f.createLongCounter(FUNCTION_EXECUTIONS_COMPLETED,
             "Total number of completed function.execute() calls", "operations"),
 
             f.createLongCounter(FUNCTION_EXECUTIONS_COMPLETED_PROCESSING_TIME,
                 "Total time consumed for all completed invocations", "nanoseconds"),
 
-            f.createIntGauge(FUNCTION_EXECUTIONS_RUNNING, "number of currently running invocations",
+            f.createLongGauge(FUNCTION_EXECUTIONS_RUNNING,
+                "number of currently running invocations",
                 "operations"),
 
-            f.createIntCounter(RESULTS_SENT_TO_RESULTCOLLECTOR,
+            f.createLongCounter(RESULTS_SENT_TO_RESULTCOLLECTOR,
                 "Total number of results sent to the ResultCollector", "operations"),
 
-            f.createIntCounter(RESULTS_RECEIVED,
+            f.createLongCounter(RESULTS_RECEIVED,
                 "Total number of results received and passed to the ResultCollector", "operations"),
 
-            f.createIntCounter(FUNCTION_EXECUTION_CALLS,
+            f.createLongCounter(FUNCTION_EXECUTION_CALLS,
                 "Total number of FunctionService.execute() calls", "operations"),
 
             f.createLongCounter(FUNCTION_EXECUTIONS_HASRESULT_COMPLETED_PROCESSING_TIME,
                 "Total time consumed for all completed execute() calls where hasResult() returns true.",
                 "nanoseconds"),
 
-            f.createIntGauge(FUNCTION_EXECUTIONS_HASRESULT_RUNNING,
+            f.createLongGauge(FUNCTION_EXECUTIONS_HASRESULT_RUNNING,
                 "A gauge indicating the number of currently active execute() calls for functions where hasResult() returns true.",
                 "operations"),
-            f.createIntCounter(FUNCTION_EXECUTION_EXCEPTIONS,
+            f.createLongCounter(FUNCTION_EXECUTION_EXCEPTIONS,
                 "Total number of Exceptions Occurred while executing function", "operations"),
 
         });
@@ -223,15 +224,15 @@ public class FunctionServiceStats {
    *
    * @return the current value of the "function Executions completed" stat
    */
-  public int getFunctionExecutionsCompleted() {
-    return this._stats.getInt(_functionExecutionsCompletedId);
+  public long getFunctionExecutionsCompleted() {
+    return this._stats.getLong(_functionExecutionsCompletedId);
   }
 
   /**
    * Increments the "FunctionExecutionsCompleted" stat.
    */
   public void incFunctionExecutionsCompleted() {
-    this._stats.incInt(_functionExecutionsCompletedId, 1);
+    this._stats.incLong(_functionExecutionsCompletedId, 1);
   }
 
   /**
@@ -248,15 +249,15 @@ public class FunctionServiceStats {
    *
    * @return the current value of the "functionExecutionsRunning" stat
    */
-  public int getFunctionExecutionsRunning() {
-    return this._stats.getInt(_functionExecutionsRunningId);
+  public long getFunctionExecutionsRunning() {
+    return this._stats.getLong(_functionExecutionsRunningId);
   }
 
   /**
    * Increments the "FunctionExecutionsRunning" stat.
    */
   public void incFunctionExecutionsRunning() {
-    this._stats.incInt(_functionExecutionsRunningId, 1);
+    this._stats.incLong(_functionExecutionsRunningId, 1);
   }
 
   /**
@@ -264,15 +265,15 @@ public class FunctionServiceStats {
    *
    * @return the current value of the "resultsReturned" stat
    */
-  public int getResultsSentToResultCollector() {
-    return this._stats.getInt(_resultsSentToResultCollectorId);
+  public long getResultsSentToResultCollector() {
+    return this._stats.getLong(_resultsSentToResultCollectorId);
   }
 
   /**
    * Increments the "ResultsReturnedToResultCollector" stat.
    */
   public void incResultsReturned() {
-    this._stats.incInt(_resultsSentToResultCollectorId, 1);
+    this._stats.incLong(_resultsSentToResultCollectorId, 1);
   }
 
   /**
@@ -281,15 +282,15 @@ public class FunctionServiceStats {
    *
    * @return the current value of the "resultsReturned" stat
    */
-  public int getResultsReceived() {
-    return this._stats.getInt(_resultsReceived);
+  public long getResultsReceived() {
+    return this._stats.getLong(_resultsReceived);
   }
 
   /**
    * Increments the "ResultsReturnedToResultCollector" stat.
    */
   public void incResultsReceived() {
-    this._stats.incInt(_resultsReceived, 1);
+    this._stats.incLong(_resultsReceived, 1);
   }
 
   /**
@@ -297,15 +298,15 @@ public class FunctionServiceStats {
    *
    * @return the current value of the "functionExecutionsCall" stat
    */
-  public int getFunctionExecutionCalls() {
-    return this._stats.getInt(_functionExecutionCallsId);
+  public long getFunctionExecutionCalls() {
+    return this._stats.getLong(_functionExecutionCallsId);
   }
 
   /**
    * Increments the "FunctionExecutionsCall" stat.
    */
   public void incFunctionExecutionCalls() {
-    this._stats.incInt(_functionExecutionCallsId, 1);
+    this._stats.incLong(_functionExecutionCallsId, 1);
   }
 
   /**
@@ -314,8 +315,8 @@ public class FunctionServiceStats {
    *
    * @return the current value of the "functionExecutionHasResultCompleteProcessingTime" stat
    */
-  public int getFunctionExecutionHasResultCompleteProcessingTime() {
-    return this._stats.getInt(_functionExecutionsHasResultCompletedProcessingTimeId);
+  public long getFunctionExecutionHasResultCompleteProcessingTime() {
+    return this._stats.getLong(_functionExecutionsHasResultCompletedProcessingTimeId);
   }
 
   /**
@@ -324,15 +325,15 @@ public class FunctionServiceStats {
    *
    * @return the current value of the "functionExecutionHasResultRunning" stat
    */
-  public int getFunctionExecutionHasResultRunning() {
-    return this._stats.getInt(_functionExecutionsHasResultRunningId);
+  public long getFunctionExecutionHasResultRunning() {
+    return this._stats.getLong(_functionExecutionsHasResultRunningId);
   }
 
   /**
    * Increments the "FunctionExecutionsCall" stat.
    */
   public void incFunctionExecutionHasResultRunning() {
-    this._stats.incInt(_functionExecutionsHasResultRunningId, 1);
+    this._stats.incLong(_functionExecutionsHasResultRunningId, 1);
   }
 
   /**
@@ -341,15 +342,15 @@ public class FunctionServiceStats {
    *
    * @return the current value of the "functionExecutionHasResultRunning" stat
    */
-  public int getFunctionExecutionExceptions() {
-    return this._stats.getInt(_functionExecutionExceptions);
+  public long getFunctionExecutionExceptions() {
+    return this._stats.getLong(_functionExecutionExceptions);
   }
 
   /**
    * Increments the "FunctionExecutionsCall" stat.
    */
   public void incFunctionExecutionExceptions() {
-    this._stats.incInt(_functionExecutionExceptions, 1);
+    this._stats.incLong(_functionExecutionExceptions, 1);
   }
 
   /**
@@ -367,14 +368,14 @@ public class FunctionServiceStats {
    */
   public void startFunctionExecution(boolean haveResult) {
     // Increment number of function execution calls
-    this._stats.incInt(_functionExecutionCallsId, 1);
+    this._stats.incLong(_functionExecutionCallsId, 1);
 
     // Increment number of functions running
-    this._stats.incInt(_functionExecutionsRunningId, 1);
+    this._stats.incLong(_functionExecutionsRunningId, 1);
 
     if (haveResult) {
       // Increment number of function excution with haveResult = true call
-      this._stats.incInt(_functionExecutionsHasResultRunningId, 1);
+      this._stats.incLong(_functionExecutionsHasResultRunningId, 1);
     }
   }
 
@@ -388,17 +389,17 @@ public class FunctionServiceStats {
    */
   public void endFunctionExecutionWithElapsedTime(long elapsedNanos, boolean haveResult) {
     // Increment number of function executions completed
-    this._stats.incInt(_functionExecutionsCompletedId, 1);
+    this._stats.incLong(_functionExecutionsCompletedId, 1);
 
     // Decrement function Executions running.
-    this._stats.incInt(_functionExecutionsRunningId, -1);
+    this._stats.incLong(_functionExecutionsRunningId, -1);
 
     // Increment function execution complete processing time
     this._stats.incLong(_functionExecutionsCompletedProcessingTimeId, elapsedNanos);
 
     if (haveResult) {
       // Decrement function Executions with haveResult = true running.
-      this._stats.incInt(_functionExecutionsHasResultRunningId, -1);
+      this._stats.incLong(_functionExecutionsHasResultRunningId, -1);
 
       // Increment function execution with haveResult = true complete processing time
       this._stats.incLong(_functionExecutionsHasResultCompletedProcessingTimeId, elapsedNanos);
@@ -411,14 +412,14 @@ public class FunctionServiceStats {
    */
   public void endFunctionExecutionWithException(boolean haveResult) {
     // Decrement function Executions running.
-    this._stats.incInt(_functionExecutionsRunningId, -1);
+    this._stats.incLong(_functionExecutionsRunningId, -1);
 
     // Increment number of function excution exceptions
-    this._stats.incInt(_functionExecutionExceptions, 1);
+    this._stats.incLong(_functionExecutionExceptions, 1);
 
     if (haveResult) {
       // Decrement function Executions with haveResult = true running.
-      this._stats.incInt(_functionExecutionsHasResultRunningId, -1);
+      this._stats.incLong(_functionExecutionsHasResultRunningId, -1);
     }
   }
 

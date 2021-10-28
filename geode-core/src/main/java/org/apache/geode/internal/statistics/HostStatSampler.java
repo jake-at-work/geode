@@ -166,7 +166,7 @@ public abstract class HostStatSampler
   @Override
   public boolean waitForSample(long timeout) throws InterruptedException {
     final long endTime = System.currentTimeMillis() + timeout;
-    final int startSampleCount = this.samplerStats.getSampleCount();
+    final long startSampleCount = this.samplerStats.getSampleCount();
     while (System.currentTimeMillis() < endTime
         && this.samplerStats.getSampleCount() <= startSampleCount) {
       Thread.sleep(WAIT_FOR_SLEEP_INTERVAL);

@@ -216,83 +216,84 @@ public class GatewaySenderStats {
       final String description) {
     return f.createType(typeName, description,
         new StatisticDescriptor[] {
-            f.createIntCounter(EVENTS_RECEIVED, "Number of events received by this queue.",
+            f.createLongCounter(EVENTS_RECEIVED, "Number of events received by this queue.",
                 "operations"),
-            f.createIntCounter(EVENTS_QUEUED, "Number of events added to the event queue.",
+            f.createLongCounter(EVENTS_QUEUED, "Number of events added to the event queue.",
                 "operations"),
             f.createLongCounter(EVENT_QUEUE_TIME, "Total time spent queueing events.",
                 "nanoseconds"),
-            f.createIntGauge(EVENT_QUEUE_SIZE, "Size of the event queue.", "operations", false),
-            f.createIntGauge(SECONDARY_EVENT_QUEUE_SIZE, "Size of the secondary event queue.",
+            f.createLongGauge(EVENT_QUEUE_SIZE, "Size of the event queue.", "operations", false),
+            f.createLongGauge(SECONDARY_EVENT_QUEUE_SIZE, "Size of the secondary event queue.",
                 "operations", false),
-            f.createIntGauge(EVENTS_PROCESSED_BY_PQRM,
+            f.createLongGauge(EVENTS_PROCESSED_BY_PQRM,
                 "Total number of events processed by Parallel Queue Removal Message(PQRM).",
                 "operations", false),
-            f.createIntGauge(TMP_EVENT_QUEUE_SIZE, "Size of the temporary events queue.",
+            f.createLongGauge(TMP_EVENT_QUEUE_SIZE, "Size of the temporary events queue.",
                 "operations", false),
-            f.createIntCounter(EVENTS_NOT_QUEUED_CONFLATED,
+            f.createLongCounter(EVENTS_NOT_QUEUED_CONFLATED,
                 "Number of events received but not added to the event queue because the queue already contains an event with the event's key.",
                 "operations"),
-            f.createIntCounter(EVENTS_CONFLATED_FROM_BATCHES,
+            f.createLongCounter(EVENTS_CONFLATED_FROM_BATCHES,
                 "Number of events conflated from batches.", "operations"),
-            f.createIntCounter(EVENTS_DISTRIBUTED,
+            f.createLongCounter(EVENTS_DISTRIBUTED,
                 "Number of events removed from the event queue and sent.", "operations"),
-            f.createIntCounter(EVENTS_EXCEEDING_ALERT_THRESHOLD,
+            f.createLongCounter(EVENTS_EXCEEDING_ALERT_THRESHOLD,
                 "Number of events exceeding the alert threshold.", "operations", false),
             f.createLongCounter(BATCH_DISTRIBUTION_TIME,
                 "Total time spent distributing batches of events to receivers.", "nanoseconds"),
-            f.createIntCounter(BATCHES_DISTRIBUTED,
+            f.createLongCounter(BATCHES_DISTRIBUTED,
                 "Number of batches of events removed from the event queue and sent.", "operations"),
-            f.createIntCounter(BATCHES_REDISTRIBUTED,
+            f.createLongCounter(BATCHES_REDISTRIBUTED,
                 "Number of batches of events removed from the event queue and resent.",
                 "operations", false),
             f.createLongCounter(BATCHES_WITH_INCOMPLETE_TRANSACTIONS,
                 "Number of batches of events sent with incomplete transactions.",
                 "operations", false),
-            f.createIntCounter(BATCHES_RESIZED,
+            f.createLongCounter(BATCHES_RESIZED,
                 "Number of batches that were resized because they were too large", "operations",
                 false),
-            f.createIntCounter(UNPROCESSED_TOKENS_ADDED_BY_PRIMARY,
+            f.createLongCounter(UNPROCESSED_TOKENS_ADDED_BY_PRIMARY,
                 "Number of tokens added to the secondary's unprocessed token map by the primary (though a listener).",
                 "tokens"),
-            f.createIntCounter(UNPROCESSED_EVENTS_ADDED_BY_SECONDARY,
+            f.createLongCounter(UNPROCESSED_EVENTS_ADDED_BY_SECONDARY,
                 "Number of events added to the secondary's unprocessed event map by the secondary.",
                 "events"),
-            f.createIntCounter(UNPROCESSED_EVENTS_REMOVED_BY_PRIMARY,
+            f.createLongCounter(UNPROCESSED_EVENTS_REMOVED_BY_PRIMARY,
                 "Number of events removed from the secondary's unprocessed event map by the primary (though a listener).",
                 "events"),
-            f.createIntCounter(UNPROCESSED_TOKENS_REMOVED_BY_SECONDARY,
+            f.createLongCounter(UNPROCESSED_TOKENS_REMOVED_BY_SECONDARY,
                 "Number of tokens removed from the secondary's unprocessed token map by the secondary.",
                 "tokens"),
-            f.createIntCounter(UNPROCESSED_EVENTS_REMOVED_BY_TIMEOUT,
+            f.createLongCounter(UNPROCESSED_EVENTS_REMOVED_BY_TIMEOUT,
                 "Number of events removed from the secondary's unprocessed event map by a timeout.",
                 "events"),
-            f.createIntCounter(UNPROCESSED_TOKENS_REMOVED_BY_TIMEOUT,
+            f.createLongCounter(UNPROCESSED_TOKENS_REMOVED_BY_TIMEOUT,
                 "Number of tokens removed from the secondary's unprocessed token map by a timeout.",
                 "tokens"),
-            f.createIntGauge(UNPROCESSED_EVENT_MAP_SIZE,
+            f.createLongGauge(UNPROCESSED_EVENT_MAP_SIZE,
                 "Current number of entries in the secondary's unprocessed event map.", "events",
                 false),
-            f.createIntGauge(UNPROCESSED_TOKEN_MAP_SIZE,
+            f.createLongGauge(UNPROCESSED_TOKEN_MAP_SIZE,
                 "Current number of entries in the secondary's unprocessed token map.", "tokens",
                 false),
-            f.createIntGauge(CONFLATION_INDEXES_MAP_SIZE,
+            f.createLongGauge(CONFLATION_INDEXES_MAP_SIZE,
                 "Current number of entries in the conflation indexes map.", "events"),
-            f.createIntCounter(NOT_QUEUED_EVENTS, "Number of events not added to queue.", "events"),
-            f.createIntCounter(EVENTS_DROPPED_DUE_TO_PRIMARY_SENDER_NOT_RUNNING,
+            f.createLongCounter(NOT_QUEUED_EVENTS, "Number of events not added to queue.",
+                "events"),
+            f.createLongCounter(EVENTS_DROPPED_DUE_TO_PRIMARY_SENDER_NOT_RUNNING,
                 "Number of events dropped because the primary gateway sender is not running.",
                 "events"),
-            f.createIntCounter(EVENTS_FILTERED,
+            f.createLongCounter(EVENTS_FILTERED,
                 "Number of events filtered through GatewayEventFilter.", "events"),
-            f.createIntCounter(LOAD_BALANCES_COMPLETED, "Number of load balances completed",
+            f.createLongCounter(LOAD_BALANCES_COMPLETED, "Number of load balances completed",
                 "operations"),
-            f.createIntGauge(LOAD_BALANCES_IN_PROGRESS, "Number of load balances in progress",
+            f.createLongGauge(LOAD_BALANCES_IN_PROGRESS, "Number of load balances in progress",
                 "operations"),
             f.createLongCounter(LOAD_BALANCE_TIME, "Total time spent load balancing this sender",
                 "nanoseconds"),
-            f.createIntCounter(SYNCHRONIZATION_EVENTS_ENQUEUED,
+            f.createLongCounter(SYNCHRONIZATION_EVENTS_ENQUEUED,
                 "Number of synchronization events added to the event queue.", "operations"),
-            f.createIntCounter(SYNCHRONIZATION_EVENTS_PROVIDED,
+            f.createLongCounter(SYNCHRONIZATION_EVENTS_PROVIDED,
                 "Number of synchronization events provided to other members.", "operations"),});
   }
 
@@ -350,15 +351,15 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "eventsReceived" stat
    */
-  public int getEventsReceived() {
-    return this.stats.getInt(eventsReceivedId);
+  public long getEventsReceived() {
+    return this.stats.getLong(eventsReceivedId);
   }
 
   /**
    * Increments the number of events received by 1.
    */
   public void incEventsReceived() {
-    this.stats.incInt(eventsReceivedId, 1);
+    this.stats.incLong(eventsReceivedId, 1);
   }
 
   /**
@@ -366,8 +367,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "eventsQueued" stat
    */
-  public int getEventsQueued() {
-    return this.stats.getInt(eventsQueuedId);
+  public long getEventsQueued() {
+    return this.stats.getLong(eventsQueuedId);
   }
 
   /**
@@ -375,8 +376,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "eventsNotQueuedConflated" stat
    */
-  public int getEventsNotQueuedConflated() {
-    return this.stats.getInt(eventsNotQueuedConflatedId);
+  public long getEventsNotQueuedConflated() {
+    return this.stats.getLong(eventsNotQueuedConflatedId);
   }
 
   /**
@@ -384,8 +385,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "eventsConflatedFromBatches" stat
    */
-  public int getEventsConflatedFromBatches() {
-    return this.stats.getInt(eventsConflatedFromBatchesId);
+  public long getEventsConflatedFromBatches() {
+    return this.stats.getLong(eventsConflatedFromBatchesId);
   }
 
   /**
@@ -393,8 +394,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "eventQueueSize" stat
    */
-  public int getEventQueueSize() {
-    return this.stats.getInt(eventQueueSizeId);
+  public long getEventQueueSize() {
+    return this.stats.getLong(eventQueueSizeId);
   }
 
   /**
@@ -402,8 +403,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "secondaryEventQueueSize" stat
    */
-  public int getSecondaryEventQueueSize() {
-    return this.stats.getInt(secondaryEventQueueSizeId);
+  public long getSecondaryEventQueueSize() {
+    return this.stats.getLong(secondaryEventQueueSizeId);
   }
 
   /**
@@ -411,8 +412,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "eventsProcessedByPQRM" stat
    */
-  public int getEventsProcessedByPQRM() {
-    return this.stats.getInt(eventsProcessedByPQRMId);
+  public long getEventsProcessedByPQRM() {
+    return this.stats.getLong(eventsProcessedByPQRMId);
   }
 
   /**
@@ -420,8 +421,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "tempQueueSize" stat.
    */
-  public int getTempEventQueueSize() {
-    return this.stats.getInt(eventTmpQueueSizeId);
+  public long getTempEventQueueSize() {
+    return this.stats.getLong(eventTmpQueueSizeId);
   }
 
 
@@ -440,8 +441,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "eventsDistributed" stat
    */
-  public int getEventsDistributed() {
-    return this.stats.getInt(eventsDistributedId);
+  public long getEventsDistributed() {
+    return this.stats.getLong(eventsDistributedId);
   }
 
   /**
@@ -449,15 +450,15 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "eventsExceedingAlertThreshold" stat
    */
-  public int getEventsExceedingAlertThreshold() {
-    return this.stats.getInt(eventsExceedingAlertThresholdId);
+  public long getEventsExceedingAlertThreshold() {
+    return this.stats.getLong(eventsExceedingAlertThresholdId);
   }
 
   /**
    * Increments the value of the "eventsExceedingAlertThreshold" stat by 1.
    */
   public void incEventsExceedingAlertThreshold() {
-    this.stats.incInt(eventsExceedingAlertThresholdId, 1);
+    this.stats.incLong(eventsExceedingAlertThresholdId, 1);
   }
 
   /**
@@ -474,8 +475,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "batchesDistributed" stat
    */
-  public int getBatchesDistributed() {
-    return this.stats.getInt(batchesDistributedId);
+  public long getBatchesDistributed() {
+    return this.stats.getLong(batchesDistributedId);
   }
 
   /**
@@ -483,8 +484,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "batchesRedistributed" stat
    */
-  public int getBatchesRedistributed() {
-    return this.stats.getInt(batchesRedistributedId);
+  public long getBatchesRedistributed() {
+    return this.stats.getLong(batchesRedistributedId);
   }
 
   /**
@@ -501,15 +502,15 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "batchesResized" stat
    */
-  public int getBatchesResized() {
-    return this.stats.getInt(batchesResizedId);
+  public long getBatchesResized() {
+    return this.stats.getLong(batchesResizedId);
   }
 
   /**
    * Increments the value of the "batchesRedistributed" stat by 1.
    */
   public void incBatchesRedistributed() {
-    this.stats.incInt(batchesRedistributedId, 1);
+    this.stats.incLong(batchesRedistributedId, 1);
   }
 
   /**
@@ -523,7 +524,7 @@ public class GatewaySenderStats {
    * Increments the value of the "batchesRedistributed" stat by 1.
    */
   public void incBatchesResized() {
-    this.stats.incInt(batchesResizedId, 1);
+    this.stats.incLong(batchesResizedId, 1);
   }
 
   /**
@@ -532,7 +533,7 @@ public class GatewaySenderStats {
    * @param size The size of the queue
    */
   public void setQueueSize(int size) {
-    this.stats.setInt(eventQueueSizeId, size);
+    this.stats.setLong(eventQueueSizeId, size);
   }
 
   /**
@@ -541,7 +542,7 @@ public class GatewaySenderStats {
    * @param size The size of the secondary queue
    */
   public void setSecondaryQueueSize(int size) {
-    this.stats.setInt(secondaryEventQueueSizeId, size);
+    this.stats.setLong(secondaryEventQueueSizeId, size);
   }
 
   /**
@@ -550,7 +551,7 @@ public class GatewaySenderStats {
    * @param size The total number of the events processed by queue removal message
    */
   public void setEventsProcessedByPQRM(int size) {
-    this.stats.setInt(eventsProcessedByPQRMId, size);
+    this.stats.setLong(eventsProcessedByPQRMId, size);
   }
 
   /**
@@ -559,7 +560,7 @@ public class GatewaySenderStats {
    * @param size The size of the temp queue
    */
   public void setTempQueueSize(int size) {
-    this.stats.setInt(eventTmpQueueSizeId, size);
+    this.stats.setLong(eventTmpQueueSizeId, size);
   }
 
 
@@ -567,21 +568,21 @@ public class GatewaySenderStats {
    * Increments the "eventQueueSize" stat by 1.
    */
   public void incQueueSize() {
-    this.stats.incInt(eventQueueSizeId, 1);
+    this.stats.incLong(eventQueueSizeId, 1);
   }
 
   /**
    * Increments the "secondaryEventQueueSize" stat by 1.
    */
   public void incSecondaryQueueSize() {
-    this.stats.incInt(secondaryEventQueueSizeId, 1);
+    this.stats.incLong(secondaryEventQueueSizeId, 1);
   }
 
   /**
    * Increments the "tempQueueSize" stat by 1.
    */
   public void incTempQueueSize() {
-    this.stats.incInt(eventTmpQueueSizeId, 1);
+    this.stats.incLong(eventTmpQueueSizeId, 1);
   }
 
   /**
@@ -590,7 +591,7 @@ public class GatewaySenderStats {
    * @param delta an integer by which queue size to be increased
    */
   public void incQueueSize(int delta) {
-    this.stats.incInt(eventQueueSizeId, delta);
+    this.stats.incLong(eventQueueSizeId, delta);
   }
 
   /**
@@ -599,7 +600,7 @@ public class GatewaySenderStats {
    * @param delta an integer by which secondary event queue size to be increased
    */
   public void incSecondaryQueueSize(int delta) {
-    this.stats.incInt(secondaryEventQueueSizeId, delta);
+    this.stats.incLong(secondaryEventQueueSizeId, delta);
   }
 
   /**
@@ -608,7 +609,7 @@ public class GatewaySenderStats {
    * @param delta an integer by which events are processed by queue removal message
    */
   public void incEventsProcessedByPQRM(int delta) {
-    this.stats.incInt(eventsProcessedByPQRMId, delta);
+    this.stats.incLong(eventsProcessedByPQRMId, delta);
   }
 
   /**
@@ -617,28 +618,28 @@ public class GatewaySenderStats {
    * @param delta an integer by which temp queue size to be increased
    */
   public void incTempQueueSize(int delta) {
-    this.stats.incInt(eventTmpQueueSizeId, delta);
+    this.stats.incLong(eventTmpQueueSizeId, delta);
   }
 
   /**
    * Decrements the "eventQueueSize" stat by 1.
    */
   public void decQueueSize() {
-    this.stats.incInt(eventQueueSizeId, -1);
+    this.stats.incLong(eventQueueSizeId, -1);
   }
 
   /**
    * Decrements the "secondaryEventQueueSize" stat by 1.
    */
   public void decSecondaryQueueSize() {
-    this.stats.incInt(secondaryEventQueueSizeId, -1);
+    this.stats.incLong(secondaryEventQueueSizeId, -1);
   }
 
   /**
    * Decrements the "tempQueueSize" stat by 1.
    */
   public void decTempQueueSize() {
-    this.stats.incInt(eventTmpQueueSizeId, -1);
+    this.stats.incLong(eventTmpQueueSizeId, -1);
   }
 
   /**
@@ -647,7 +648,7 @@ public class GatewaySenderStats {
    * @param delta an integer by which queue size to be increased
    */
   public void decQueueSize(int delta) {
-    this.stats.incInt(eventQueueSizeId, -delta);
+    this.stats.incLong(eventQueueSizeId, -delta);
   }
 
   /**
@@ -656,7 +657,7 @@ public class GatewaySenderStats {
    * @param delta an integer by which secondary queue size to be increased
    */
   public void decSecondaryQueueSize(int delta) {
-    this.stats.incInt(secondaryEventQueueSizeId, -delta);
+    this.stats.incLong(secondaryEventQueueSizeId, -delta);
   }
 
   /**
@@ -665,21 +666,21 @@ public class GatewaySenderStats {
    * @param delta an integer by which temp queue size to be increased
    */
   public void decTempQueueSize(int delta) {
-    this.stats.incInt(eventTmpQueueSizeId, -delta);
+    this.stats.incLong(eventTmpQueueSizeId, -delta);
   }
 
   /**
    * Increments the "eventsNotQueuedConflated" stat.
    */
   public void incEventsNotQueuedConflated() {
-    this.stats.incInt(eventsNotQueuedConflatedId, 1);
+    this.stats.incLong(eventsNotQueuedConflatedId, 1);
   }
 
   /**
    * Increments the "eventsConflatedFromBatches" stat.
    */
   public void incEventsConflatedFromBatches(int numEvents) {
-    this.stats.incInt(eventsConflatedFromBatchesId, numEvents);
+    this.stats.incLong(eventsConflatedFromBatchesId, numEvents);
   }
 
 
@@ -688,8 +689,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "unprocessedTokensAddedByPrimary" stat
    */
-  public int getUnprocessedTokensAddedByPrimary() {
-    return this.stats.getInt(unprocessedTokensAddedByPrimaryId);
+  public long getUnprocessedTokensAddedByPrimary() {
+    return this.stats.getLong(unprocessedTokensAddedByPrimaryId);
   }
 
   /**
@@ -697,8 +698,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "unprocessedEventsAddedBySecondary" stat
    */
-  public int getUnprocessedEventsAddedBySecondary() {
-    return this.stats.getInt(unprocessedEventsAddedBySecondaryId);
+  public long getUnprocessedEventsAddedBySecondary() {
+    return this.stats.getLong(unprocessedEventsAddedBySecondaryId);
   }
 
   /**
@@ -706,8 +707,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "unprocessedEventsRemovedByPrimary" stat
    */
-  public int getUnprocessedEventsRemovedByPrimary() {
-    return this.stats.getInt(unprocessedEventsRemovedByPrimaryId);
+  public long getUnprocessedEventsRemovedByPrimary() {
+    return this.stats.getLong(unprocessedEventsRemovedByPrimaryId);
   }
 
   /**
@@ -715,8 +716,8 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "unprocessedTokensRemovedBySecondary" stat
    */
-  public int getUnprocessedTokensRemovedBySecondary() {
-    return this.stats.getInt(unprocessedTokensRemovedBySecondaryId);
+  public long getUnprocessedTokensRemovedBySecondary() {
+    return this.stats.getLong(unprocessedTokensRemovedBySecondaryId);
   }
 
   /**
@@ -724,43 +725,43 @@ public class GatewaySenderStats {
    *
    * @return the current value of the "unprocessedEventMapSize" stat
    */
-  public int getUnprocessedEventMapSize() {
-    return this.stats.getInt(unprocessedEventMapSizeId);
+  public long getUnprocessedEventMapSize() {
+    return this.stats.getLong(unprocessedEventMapSizeId);
   }
 
-  public int getUnprocessedTokenMapSize() {
-    return this.stats.getInt(unprocessedTokenMapSizeId);
+  public long getUnprocessedTokenMapSize() {
+    return this.stats.getLong(unprocessedTokenMapSizeId);
   }
 
   public void incEventsNotQueued() {
-    this.stats.incInt(notQueuedEventsId, 1);
+    this.stats.incLong(notQueuedEventsId, 1);
   }
 
-  public int getEventsNotQueued() {
-    return this.stats.getInt(notQueuedEventsId);
+  public long getEventsNotQueued() {
+    return this.stats.getLong(notQueuedEventsId);
   }
 
   public void incEventsDroppedDueToPrimarySenderNotRunning() {
-    this.stats.incInt(eventsDroppedDueToPrimarySenderNotRunningId, 1);
+    this.stats.incLong(eventsDroppedDueToPrimarySenderNotRunningId, 1);
   }
 
-  public int getEventsDroppedDueToPrimarySenderNotRunning() {
-    return this.stats.getInt(eventsDroppedDueToPrimarySenderNotRunningId);
+  public long getEventsDroppedDueToPrimarySenderNotRunning() {
+    return this.stats.getLong(eventsDroppedDueToPrimarySenderNotRunningId);
   }
 
   public void incEventsFiltered() {
-    this.stats.incInt(eventsFilteredId, 1);
+    this.stats.incLong(eventsFilteredId, 1);
   }
 
-  public int getEventsFiltered() {
-    return this.stats.getInt(eventsFilteredId);
+  public long getEventsFiltered() {
+    return this.stats.getLong(eventsFilteredId);
   }
 
   /**
    * Increments the value of the "unprocessedTokensAddedByPrimary" stat by 1.
    */
   public void incUnprocessedTokensAddedByPrimary() {
-    this.stats.incInt(unprocessedTokensAddedByPrimaryId, 1);
+    this.stats.incLong(unprocessedTokensAddedByPrimaryId, 1);
     incUnprocessedTokenMapSize();
   }
 
@@ -768,7 +769,7 @@ public class GatewaySenderStats {
    * Increments the value of the "unprocessedEventsAddedBySecondary" stat by 1.
    */
   public void incUnprocessedEventsAddedBySecondary() {
-    this.stats.incInt(unprocessedEventsAddedBySecondaryId, 1);
+    this.stats.incLong(unprocessedEventsAddedBySecondaryId, 1);
     incUnprocessedEventMapSize();
   }
 
@@ -776,7 +777,7 @@ public class GatewaySenderStats {
    * Increments the value of the "unprocessedEventsRemovedByPrimary" stat by 1.
    */
   public void incUnprocessedEventsRemovedByPrimary() {
-    this.stats.incInt(unprocessedEventsRemovedByPrimaryId, 1);
+    this.stats.incLong(unprocessedEventsRemovedByPrimaryId, 1);
     decUnprocessedEventMapSize();
   }
 
@@ -784,17 +785,17 @@ public class GatewaySenderStats {
    * Increments the value of the "unprocessedTokensRemovedBySecondary" stat by 1.
    */
   public void incUnprocessedTokensRemovedBySecondary() {
-    this.stats.incInt(unprocessedTokensRemovedBySecondaryId, 1);
+    this.stats.incLong(unprocessedTokensRemovedBySecondaryId, 1);
     decUnprocessedTokenMapSize();
   }
 
   public void incUnprocessedEventsRemovedByTimeout(int count) {
-    this.stats.incInt(unprocessedEventsRemovedByTimeoutId, count);
+    this.stats.incLong(unprocessedEventsRemovedByTimeoutId, count);
     decUnprocessedEventMapSize(count);
   }
 
   public void incUnprocessedTokensRemovedByTimeout(int count) {
-    this.stats.incInt(unprocessedTokensRemovedByTimeoutId, count);
+    this.stats.incLong(unprocessedTokensRemovedByTimeoutId, count);
     decUnprocessedTokenMapSize(count);
   }
 
@@ -802,53 +803,53 @@ public class GatewaySenderStats {
    * Sets the "unprocessedEventMapSize" stat.
    */
   public void clearUnprocessedMaps() {
-    this.stats.setInt(unprocessedEventMapSizeId, 0);
-    this.stats.setInt(unprocessedTokenMapSizeId, 0);
+    this.stats.setLong(unprocessedEventMapSizeId, 0);
+    this.stats.setLong(unprocessedTokenMapSizeId, 0);
   }
 
   private void incUnprocessedEventMapSize() {
-    this.stats.incInt(unprocessedEventMapSizeId, 1);
+    this.stats.incLong(unprocessedEventMapSizeId, 1);
   }
 
   private void decUnprocessedEventMapSize() {
-    this.stats.incInt(unprocessedEventMapSizeId, -1);
+    this.stats.incLong(unprocessedEventMapSizeId, -1);
   }
 
   private void decUnprocessedEventMapSize(int decCount) {
-    this.stats.incInt(unprocessedEventMapSizeId, -decCount);
+    this.stats.incLong(unprocessedEventMapSizeId, -decCount);
   }
 
   private void incUnprocessedTokenMapSize() {
-    this.stats.incInt(unprocessedTokenMapSizeId, 1);
+    this.stats.incLong(unprocessedTokenMapSizeId, 1);
   }
 
   private void decUnprocessedTokenMapSize() {
-    this.stats.incInt(unprocessedTokenMapSizeId, -1);
+    this.stats.incLong(unprocessedTokenMapSizeId, -1);
   }
 
   private void decUnprocessedTokenMapSize(int decCount) {
-    this.stats.incInt(unprocessedTokenMapSizeId, -decCount);
+    this.stats.incLong(unprocessedTokenMapSizeId, -decCount);
   }
 
   /**
    * Increments the value of the "conflationIndexesMapSize" stat by 1
    */
   public void incConflationIndexesMapSize() {
-    this.stats.incInt(conflationIndexesMapSizeId, 1);
+    this.stats.incLong(conflationIndexesMapSizeId, 1);
   }
 
   /**
    * Decrements the value of the "conflationIndexesMapSize" stat by 1
    */
   public void decConflationIndexesMapSize() {
-    this.stats.incInt(conflationIndexesMapSizeId, -1);
+    this.stats.incLong(conflationIndexesMapSizeId, -1);
   }
 
   /**
    * Gets the value of the "conflationIndexesMapSize" stat
    */
-  public int getConflationIndexesMapSize() {
-    return this.stats.getInt(conflationIndexesMapSizeId);
+  public long getConflationIndexesMapSize() {
+    return this.stats.getLong(conflationIndexesMapSizeId);
   }
 
   /**
@@ -871,10 +872,10 @@ public class GatewaySenderStats {
     long ts = DistributionStats.getStatTime();
 
     // Increment number of batches distributed
-    this.stats.incInt(batchesDistributedId, 1);
+    this.stats.incLong(batchesDistributedId, 1);
 
     // Increment number of events distributed
-    this.stats.incInt(eventsDistributedId, numberOfEvents);
+    this.stats.incLong(eventsDistributedId, numberOfEvents);
 
     // Increment batch distribution time
     long elapsed = ts - start;
@@ -891,7 +892,7 @@ public class GatewaySenderStats {
     long ts = DistributionStats.getStatTime();
 
     // Increment number of event queued
-    this.stats.incInt(eventsQueuedId, 1);
+    this.stats.incLong(eventsQueuedId, 1);
 
     // Increment event queue time
     long elapsed = ts - start;
@@ -899,14 +900,14 @@ public class GatewaySenderStats {
   }
 
   public long startLoadBalance() {
-    stats.incInt(loadBalancesInProgressId, 1);
+    stats.incLong(loadBalancesInProgressId, 1);
     return statisticsClock.getTime();
   }
 
   public void endLoadBalance(long start) {
     long delta = statisticsClock.getTime() - start;
-    stats.incInt(loadBalancesInProgressId, -1);
-    stats.incInt(loadBalancesCompletedId, 1);
+    stats.incLong(loadBalancesInProgressId, -1);
+    stats.incLong(loadBalancesCompletedId, 1);
     stats.incLong(loadBalanceTimeId, delta);
   }
 
@@ -914,14 +915,14 @@ public class GatewaySenderStats {
    * Increments the number of synchronization events enqueued.
    */
   public void incSynchronizationEventsEnqueued() {
-    this.stats.incInt(synchronizationEventsEnqueuedId, 1);
+    this.stats.incLong(synchronizationEventsEnqueuedId, 1);
   }
 
   /**
    * Increments the number of synchronization events provided.
    */
   public void incSynchronizationEventsProvided() {
-    this.stats.incInt(synchronizationEventsProvidedId, 1);
+    this.stats.incLong(synchronizationEventsProvidedId, 1);
   }
 
   public Statistics getStats() {

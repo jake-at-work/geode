@@ -1196,7 +1196,7 @@ public class WANTestBase extends DistributedTestCase {
     assertTrue(response.waitForResponse());
   }
 
-  public static int getSecondaryQueueSizeInStats(String senderId) {
+  public static long getSecondaryQueueSizeInStats(String senderId) {
     AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender(senderId);
     GatewaySenderStats statistics = sender.getStatistics();
     return statistics.getSecondaryEventQueueSize();
@@ -1220,7 +1220,7 @@ public class WANTestBase extends DistributedTestCase {
     assertTrue(statsCollection.iterator().next() instanceof ConnectionStats);
   }
 
-  public static List<Integer> getSenderStats(String senderId, final int expectedQueueSize) {
+  public static List<Long> getSenderStats(String senderId, final int expectedQueueSize) {
     AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender(senderId);
     GatewaySenderStats statistics = sender.getStatistics();
     if (expectedQueueSize != -1) {
@@ -1237,7 +1237,7 @@ public class WANTestBase extends DistributedTestCase {
               + " but actual entries: " + regionQueue.size(), expectedQueueSize,
               regionQueue.size()));
     }
-    ArrayList<Integer> stats = new ArrayList<Integer>();
+    ArrayList<Long> stats = new ArrayList<>();
     stats.add(statistics.getEventQueueSize());
     stats.add(statistics.getEventsReceived());
     stats.add(statistics.getEventsQueued());
@@ -1251,11 +1251,11 @@ public class WANTestBase extends DistributedTestCase {
     stats.add(statistics.getSecondaryEventQueueSize());
     stats.add(statistics.getEventsProcessedByPQRM());
     stats.add(statistics.getEventsExceedingAlertThreshold());
-    stats.add((int) statistics.getBatchesWithIncompleteTransactions());
+    stats.add(statistics.getBatchesWithIncompleteTransactions());
     return stats;
   }
 
-  public static int getGatewaySenderPoolDisconnects(String senderId) {
+  public static long getGatewaySenderPoolDisconnects(String senderId) {
     AbstractGatewaySender sender =
         (AbstractGatewaySender) CacheFactory.getAnyInstance().getGatewaySender(senderId);
     assertNotNull(sender);
@@ -1265,11 +1265,11 @@ public class WANTestBase extends DistributedTestCase {
     return poolStats.getDisConnects();
   }
 
-  public static List<Integer> getSenderStatsForDroppedEvents(String senderId) {
+  public static List<Long> getSenderStatsForDroppedEvents(String senderId) {
     AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender(senderId);
     GatewaySenderStats statistics = sender.getStatistics();
-    ArrayList<Integer> stats = new ArrayList<Integer>();
-    int eventNotQueued = statistics.getEventsDroppedDueToPrimarySenderNotRunning();
+    ArrayList<Long> stats = new ArrayList<>();
+    long eventNotQueued = statistics.getEventsDroppedDueToPrimarySenderNotRunning();
     if (eventNotQueued > 0) {
       logger
           .info("Found " + eventNotQueued + " events dropped due to primary sender is not running");

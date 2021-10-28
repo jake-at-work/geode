@@ -158,7 +158,7 @@ public class KeySet extends BaseCommand {
     }
     // bserverStats.incLong(writeDestroyResponseTimeId,
     // DistributionStats.getStatTime() - start);
-    // bserverStats.incInt(destroyResponsesId, 1);
+    // bserverstats.incLong(destroyResponsesId, 1);
 
   }
 

@@ -1292,14 +1292,14 @@ public class MemberMBeanBridge {
   }
 
   int getOffHeapObjects() {
-    int objects = 0;
+    long objects = 0;
     OffHeapMemoryStats stats = getOffHeapStats();
 
     if (null != stats) {
       objects = stats.getObjects();
     }
 
-    return objects;
+    return (int) objects;
   }
 
   @Deprecated

@@ -114,20 +114,20 @@ public class StatSamplerIntegrationTest {
             factory.createDoubleCounter("double_counter_2", "d2", "u2", true),
             factory.createDoubleGauge("double_gauge_3", "d3", "u3"),
             factory.createDoubleGauge("double_gauge_4", "d4", "u4", false),
-            factory.createIntCounter("int_counter_5", "d5", "u5"),
-            factory.createIntCounter("int_counter_6", "d6", "u6", true),
-            factory.createIntGauge("int_gauge_7", "d7", "u7"),
-            factory.createIntGauge("int_gauge_8", "d8", "u8", false),
+            factory.createLongCounter("int_counter_5", "d5", "u5"),
+            factory.createLongCounter("int_counter_6", "d6", "u6", true),
+            factory.createLongGauge("int_gauge_7", "d7", "u7"),
+            factory.createLongGauge("int_gauge_8", "d8", "u8", false),
             factory.createLongCounter("long_counter_9", "d9", "u9"),
             factory.createLongCounter("long_counter_10", "d10", "u10", true),
             factory.createLongGauge("long_gauge_11", "d11", "u11"),
             factory.createLongGauge("long_gauge_12", "d12", "u12", false),
             factory.createLongGauge("sampled_long", "d13", "u13", false),
-            factory.createIntGauge("sampled_int", "d14", "u14", false),
+            factory.createLongGauge("sampled_int", "d14", "u14", false),
             factory.createDoubleGauge("sampled_double", "d15", "u15", false)};
     final StatisticsType ST1 = factory.createType("ST1", "ST1", statsST1);
     final Statistics st1_1 = factory.createAtomicStatistics(ST1, "st1_1", 1);
-    st1_1.setIntSupplier("sampled_int", () -> 5);
+    st1_1.setLongSupplier("sampled_int", () -> 5);
     getOrCreateExpectedValueMap(st1_1).put("sampled_int", 5);
     st1_1.setLongSupplier("sampled_long", () -> 6);
     getOrCreateExpectedValueMap(st1_1).put("sampled_long", 6);
@@ -323,9 +323,9 @@ public class StatSamplerIntegrationTest {
   }
 
   private void waitForStatSamplerToRun(final Statistics samplerStats, final int timesToRun) {
-    final int startSampleCount = samplerStats.getInt("sampleCount");
+    final long startSampleCount = samplerStats.getLong("sampleCount");
     await("waiting for the StatSampler to run")
-        .until(() -> samplerStats.getInt("sampleCount") >= startSampleCount + timesToRun);
+        .until(() -> samplerStats.getLong("sampleCount") >= startSampleCount + timesToRun);
   }
 
   private void waitForStatSamplerToRun(final Statistics samplerStats) {
@@ -345,8 +345,8 @@ public class StatSamplerIntegrationTest {
   private void incInt(Statistics statistics, String stat, int value) {
     assertFalse(statistics.isClosed());
     Map<String, Number> statValues = getOrCreateExpectedValueMap(statistics);
-    statistics.incInt(stat, value);
-    statValues.put(stat, statistics.getInt(stat));
+    statistics.incLong(stat, value);
+    statValues.put(stat, statistics.getLong(stat));
     if (this.statisticTypes.get(statistics.getTextId()) == null) {
       this.statisticTypes.put(statistics.getTextId(), statistics.getType().getName());
     }

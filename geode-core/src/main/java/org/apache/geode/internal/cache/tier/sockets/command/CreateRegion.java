@@ -50,7 +50,7 @@ public class CreateRegion extends BaseCommand {
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     // bserverStats.incLong(readDestroyRequestTimeId,
     // DistributionStats.getStatTime() - start);
-    // bserverStats.incInt(destroyRequestsId, 1);
+    // bserverstats.incLong(destroyRequestsId, 1);
     // start = DistributionStats.getStatTime();
     // Retrieve the data from the message parts
     Part parentRegionNamePart = clientMessage.getPart(0);

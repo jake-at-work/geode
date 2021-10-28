@@ -77,11 +77,11 @@ public abstract class StatSamplerTestCase {
   }
 
   protected static void waitForExpectedStatValue(final Statistics statSamplerStats,
-      final String statName, final int expectedStatValue, final long millis, final long sleep) {
+      final String statName, final long expectedStatValue, final long millis, final long sleep) {
     boolean done = false;
     try {
       for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < millis; done =
-          (statSamplerStats.getInt(statName) >= expectedStatValue)) {
+          (statSamplerStats.getLong(statName) >= expectedStatValue)) {
         Thread.sleep(sleep);
       }
     } catch (InterruptedException e) {
@@ -90,17 +90,17 @@ public abstract class StatSamplerTestCase {
     assertTrue("Waiting for " + statName + " >= " + expectedStatValue, done);
   }
 
-  protected static void waitForStatSample(final Statistics statSamplerStats, final int samples,
+  protected static void waitForStatSample(final Statistics statSamplerStats, final long samples,
       final long millis, final long sleep) {
     waitForExpectedStatValue(statSamplerStats, "sampleCount", samples, millis, sleep);
   }
 
   protected static void assertStatValueDoesNotChange(final Statistics statSamplerStats,
-      final String statName, final int expectedStatValue, final long millis, final long sleep) {
+      final String statName, final long expectedStatValue, final long millis, final long sleep) {
     boolean done = false;
     try {
       for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < millis; done =
-          (statSamplerStats.getInt(statName) != expectedStatValue)) {
+          (statSamplerStats.getLong(statName) != expectedStatValue)) {
         Thread.sleep(sleep);
       }
     } catch (InterruptedException e) {

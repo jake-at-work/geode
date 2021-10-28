@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 
 import org.junit.Before;
@@ -65,17 +64,6 @@ public class StatisticsImplTest {
   }
 
   @Test
-  public void invokeIntSuppliersShouldUpdateStats() {
-    IntSupplier intSupplier = mock(IntSupplier.class);
-    when(intSupplier.getAsInt()).thenReturn(23);
-    statistics.setIntSupplier(4, intSupplier);
-    assertThat(statistics.updateSuppliedValues()).isEqualTo(0);
-
-    verify(intSupplier).getAsInt();
-    assertThat(statistics.getInt(4)).isEqualTo(23);
-  }
-
-  @Test
   public void invokeLongSuppliersShouldUpdateStats() {
     LongSupplier longSupplier = mock(LongSupplier.class);
     when(longSupplier.getAsLong()).thenReturn(23L);
@@ -99,19 +87,19 @@ public class StatisticsImplTest {
 
   @Test
   public void getSupplierCountShouldReturnCorrectCount() {
-    IntSupplier intSupplier = mock(IntSupplier.class);
-    statistics.setIntSupplier(4, intSupplier);
+    LongSupplier supplier = mock(LongSupplier.class);
+    statistics.setLongSupplier(4, supplier);
     assertThat(statistics.getSupplierCount()).isEqualTo(1);
   }
 
   @Test
   public void invokeSuppliersShouldCatchSupplierErrorsAndReturnCount() {
-    IntSupplier throwingSupplier = mock(IntSupplier.class);
-    when(throwingSupplier.getAsInt()).thenThrow(NullPointerException.class);
-    statistics.setIntSupplier(4, throwingSupplier);
+    LongSupplier throwingSupplier = mock(LongSupplier.class);
+    when(throwingSupplier.getAsLong()).thenThrow(NullPointerException.class);
+    statistics.setLongSupplier(4, throwingSupplier);
     assertThat(statistics.updateSuppliedValues()).isEqualTo(1);
 
-    verify(throwingSupplier).getAsInt();
+    verify(throwingSupplier).getAsLong();
   }
 
   @Test
@@ -120,9 +108,9 @@ public class StatisticsImplTest {
     statistics = new SimpleStatistics(statisticsType, ANY_TEXT_ID, ANY_NUMERIC_ID, ANY_UNIQUE_ID,
         ANY_OS_STAT_FLAGS, statisticsManager, statisticsLogger);
 
-    IntSupplier throwingSupplier = mock(IntSupplier.class);
-    when(throwingSupplier.getAsInt()).thenThrow(NullPointerException.class);
-    statistics.setIntSupplier(4, throwingSupplier);
+    LongSupplier throwingSupplier = mock(LongSupplier.class);
+    when(throwingSupplier.getAsLong()).thenThrow(NullPointerException.class);
+    statistics.setLongSupplier(4, throwingSupplier);
     assertThat(statistics.updateSuppliedValues()).isEqualTo(1);
 
     // String message, Object p0, Object p1, Object p2
@@ -138,11 +126,11 @@ public class StatisticsImplTest {
 
   @Test
   public void badSupplierParamShouldThrowError() {
-    IntSupplier intSupplier = mock(IntSupplier.class);
-    when(intSupplier.getAsInt()).thenReturn(23);
+    LongSupplier intSupplier = mock(LongSupplier.class);
+    when(intSupplier.getAsLong()).thenReturn(23L);
     when(statisticsType.isValidLongId(anyInt())).thenReturn(false);
 
-    Throwable thrown = catchThrowable(() -> statistics.setIntSupplier(23, intSupplier));
+    Throwable thrown = catchThrowable(() -> statistics.setLongSupplier(23, intSupplier));
 
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
   }

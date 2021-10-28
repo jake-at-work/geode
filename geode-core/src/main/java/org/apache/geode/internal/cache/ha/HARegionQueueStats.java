@@ -133,7 +133,7 @@ public class HARegionQueueStats {
         f.createLongCounter(EVENTS_REMOVED_BY_QRM, "Number of events removed by QRM message.",
             "operations"),
 
-        f.createIntCounter(THREAD_IDENTIFIERS, "Number of ThreadIdenfier objects for the queue.",
+        f.createLongCounter(THREAD_IDENTIFIERS, "Number of ThreadIdenfier objects for the queue.",
             "units"),
 
         f.createLongCounter(EVENTS_DISPATCHED, "Number of events that have been dispatched.",
@@ -299,22 +299,22 @@ public class HARegionQueueStats {
    *
    * @return the current value of the "threadIdentifiers" stat
    */
-  public int getThreadIdentiferCount() {
-    return this._stats.getInt(_threadIdentifiersId);
+  public long getThreadIdentiferCount() {
+    return this._stats.getLong(_threadIdentifiersId);
   }
 
   /**
    * Increments the "threadIdentifiers" stat by 1.
    */
   public void incThreadIdentifiers() {
-    this._stats.incInt(_threadIdentifiersId, 1);
+    this._stats.incLong(_threadIdentifiersId, 1);
   }
 
   /**
    * Decrements the "threadIdentifiers" stat by 1.
    */
   public void decThreadIdentifiers() {
-    this._stats.incInt(_threadIdentifiersId, -1);
+    this._stats.incLong(_threadIdentifiersId, -1);
   }
 
   /**

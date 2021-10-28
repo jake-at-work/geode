@@ -177,18 +177,18 @@ public class ValueMonitorIntegrationTest {
     StatisticDescriptor[] statsST1 = new StatisticDescriptor[] {
         manager.createDoubleCounter("double_counter_1", "double_counter_1_desc",
             "double_counter_1_units"),
-        manager.createIntCounter("int_counter_2", "int_counter_2_desc", "int_counter_2_units"),
+        manager.createLongCounter("int_counter_2", "int_counter_2_desc", "int_counter_2_units"),
         manager.createLongCounter("long_counter_3", "long_counter_3_desc", "long_counter_3_units")};
     StatisticsType ST1 = manager.createType("ST1_name", "ST1_desc", statsST1);
 
     Statistics st1_1 = manager.createAtomicStatistics(ST1, "st1_1_text", 1);
     st1_1.incDouble("double_counter_1", 1000.0001);
-    st1_1.incInt("int_counter_2", 2);
+    st1_1.incLong("int_counter_2", 2);
     st1_1.incLong("long_counter_3", 3333333333L);
 
     Statistics st1_2 = manager.createAtomicStatistics(ST1, "st1_2_text", 2);
     st1_2.incDouble("double_counter_1", 2000.0002);
-    st1_2.incInt("int_counter_2", 3);
+    st1_2.incLong("int_counter_2", 3);
     st1_2.incLong("long_counter_3", 4444444444L);
 
     List<StatisticsNotification> notifications = new ArrayList<>();
@@ -209,7 +209,7 @@ public class ValueMonitorIntegrationTest {
 
     // validate 1 notification occurs with all 3 stats of st1_1
     st1_1.incDouble("double_counter_1", 1.1);
-    st1_1.incInt("int_counter_2", 2);
+    st1_1.incLong("int_counter_2", 2);
     st1_1.incLong("long_counter_3", 3);
     timeStamp += NanoTimer.millisToNanos(1000);
     sampleCollector.sample(timeStamp);
@@ -235,7 +235,7 @@ public class ValueMonitorIntegrationTest {
 
     // validate no notification occurs when only other stats are updated
     st1_2.incDouble("double_counter_1", 3.3);
-    st1_2.incInt("int_counter_2", 1);
+    st1_2.incLong("int_counter_2", 1);
     st1_2.incLong("long_counter_3", 2);
     timeStamp += NanoTimer.millisToNanos(1000);
     sampleCollector.sample(timeStamp);
@@ -244,8 +244,8 @@ public class ValueMonitorIntegrationTest {
     assertThat(notifications.isEmpty()).isTrue();
 
     // validate notification only contains stats added to monitor
-    st1_1.incInt("int_counter_2", 100);
-    st1_2.incInt("int_counter_2", 200);
+    st1_1.incLong("int_counter_2", 100);
+    st1_2.incLong("int_counter_2", 200);
     timeStamp += NanoTimer.millisToNanos(1000);
     sampleCollector.sample(timeStamp);
     await()

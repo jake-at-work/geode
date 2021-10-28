@@ -92,10 +92,10 @@ public class DiskRegionStats {
         f.createLongGauge("entriesOnlyOnDisk", numOverflowOnDiskDesc, "entries"),
         f.createLongGauge("bytesOnlyOnDisk", numOverflowBytesOnDiskDesc, "bytes"),
         f.createLongGauge("entriesInVM", numEntriesInVMDesc, "entries"),
-        f.createIntGauge("writesInProgress", "current number of oplog writes that are in progress",
+        f.createLongGauge("writesInProgress", "current number of oplog writes that are in progress",
             "writes"),
-        f.createIntGauge("localInitializations", localInitializationsDesc, "initializations"),
-        f.createIntGauge("remoteInitializations", remoteInitializationsDesc, "initializations"),});
+        f.createLongGauge("localInitializations", localInitializationsDesc, "initializations"),
+        f.createLongGauge("remoteInitializations", remoteInitializationsDesc, "initializations"),});
 
     // Initialize id fields
     writesId = type.nameToId("writes");
@@ -245,7 +245,7 @@ public class DiskRegionStats {
    * @see DiskRegion#put
    */
   public void startWrite() {
-    this.stats.incInt(writesInProgressId, 1);
+    this.stats.incLong(writesInProgressId, 1);
   }
 
   public void incWrittenBytes(long bytesWritten) {
@@ -258,7 +258,7 @@ public class DiskRegionStats {
    * @param start The time at which the write operation started
    */
   public void endWrite(long start, long end) {
-    this.stats.incInt(writesInProgressId, -1);
+    this.stats.incLong(writesInProgressId, -1);
     this.stats.incLong(writesId, 1);
     this.stats.incLong(writeTimeId, end - start);
   }
@@ -287,18 +287,18 @@ public class DiskRegionStats {
 
   public void incInitializations(boolean local) {
     if (local) {
-      this.stats.incInt(localInitializationsId, 1);
+      this.stats.incLong(localInitializationsId, 1);
     } else {
-      this.stats.incInt(remoteInitializationsId, 1);
+      this.stats.incLong(remoteInitializationsId, 1);
     }
   }
 
-  public int getLocalInitializations() {
-    return this.stats.getInt(localInitializationsId);
+  public long getLocalInitializations() {
+    return this.stats.getLong(localInitializationsId);
   }
 
-  public int getRemoteInitializations() {
-    return this.stats.getInt(remoteInitializationsId);
+  public long getRemoteInitializations() {
+    return this.stats.getLong(remoteInitializationsId);
   }
 
   public Statistics getStats() {

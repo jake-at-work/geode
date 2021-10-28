@@ -1093,7 +1093,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
     CacheClientNotifier ccn = ((CacheServerImpl) cache.getCacheServers().toArray()[0]).getAcceptor()
         .getCacheClientNotifier();
 
-    int numOfDeltasSent = ((CacheClientProxy) ccn.getClientProxies().toArray()[0]).getStatistics()
+    long numOfDeltasSent = ((CacheClientProxy) ccn.getClientProxies().toArray()[0]).getStatistics()
         .getDeltaMessagesSent();
     assertTrue("Expected " + deltas + " deltas to be sent but " + numOfDeltasSent + " were sent.",
         numOfDeltasSent == deltas);

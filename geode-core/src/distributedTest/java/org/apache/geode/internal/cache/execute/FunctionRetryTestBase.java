@@ -290,15 +290,15 @@ public class FunctionRetryTestBase implements Serializable {
     }
   }
 
-  int getNumberOfFunctionCalls(final String functionId) {
+  long getNumberOfFunctionCalls(final String functionId) {
     return getNumberOfFunctionCalls(server1, functionId) +
         getNumberOfFunctionCalls(server2, functionId) +
         getNumberOfFunctionCalls(server3, functionId);
   }
 
-  private int getNumberOfFunctionCalls(final MemberVM vm, final String functionId) {
+  private long getNumberOfFunctionCalls(final MemberVM vm, final String functionId) {
     return vm.invoke(() -> {
-      final int numExecutions;
+      final long numExecutions;
       final FunctionStats functionStats = FunctionStatsManager.getFunctionStats(functionId);
       if (functionStats == null) {
         numExecutions = 0;

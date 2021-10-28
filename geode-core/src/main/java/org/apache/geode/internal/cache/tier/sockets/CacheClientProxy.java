@@ -1893,7 +1893,7 @@ public class CacheClientProxy implements ClientSession {
    *
    * @return int the current count of CQs for this client
    */
-  public int getCqCount() {
+  public long getCqCount() {
     synchronized (this) {
       return _statistics.getCqCount();
     }

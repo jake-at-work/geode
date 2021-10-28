@@ -356,7 +356,7 @@ public class ConnectionStatsTest {
     int messagesStatId = ConnectionStats.getType().nameToId("messagesBeingReceived");
     int messagesBytesStatId = ConnectionStats.getType().nameToId("messageBytesBeingReceived");
     connectionStats.incMessagesBeingReceived(10);
-    verify(stats).incInt(messagesStatId, 1);
+    verify(stats).incLong(messagesStatId, 1);
     verify(stats).incLong(messagesBytesStatId, 10);
   }
 
@@ -365,7 +365,7 @@ public class ConnectionStatsTest {
     int messagesStatId = ConnectionStats.getType().nameToId("messagesBeingReceived");
     int messagesBytesStatId = ConnectionStats.getType().nameToId("messageBytesBeingReceived");
     connectionStats.incMessagesBeingReceived(0);
-    verify(stats).incInt(messagesStatId, 1);
+    verify(stats).incLong(messagesStatId, 1);
     verify(stats, never()).incLong(eq(messagesBytesStatId), anyInt());
   }
 
@@ -374,7 +374,7 @@ public class ConnectionStatsTest {
     int messagesStatId = ConnectionStats.getType().nameToId("messagesBeingReceived");
     int messagesBytesStatId = ConnectionStats.getType().nameToId("messageBytesBeingReceived");
     connectionStats.decMessagesBeingReceived(10);
-    verify(stats).incInt(messagesStatId, -1);
+    verify(stats).incLong(messagesStatId, -1);
     verify(stats).incLong(messagesBytesStatId, -10);
   }
 
@@ -383,7 +383,7 @@ public class ConnectionStatsTest {
     int messagesStatId = ConnectionStats.getType().nameToId("messagesBeingReceived");
     int messagesBytesStatId = ConnectionStats.getType().nameToId("messageBytesBeingReceived");
     connectionStats.decMessagesBeingReceived(0);
-    verify(stats).incInt(messagesStatId, -1);
+    verify(stats).incLong(messagesStatId, -1);
     verify(stats, never()).incLong(eq(messagesBytesStatId), anyInt());
   }
 
@@ -393,8 +393,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endAddPdxType(1, true, true);
 
-    verify(stats).incInt(eq(addPdxTypeInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(addPdxTypeInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(addPdxTypeDurationId), anyLong());
   }
 
@@ -404,8 +404,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endAddPdxType(1, true, false);
 
-    verify(stats).incInt(eq(addPdxTypeInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(addPdxTypeInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(addPdxTypeDurationId), anyLong());
   }
 
@@ -415,8 +415,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endAddPdxType(1, false, true);
 
-    verify(stats).incInt(eq(addPdxTypeInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(addPdxTypeInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(addPdxTypeDurationId), anyLong());
   }
 
@@ -426,8 +426,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endAddPdxType(1, false, false);
 
-    verify(stats).incInt(eq(addPdxTypeInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(addPdxTypeInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(addPdxTypeDurationId), anyLong());
   }
 
@@ -437,8 +437,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endAddPdxTypeSend(1, true);
 
-    verify(sendStats).incInt(eq(addPdxTypeSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(addPdxTypeSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(addPdxTypeSendDurationId), anyLong());
   }
 
@@ -448,8 +448,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endAddPdxTypeSend(1, false);
 
-    verify(sendStats).incInt(eq(addPdxTypeSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(addPdxTypeSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(addPdxTypeSendDurationId), anyLong());
   }
 
@@ -460,8 +460,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startAddPdxType();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -470,8 +470,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endClearSend(1, true);
 
-    verify(sendStats).incInt(eq(clearSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(clearSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(clearSendDurationId), anyLong());
   }
 
@@ -481,8 +481,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endClearSend(1, false);
 
-    verify(sendStats).incInt(eq(clearSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(clearSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(clearSendDurationId), anyLong());
   }
 
@@ -492,7 +492,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endClear(1, true, true);
 
-    verify(stats).incInt(eq(clearInProgressId), eq(-1));
+    verify(stats).incLong(eq(clearInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(clearDurationId), anyLong());
   }
@@ -503,7 +503,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endClear(1, true, false);
 
-    verify(stats).incInt(eq(clearInProgressId), eq(-1));
+    verify(stats).incLong(eq(clearInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(clearDurationId), anyLong());
   }
@@ -514,7 +514,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endClear(1, false, true);
 
-    verify(stats).incInt(eq(clearInProgressId), eq(-1));
+    verify(stats).incLong(eq(clearInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(clearDurationId), anyLong());
   }
@@ -525,7 +525,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endClear(1, false, false);
 
-    verify(stats).incInt(eq(clearInProgressId), eq(-1));
+    verify(stats).incLong(eq(clearInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(clearDurationId), anyLong());
   }
@@ -537,8 +537,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startClear();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -547,8 +547,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCloseConSend(1, true);
 
-    verify(sendStats).incInt(eq(closeConSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(closeConSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(closeConSendDurationId), anyLong());
   }
 
@@ -558,8 +558,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCloseConSend(1, false);
 
-    verify(sendStats).incInt(eq(closeConSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(closeConSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(closeConSendDurationId), anyLong());
   }
 
@@ -569,8 +569,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCloseCon(1, true, true);
 
-    verify(stats).incInt(eq(closeConInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(closeConInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(closeConDurationId), anyLong());
   }
 
@@ -580,8 +580,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCloseCon(1, true, false);
 
-    verify(stats).incInt(eq(closeConInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(closeConInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(closeConDurationId), anyLong());
   }
 
@@ -591,8 +591,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCloseCon(1, false, true);
 
-    verify(stats).incInt(eq(closeConInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(closeConInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(closeConDurationId), anyLong());
   }
 
@@ -602,8 +602,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCloseCon(1, false, false);
 
-    verify(stats).incInt(eq(closeConInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(closeConInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(closeConDurationId), anyLong());
   }
 
@@ -614,8 +614,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startCloseCon();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -624,8 +624,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCloseCQSend(1, true);
 
-    verify(sendStats).incInt(eq(closeCQSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(closeCQSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(closeCQSendDurationId), anyLong());
   }
 
@@ -635,8 +635,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCloseCQSend(1, false);
 
-    verify(sendStats).incInt(eq(closeCQSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(closeCQSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(closeCQSendDurationId), anyLong());
   }
 
@@ -646,8 +646,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCloseCQ(1, true, true);
 
-    verify(stats).incInt(eq(closeCQInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(closeCQInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(closeCQDurationId), anyLong());
   }
 
@@ -657,8 +657,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCloseCQ(1, true, false);
 
-    verify(stats).incInt(eq(closeCQInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(closeCQInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(closeCQDurationId), anyLong());
   }
 
@@ -668,8 +668,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCloseCQ(1, false, true);
 
-    verify(stats).incInt(eq(closeCQInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(closeCQInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(closeCQDurationId), anyLong());
   }
 
@@ -679,8 +679,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCloseCQ(1, false, false);
 
-    verify(stats).incInt(eq(closeCQInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(closeCQInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(closeCQDurationId), anyLong());
   }
 
@@ -691,8 +691,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startCloseCQ();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -701,8 +701,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCreateCQSend(1, true);
 
-    verify(sendStats).incInt(eq(createCQSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(createCQSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(createCQSendDurationId), anyLong());
   }
 
@@ -712,8 +712,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCreateCQSend(1, false);
 
-    verify(sendStats).incInt(eq(createCQSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(createCQSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(createCQSendDurationId), anyLong());
   }
 
@@ -723,8 +723,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCreateCQ(1, true, true);
 
-    verify(stats).incInt(eq(createCQInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(createCQInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(createCQDurationId), anyLong());
   }
 
@@ -734,8 +734,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCreateCQ(1, true, false);
 
-    verify(stats).incInt(eq(createCQInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(createCQInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(createCQDurationId), anyLong());
   }
 
@@ -745,8 +745,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCreateCQ(1, false, true);
 
-    verify(stats).incInt(eq(createCQInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(createCQInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(createCQDurationId), anyLong());
   }
 
@@ -756,8 +756,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCreateCQ(1, false, false);
 
-    verify(stats).incInt(eq(createCQInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(createCQInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(createCQDurationId), anyLong());
   }
 
@@ -768,8 +768,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startCreateCQ();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -778,8 +778,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCommitSend(1, true);
 
-    verify(sendStats).incInt(eq(commitSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(commitSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(commitSendDurationId), anyLong());
   }
 
@@ -789,8 +789,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCommitSend(1, false);
 
-    verify(sendStats).incInt(eq(commitSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(commitSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(commitSendDurationId), anyLong());
   }
 
@@ -800,8 +800,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCommit(1, true, true);
 
-    verify(stats).incInt(eq(commitInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(commitInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(commitDurationId), anyLong());
   }
 
@@ -811,8 +811,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCommit(1, true, false);
 
-    verify(stats).incInt(eq(commitInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(commitInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(commitDurationId), anyLong());
   }
 
@@ -822,8 +822,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCommit(1, false, true);
 
-    verify(stats).incInt(eq(commitInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(commitInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(commitDurationId), anyLong());
   }
 
@@ -833,8 +833,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endCommit(1, false, false);
 
-    verify(stats).incInt(eq(commitInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(commitInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(commitDurationId), anyLong());
   }
 
@@ -845,8 +845,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startCommit();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -855,8 +855,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endContainsKeySend(1, true);
 
-    verify(sendStats).incInt(eq(containsKeySendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(containsKeySendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(containsKeySendDurationId), anyLong());
   }
 
@@ -866,8 +866,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endContainsKeySend(1, false);
 
-    verify(sendStats).incInt(eq(containsKeySendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(containsKeySendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(containsKeySendDurationId), anyLong());
   }
 
@@ -877,8 +877,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endContainsKey(1, true, true);
 
-    verify(stats).incInt(eq(containsKeyInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(containsKeyInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(containsKeyDurationId), anyLong());
   }
 
@@ -888,8 +888,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endContainsKey(1, true, false);
 
-    verify(stats).incInt(eq(containsKeyInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(containsKeyInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(containsKeyDurationId), anyLong());
   }
 
@@ -899,8 +899,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endContainsKey(1, false, true);
 
-    verify(stats).incInt(eq(containsKeyInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(containsKeyInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(containsKeyDurationId), anyLong());
   }
 
@@ -910,8 +910,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endContainsKey(1, false, false);
 
-    verify(stats).incInt(eq(containsKeyInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(containsKeyInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(containsKeyDurationId), anyLong());
   }
 
@@ -922,8 +922,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startContainsKey();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -932,8 +932,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endDestroyRegionSend(1, true);
 
-    verify(sendStats).incInt(eq(destroyRegionSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(destroyRegionSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(destroyRegionSendDurationId), anyLong());
   }
 
@@ -943,8 +943,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endDestroyRegionSend(1, false);
 
-    verify(sendStats).incInt(eq(destroyRegionSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(destroyRegionSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(destroyRegionSendDurationId), anyLong());
   }
 
@@ -954,8 +954,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endDestroyRegion(1, true, true);
 
-    verify(stats).incInt(eq(destroyRegionInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(destroyRegionInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(destroyRegionDurationId), anyLong());
   }
 
@@ -965,8 +965,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endDestroyRegion(1, true, false);
 
-    verify(stats).incInt(eq(destroyRegionInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(destroyRegionInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(destroyRegionDurationId), anyLong());
   }
 
@@ -976,8 +976,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endDestroyRegion(1, false, true);
 
-    verify(stats).incInt(eq(destroyRegionInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(destroyRegionInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(destroyRegionDurationId), anyLong());
   }
 
@@ -987,8 +987,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endDestroyRegion(1, false, false);
 
-    verify(stats).incInt(eq(destroyRegionInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(destroyRegionInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(destroyRegionDurationId), anyLong());
   }
 
@@ -999,8 +999,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startDestroyRegion();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1009,8 +1009,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endDestroySend(1, true);
 
-    verify(sendStats).incInt(eq(destroySendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(destroySendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(destroySendDurationId), anyLong());
   }
 
@@ -1020,8 +1020,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endDestroySend(1, false);
 
-    verify(sendStats).incInt(eq(destroySendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(destroySendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(destroySendDurationId), anyLong());
   }
 
@@ -1031,7 +1031,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endDestroy(1, true, true);
 
-    verify(stats).incInt(eq(destroyInProgressId), eq(-1));
+    verify(stats).incLong(eq(destroyInProgressId), eq(-1));
     verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(destroyDurationId), anyLong());
   }
@@ -1042,7 +1042,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endDestroy(1, true, false);
 
-    verify(stats).incInt(eq(destroyInProgressId), eq(-1));
+    verify(stats).incLong(eq(destroyInProgressId), eq(-1));
     verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(destroyDurationId), anyLong());
   }
@@ -1053,8 +1053,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endExecuteFunctionSend(1, true);
 
-    verify(sendStats).incInt(eq(executeFunctionSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(executeFunctionSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(executeFunctionSendDurationId), anyLong());
   }
 
@@ -1064,8 +1064,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endExecuteFunctionSend(1, false);
 
-    verify(sendStats).incInt(eq(executeFunctionSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(executeFunctionSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(executeFunctionSendDurationId), anyLong());
   }
 
@@ -1075,8 +1075,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endExecuteFunction(1, true, true);
 
-    verify(stats).incInt(eq(executeFunctionInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(executeFunctionInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(executeFunctionDurationId), anyLong());
   }
 
@@ -1086,8 +1086,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endExecuteFunction(1, true, false);
 
-    verify(stats).incInt(eq(executeFunctionInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(executeFunctionInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(executeFunctionDurationId), anyLong());
   }
 
@@ -1097,8 +1097,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endExecuteFunction(1, false, true);
 
-    verify(stats).incInt(eq(executeFunctionInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(executeFunctionInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(executeFunctionDurationId), anyLong());
   }
 
@@ -1108,8 +1108,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endExecuteFunction(1, false, false);
 
-    verify(stats).incInt(eq(executeFunctionInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(executeFunctionInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(executeFunctionDurationId), anyLong());
   }
 
@@ -1120,8 +1120,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startExecuteFunction();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1130,8 +1130,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGatewayBatchSend(1, true);
 
-    verify(sendStats).incInt(eq(gatewayBatchSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(gatewayBatchSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(gatewayBatchSendDurationId), anyLong());
   }
 
@@ -1141,8 +1141,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGatewayBatchSend(1, false);
 
-    verify(sendStats).incInt(eq(gatewayBatchSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(gatewayBatchSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(gatewayBatchSendDurationId), anyLong());
   }
 
@@ -1152,8 +1152,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGatewayBatch(1, true, true);
 
-    verify(stats).incInt(eq(gatewayBatchInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(gatewayBatchInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(gatewayBatchDurationId), anyLong());
   }
 
@@ -1163,8 +1163,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGatewayBatch(1, true, false);
 
-    verify(stats).incInt(eq(gatewayBatchInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(gatewayBatchInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(gatewayBatchDurationId), anyLong());
   }
 
@@ -1174,8 +1174,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGatewayBatch(1, false, true);
 
-    verify(stats).incInt(eq(gatewayBatchInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(gatewayBatchInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(gatewayBatchDurationId), anyLong());
   }
 
@@ -1185,8 +1185,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGatewayBatch(1, false, false);
 
-    verify(stats).incInt(eq(gatewayBatchInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(gatewayBatchInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(gatewayBatchDurationId), anyLong());
   }
 
@@ -1197,8 +1197,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startGatewayBatch();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1207,8 +1207,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetAllSend(1, true);
 
-    verify(sendStats).incInt(eq(getAllSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getAllSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getAllSendDurationId), anyLong());
   }
 
@@ -1218,8 +1218,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetAllSend(1, false);
 
-    verify(sendStats).incInt(eq(getAllSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getAllSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getAllSendDurationId), anyLong());
   }
 
@@ -1229,8 +1229,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetAll(1, true, true);
 
-    verify(stats).incInt(eq(getAllInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getAllInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getAllDurationId), anyLong());
   }
 
@@ -1240,8 +1240,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetAll(1, true, false);
 
-    verify(stats).incInt(eq(getAllInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getAllInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getAllDurationId), anyLong());
   }
 
@@ -1251,8 +1251,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetAll(1, false, true);
 
-    verify(stats).incInt(eq(getAllInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getAllInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getAllDurationId), anyLong());
   }
 
@@ -1262,8 +1262,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetAll(1, false, false);
 
-    verify(stats).incInt(eq(getAllInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getAllInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getAllDurationId), anyLong());
   }
 
@@ -1274,8 +1274,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startGetAll();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1284,8 +1284,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetClientPartitionAttributesSend(1, true);
 
-    verify(sendStats).incInt(eq(getClientPartitionAttributesSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getClientPartitionAttributesSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getClientPartitionAttributesSendDurationId), anyLong());
   }
 
@@ -1296,8 +1296,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetClientPartitionAttributesSend(1, false);
 
-    verify(sendStats).incInt(eq(getClientPartitionAttributesSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getClientPartitionAttributesSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getClientPartitionAttributesSendDurationId), anyLong());
   }
 
@@ -1307,8 +1307,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetClientPartitionAttributes(1, true, true);
 
-    verify(stats).incInt(eq(getClientPartitionAttributesInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getClientPartitionAttributesInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getClientPartitionAttributesDurationId), anyLong());
   }
 
@@ -1318,8 +1318,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetClientPartitionAttributes(1, true, false);
 
-    verify(stats).incInt(eq(getClientPartitionAttributesInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getClientPartitionAttributesInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getClientPartitionAttributesDurationId), anyLong());
   }
 
@@ -1329,8 +1329,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetClientPartitionAttributes(1, false, true);
 
-    verify(stats).incInt(eq(getClientPartitionAttributesInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getClientPartitionAttributesInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getClientPartitionAttributesDurationId), anyLong());
   }
 
@@ -1340,8 +1340,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetClientPartitionAttributes(1, false, false);
 
-    verify(stats).incInt(eq(getClientPartitionAttributesInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getClientPartitionAttributesInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getClientPartitionAttributesDurationId), anyLong());
   }
 
@@ -1353,8 +1353,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startGetClientPartitionAttributes();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1363,8 +1363,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetClientPRMetadataSend(1, true);
 
-    verify(sendStats).incInt(eq(getClientPRMetadataSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getClientPRMetadataSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getClientPRMetadataSendDurationId), anyLong());
   }
 
@@ -1374,8 +1374,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetClientPRMetadataSend(1, false);
 
-    verify(sendStats).incInt(eq(getClientPRMetadataSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getClientPRMetadataSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getClientPRMetadataSendDurationId), anyLong());
   }
 
@@ -1385,8 +1385,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetClientPRMetadata(1, true, true);
 
-    verify(stats).incInt(eq(getClientPRMetadataInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getClientPRMetadataInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getClientPRMetadataDurationId), anyLong());
   }
 
@@ -1396,8 +1396,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetClientPRMetadata(1, true, false);
 
-    verify(stats).incInt(eq(getClientPRMetadataInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getClientPRMetadataInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getClientPRMetadataDurationId), anyLong());
   }
 
@@ -1407,8 +1407,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetClientPRMetadata(1, false, true);
 
-    verify(stats).incInt(eq(getClientPRMetadataInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getClientPRMetadataInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getClientPRMetadataDurationId), anyLong());
   }
 
@@ -1418,8 +1418,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetClientPRMetadata(1, false, false);
 
-    verify(stats).incInt(eq(getClientPRMetadataInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getClientPRMetadataInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getClientPRMetadataDurationId), anyLong());
   }
 
@@ -1430,8 +1430,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startGetClientPRMetadata();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1440,8 +1440,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetPDXIdForTypeSend(1, true);
 
-    verify(sendStats).incInt(eq(getPDXIdForTypeSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getPDXIdForTypeSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getPDXIdForTypeSendDurationId), anyLong());
   }
 
@@ -1451,8 +1451,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetPDXIdForTypeSend(1, false);
 
-    verify(sendStats).incInt(eq(getPDXIdForTypeSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getPDXIdForTypeSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getPDXIdForTypeSendDurationId), anyLong());
   }
 
@@ -1462,8 +1462,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetPDXIdForType(1, true, true);
 
-    verify(stats).incInt(eq(getPDXIdForTypeInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getPDXIdForTypeInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getPDXIdForTypeDurationId), anyLong());
   }
 
@@ -1473,8 +1473,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetPDXIdForType(1, true, false);
 
-    verify(stats).incInt(eq(getPDXIdForTypeInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getPDXIdForTypeInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getPDXIdForTypeDurationId), anyLong());
   }
 
@@ -1484,8 +1484,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetPDXIdForType(1, false, true);
 
-    verify(stats).incInt(eq(getPDXIdForTypeInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getPDXIdForTypeInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getPDXIdForTypeDurationId), anyLong());
   }
 
@@ -1495,8 +1495,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetPDXIdForType(1, false, false);
 
-    verify(stats).incInt(eq(getPDXIdForTypeInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getPDXIdForTypeInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getPDXIdForTypeDurationId), anyLong());
   }
 
@@ -1507,8 +1507,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startGetPDXIdForType();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1517,8 +1517,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetPDXTypeByIdSend(1, true);
 
-    verify(sendStats).incInt(eq(getPDXTypeByIdSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getPDXTypeByIdSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getPDXTypeByIdSendDurationId), anyLong());
   }
 
@@ -1528,8 +1528,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetPDXTypeByIdSend(1, false);
 
-    verify(sendStats).incInt(eq(getPDXTypeByIdSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getPDXTypeByIdSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getPDXTypeByIdSendDurationId), anyLong());
   }
 
@@ -1539,8 +1539,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetPDXTypeById(1, true, true);
 
-    verify(stats).incInt(eq(getPDXTypeByIdInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getPDXTypeByIdInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getPDXTypeByIdDurationId), anyLong());
   }
 
@@ -1550,8 +1550,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetPDXTypeById(1, true, false);
 
-    verify(stats).incInt(eq(getPDXTypeByIdInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getPDXTypeByIdInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getPDXTypeByIdDurationId), anyLong());
   }
 
@@ -1561,8 +1561,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetPDXTypeById(1, false, true);
 
-    verify(stats).incInt(eq(getPDXTypeByIdInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getPDXTypeByIdInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getPDXTypeByIdDurationId), anyLong());
   }
 
@@ -1572,8 +1572,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetPDXTypeById(1, false, false);
 
-    verify(stats).incInt(eq(getPDXTypeByIdInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getPDXTypeByIdInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getPDXTypeByIdDurationId), anyLong());
   }
 
@@ -1584,8 +1584,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startGetPDXTypeById();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1594,8 +1594,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetEntrySend(1, true);
 
-    verify(sendStats).incInt(eq(getEntrySendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getEntrySendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getEntrySendDurationId), anyLong());
   }
 
@@ -1605,8 +1605,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetEntrySend(1, false);
 
-    verify(sendStats).incInt(eq(getEntrySendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getEntrySendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getEntrySendDurationId), anyLong());
   }
 
@@ -1616,8 +1616,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetEntry(1, true, true);
 
-    verify(stats).incInt(eq(getEntryInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getEntryInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getEntryDurationId), anyLong());
   }
 
@@ -1627,8 +1627,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetEntry(1, true, false);
 
-    verify(stats).incInt(eq(getEntryInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getEntryInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getEntryDurationId), anyLong());
   }
 
@@ -1638,8 +1638,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetEntry(1, false, true);
 
-    verify(stats).incInt(eq(getEntryInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getEntryInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getEntryDurationId), anyLong());
   }
 
@@ -1649,8 +1649,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetEntry(1, false, false);
 
-    verify(stats).incInt(eq(getEntryInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getEntryInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getEntryDurationId), anyLong());
   }
 
@@ -1661,8 +1661,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startGetEntry();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1671,8 +1671,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetDurableCQsSend(1, true);
 
-    verify(sendStats).incInt(eq(getDurableCQsSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getDurableCQsSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getDurableCQsSendDurationId), anyLong());
   }
 
@@ -1682,8 +1682,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetDurableCQsSend(1, false);
 
-    verify(sendStats).incInt(eq(getDurableCQsSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getDurableCQsSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getDurableCQsSendDurationId), anyLong());
   }
 
@@ -1693,8 +1693,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetDurableCQs(1, true, true);
 
-    verify(stats).incInt(eq(getDurableCQsInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getDurableCQsInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getDurableCQsDurationId), anyLong());
   }
 
@@ -1704,8 +1704,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetDurableCQs(1, true, false);
 
-    verify(stats).incInt(eq(getDurableCQsInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getDurableCQsInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getDurableCQsDurationId), anyLong());
   }
 
@@ -1715,8 +1715,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetDurableCQs(1, false, true);
 
-    verify(stats).incInt(eq(getDurableCQsInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getDurableCQsInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getDurableCQsDurationId), anyLong());
   }
 
@@ -1726,8 +1726,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetDurableCQs(1, false, false);
 
-    verify(stats).incInt(eq(getDurableCQsInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(getDurableCQsInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(getDurableCQsDurationId), anyLong());
   }
 
@@ -1738,8 +1738,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startGetDurableCQs();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1748,8 +1748,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetSend(1, true);
 
-    verify(sendStats).incInt(eq(getSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getSendDurationId), anyLong());
   }
 
@@ -1759,8 +1759,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endGetSend(1, false);
 
-    verify(sendStats).incInt(eq(getSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(getSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(getSendDurationId), anyLong());
   }
 
@@ -1770,7 +1770,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endGet(1, true, true);
 
-    verify(stats).incInt(eq(getInProgressId), eq(-1));
+    verify(stats).incLong(eq(getInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(getDurationId), anyLong());
   }
@@ -1781,7 +1781,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endGet(1, true, false);
 
-    verify(stats).incInt(eq(getInProgressId), eq(-1));
+    verify(stats).incLong(eq(getInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(getDurationId), anyLong());
   }
@@ -1792,7 +1792,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endGet(1, false, true);
 
-    verify(stats).incInt(eq(getInProgressId), eq(-1));
+    verify(stats).incLong(eq(getInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(getDurationId), anyLong());
   }
@@ -1803,7 +1803,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endGet(1, false, false);
 
-    verify(stats).incInt(eq(getInProgressId), eq(-1));
+    verify(stats).incLong(eq(getInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(getDurationId), anyLong());
   }
@@ -1815,8 +1815,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startGet();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1825,8 +1825,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endInvalidateSend(1, true);
 
-    verify(sendStats).incInt(eq(invalidateSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(invalidateSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(invalidateSendDurationId), anyLong());
   }
 
@@ -1836,8 +1836,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endInvalidateSend(1, false);
 
-    verify(sendStats).incInt(eq(invalidateSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(invalidateSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(invalidateSendDurationId), anyLong());
   }
 
@@ -1847,7 +1847,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endInvalidate(1, true, true);
 
-    verify(stats).incInt(eq(invalidateInProgressId), eq(-1));
+    verify(stats).incLong(eq(invalidateInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(invalidateDurationId), anyLong());
   }
@@ -1858,7 +1858,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endInvalidate(1, true, false);
 
-    verify(stats).incInt(eq(invalidateInProgressId), eq(-1));
+    verify(stats).incLong(eq(invalidateInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(invalidateDurationId), anyLong());
   }
@@ -1869,7 +1869,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endInvalidate(1, false, true);
 
-    verify(stats).incInt(eq(invalidateInProgressId), eq(-1));
+    verify(stats).incLong(eq(invalidateInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(invalidateDurationId), anyLong());
   }
@@ -1880,7 +1880,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endInvalidate(1, false, false);
 
-    verify(stats).incInt(eq(invalidateInProgressId), eq(-1));
+    verify(stats).incLong(eq(invalidateInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(invalidateDurationId), anyLong());
   }
@@ -1892,8 +1892,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startInvalidate();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1902,8 +1902,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endTxSynchronizationSend(1, true);
 
-    verify(sendStats).incInt(eq(jtaSynchronizationSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(jtaSynchronizationSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(jtaSynchronizationSendDurationId), anyLong());
   }
 
@@ -1913,8 +1913,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endTxSynchronizationSend(1, false);
 
-    verify(sendStats).incInt(eq(jtaSynchronizationSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(jtaSynchronizationSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(jtaSynchronizationSendDurationId), anyLong());
   }
 
@@ -1924,8 +1924,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endTxSynchronization(1, true, true);
 
-    verify(stats).incInt(eq(jtaSynchronizationInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(jtaSynchronizationInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(jtaSynchronizationDurationId), anyLong());
   }
 
@@ -1935,8 +1935,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endTxSynchronization(1, true, false);
 
-    verify(stats).incInt(eq(jtaSynchronizationInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(jtaSynchronizationInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(jtaSynchronizationDurationId), anyLong());
   }
 
@@ -1946,8 +1946,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endTxSynchronization(1, false, true);
 
-    verify(stats).incInt(eq(jtaSynchronizationInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(jtaSynchronizationInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(jtaSynchronizationDurationId), anyLong());
   }
 
@@ -1957,8 +1957,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endTxSynchronization(1, false, false);
 
-    verify(stats).incInt(eq(jtaSynchronizationInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(jtaSynchronizationInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(jtaSynchronizationDurationId), anyLong());
   }
 
@@ -1969,8 +1969,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startTxSynchronization();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -1979,8 +1979,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endKeySetSend(1, true);
 
-    verify(sendStats).incInt(eq(keySetSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(keySetSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(keySetSendDurationId), anyLong());
   }
 
@@ -1990,8 +1990,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endKeySetSend(1, false);
 
-    verify(sendStats).incInt(eq(keySetSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(keySetSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(keySetSendDurationId), anyLong());
   }
 
@@ -2001,8 +2001,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endKeySet(1, true, true);
 
-    verify(stats).incInt(eq(keySetInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(keySetInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(keySetDurationId), anyLong());
   }
 
@@ -2012,8 +2012,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endKeySet(1, true, false);
 
-    verify(stats).incInt(eq(keySetInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(keySetInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(keySetDurationId), anyLong());
   }
 
@@ -2023,8 +2023,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endKeySet(1, false, true);
 
-    verify(stats).incInt(eq(keySetInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(keySetInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(keySetDurationId), anyLong());
   }
 
@@ -2034,8 +2034,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endKeySet(1, false, false);
 
-    verify(stats).incInt(eq(keySetInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(keySetInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(keySetDurationId), anyLong());
   }
 
@@ -2046,8 +2046,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startKeySet();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2056,8 +2056,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endMakePrimarySend(1, true);
 
-    verify(sendStats).incInt(eq(makePrimarySendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(makePrimarySendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(makePrimarySendDurationId), anyLong());
   }
 
@@ -2067,8 +2067,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endMakePrimarySend(1, false);
 
-    verify(sendStats).incInt(eq(makePrimarySendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(makePrimarySendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(makePrimarySendDurationId), anyLong());
   }
 
@@ -2078,8 +2078,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endMakePrimary(1, true, true);
 
-    verify(stats).incInt(eq(makePrimaryInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(makePrimaryInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(makePrimaryDurationId), anyLong());
   }
 
@@ -2089,8 +2089,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endMakePrimary(1, true, false);
 
-    verify(stats).incInt(eq(makePrimaryInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(makePrimaryInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(makePrimaryDurationId), anyLong());
   }
 
@@ -2100,8 +2100,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endMakePrimary(1, false, true);
 
-    verify(stats).incInt(eq(makePrimaryInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(makePrimaryInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(makePrimaryDurationId), anyLong());
   }
 
@@ -2111,8 +2111,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endMakePrimary(1, false, false);
 
-    verify(stats).incInt(eq(makePrimaryInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(makePrimaryInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(makePrimaryDurationId), anyLong());
   }
 
@@ -2123,8 +2123,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startMakePrimary();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2133,8 +2133,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPingSend(1, true);
 
-    verify(sendStats).incInt(eq(pingSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(pingSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(pingSendDurationId), anyLong());
   }
 
@@ -2144,8 +2144,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPingSend(1, false);
 
-    verify(sendStats).incInt(eq(pingSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(pingSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(pingSendDurationId), anyLong());
   }
 
@@ -2155,8 +2155,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPing(1, true, true);
 
-    verify(stats).incInt(eq(pingInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(pingInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(pingDurationId), anyLong());
   }
 
@@ -2166,8 +2166,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPing(1, true, false);
 
-    verify(stats).incInt(eq(pingInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(pingInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(pingDurationId), anyLong());
   }
 
@@ -2177,8 +2177,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPing(1, false, true);
 
-    verify(stats).incInt(eq(pingInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(pingInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(pingDurationId), anyLong());
   }
 
@@ -2188,8 +2188,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPing(1, false, false);
 
-    verify(stats).incInt(eq(pingInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(pingInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(pingDurationId), anyLong());
   }
 
@@ -2200,8 +2200,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startPing();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2210,8 +2210,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPrimaryAckSend(1, true);
 
-    verify(sendStats).incInt(eq(primaryAckSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(primaryAckSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(primaryAckSendDurationId), anyLong());
   }
 
@@ -2221,8 +2221,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPrimaryAckSend(1, false);
 
-    verify(sendStats).incInt(eq(primaryAckSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(primaryAckSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(primaryAckSendDurationId), anyLong());
   }
 
@@ -2232,8 +2232,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPrimaryAck(1, true, true);
 
-    verify(stats).incInt(eq(primaryAckInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(primaryAckInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(primaryAckDurationId), anyLong());
   }
 
@@ -2243,8 +2243,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPrimaryAck(1, true, false);
 
-    verify(stats).incInt(eq(primaryAckInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(primaryAckInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(primaryAckDurationId), anyLong());
   }
 
@@ -2254,8 +2254,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPrimaryAck(1, false, true);
 
-    verify(stats).incInt(eq(primaryAckInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(primaryAckInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(primaryAckDurationId), anyLong());
   }
 
@@ -2265,8 +2265,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPrimaryAck(1, false, false);
 
-    verify(stats).incInt(eq(primaryAckInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(primaryAckInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(primaryAckDurationId), anyLong());
   }
 
@@ -2277,8 +2277,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startPrimaryAck();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2287,8 +2287,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPutAllSend(1, true);
 
-    verify(sendStats).incInt(eq(putAllSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(putAllSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(putAllSendDurationId), anyLong());
   }
 
@@ -2298,8 +2298,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPutAllSend(1, false);
 
-    verify(sendStats).incInt(eq(putAllSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(putAllSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(putAllSendDurationId), anyLong());
   }
 
@@ -2309,8 +2309,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPutAll(1, true, true);
 
-    verify(stats).incInt(eq(putAllInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(putAllInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(putAllDurationId), anyLong());
   }
 
@@ -2320,8 +2320,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPutAll(1, true, false);
 
-    verify(stats).incInt(eq(putAllInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(putAllInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(putAllDurationId), anyLong());
   }
 
@@ -2331,8 +2331,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPutAll(1, false, true);
 
-    verify(stats).incInt(eq(putAllInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(putAllInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(putAllDurationId), anyLong());
   }
 
@@ -2342,8 +2342,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPutAll(1, false, false);
 
-    verify(stats).incInt(eq(putAllInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(putAllInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(putAllDurationId), anyLong());
   }
 
@@ -2354,8 +2354,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startPutAll();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2364,8 +2364,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPutSend(1, true);
 
-    verify(sendStats).incInt(eq(putSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(putSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(putSendDurationId), anyLong());
   }
 
@@ -2375,8 +2375,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endPutSend(1, false);
 
-    verify(sendStats).incInt(eq(putSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(putSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(putSendDurationId), anyLong());
   }
 
@@ -2386,7 +2386,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endPut(1, true, true);
 
-    verify(stats).incInt(eq(putInProgressId), eq(-1));
+    verify(stats).incLong(eq(putInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(putDurationId), anyLong());
   }
@@ -2397,7 +2397,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endPut(1, true, false);
 
-    verify(stats).incInt(eq(putInProgressId), eq(-1));
+    verify(stats).incLong(eq(putInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(putDurationId), anyLong());
   }
@@ -2408,7 +2408,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endPut(1, false, true);
 
-    verify(stats).incInt(eq(putInProgressId), eq(-1));
+    verify(stats).incLong(eq(putInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(putDurationId), anyLong());
   }
@@ -2419,7 +2419,7 @@ public class ConnectionStatsTest {
 
     connectionStats.endPut(1, false, false);
 
-    verify(stats).incInt(eq(putInProgressId), eq(-1));
+    verify(stats).incLong(eq(putInProgressId), eq(-1));
     verify(stats).incLong(statId, 1L);
     verify(stats).incLong(eq(putDurationId), anyLong());
   }
@@ -2431,8 +2431,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startPut();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2441,8 +2441,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endQuerySend(1, true);
 
-    verify(sendStats).incInt(eq(querySendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(querySendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(querySendDurationId), anyLong());
   }
 
@@ -2452,8 +2452,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endQuerySend(1, false);
 
-    verify(sendStats).incInt(eq(querySendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(querySendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(querySendDurationId), anyLong());
   }
 
@@ -2463,8 +2463,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endQuery(1, true, true);
 
-    verify(stats).incInt(eq(queryInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(queryInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(queryDurationId), anyLong());
   }
 
@@ -2474,8 +2474,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endQuery(1, true, false);
 
-    verify(stats).incInt(eq(queryInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(queryInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(queryDurationId), anyLong());
   }
 
@@ -2485,8 +2485,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endQuery(1, false, true);
 
-    verify(stats).incInt(eq(queryInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(queryInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(queryDurationId), anyLong());
   }
 
@@ -2496,8 +2496,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endQuery(1, false, false);
 
-    verify(stats).incInt(eq(queryInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(queryInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(queryDurationId), anyLong());
   }
 
@@ -2508,8 +2508,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startQuery();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2518,8 +2518,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endReadyForEventsSend(1, true);
 
-    verify(sendStats).incInt(eq(readyForEventsSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(readyForEventsSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(readyForEventsSendDurationId), anyLong());
   }
 
@@ -2529,8 +2529,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endReadyForEventsSend(1, false);
 
-    verify(sendStats).incInt(eq(readyForEventsSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(readyForEventsSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(readyForEventsSendDurationId), anyLong());
   }
 
@@ -2540,8 +2540,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endReadyForEvents(1, true, true);
 
-    verify(stats).incInt(eq(readyForEventsInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(readyForEventsInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(readyForEventsDurationId), anyLong());
   }
 
@@ -2551,8 +2551,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endReadyForEvents(1, true, false);
 
-    verify(stats).incInt(eq(readyForEventsInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(readyForEventsInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(readyForEventsDurationId), anyLong());
   }
 
@@ -2562,8 +2562,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endReadyForEvents(1, false, true);
 
-    verify(stats).incInt(eq(readyForEventsInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(readyForEventsInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(readyForEventsDurationId), anyLong());
   }
 
@@ -2573,8 +2573,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endReadyForEvents(1, false, false);
 
-    verify(stats).incInt(eq(readyForEventsInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(readyForEventsInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(readyForEventsDurationId), anyLong());
   }
 
@@ -2585,8 +2585,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startReadyForEvents();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2595,8 +2595,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterDataSerializersSend(1, true);
 
-    verify(sendStats).incInt(eq(registerDataSerializersSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(registerDataSerializersSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(registerDataSerializersSendDurationId), anyLong());
   }
 
@@ -2606,8 +2606,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterDataSerializersSend(1, false);
 
-    verify(sendStats).incInt(eq(registerDataSerializersSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(registerDataSerializersSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(registerDataSerializersSendDurationId), anyLong());
   }
 
@@ -2617,8 +2617,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterDataSerializers(1, true, true);
 
-    verify(stats).incInt(eq(registerDataSerializersInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(registerDataSerializersInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(registerDataSerializersDurationId), anyLong());
   }
 
@@ -2628,8 +2628,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterDataSerializers(1, true, false);
 
-    verify(stats).incInt(eq(registerDataSerializersInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(registerDataSerializersInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(registerDataSerializersDurationId), anyLong());
   }
 
@@ -2639,8 +2639,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterDataSerializers(1, false, true);
 
-    verify(stats).incInt(eq(registerDataSerializersInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(registerDataSerializersInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(registerDataSerializersDurationId), anyLong());
   }
 
@@ -2650,8 +2650,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterDataSerializers(1, false, false);
 
-    verify(stats).incInt(eq(registerDataSerializersInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(registerDataSerializersInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(registerDataSerializersDurationId), anyLong());
   }
 
@@ -2663,8 +2663,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startRegisterDataSerializers();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2673,8 +2673,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterInstantiatorsSend(1, true);
 
-    verify(sendStats).incInt(eq(registerInstantiatorsSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(registerInstantiatorsSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(registerInstantiatorsSendDurationId), anyLong());
   }
 
@@ -2684,8 +2684,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterInstantiatorsSend(1, false);
 
-    verify(sendStats).incInt(eq(registerInstantiatorsSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(registerInstantiatorsSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(registerInstantiatorsSendDurationId), anyLong());
   }
 
@@ -2695,8 +2695,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterInstantiators(1, true, true);
 
-    verify(stats).incInt(eq(registerInstantiatorsInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(registerInstantiatorsInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(registerInstantiatorsDurationId), anyLong());
   }
 
@@ -2706,8 +2706,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterInstantiators(1, true, false);
 
-    verify(stats).incInt(eq(registerInstantiatorsInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(registerInstantiatorsInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(registerInstantiatorsDurationId), anyLong());
   }
 
@@ -2717,8 +2717,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterInstantiators(1, false, true);
 
-    verify(stats).incInt(eq(registerInstantiatorsInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(registerInstantiatorsInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(registerInstantiatorsDurationId), anyLong());
   }
 
@@ -2728,8 +2728,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterInstantiators(1, false, false);
 
-    verify(stats).incInt(eq(registerInstantiatorsInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(registerInstantiatorsInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(registerInstantiatorsDurationId), anyLong());
   }
 
@@ -2740,8 +2740,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startRegisterInstantiators();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2750,8 +2750,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterInterestSend(1, true);
 
-    verify(sendStats).incInt(eq(registerInterestSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(registerInterestSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(registerInterestSendDurationId), anyLong());
   }
 
@@ -2761,8 +2761,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterInterestSend(1, false);
 
-    verify(sendStats).incInt(eq(registerInterestSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(registerInterestSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(registerInterestSendDurationId), anyLong());
   }
 
@@ -2772,8 +2772,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterInterest(1, true, true);
 
-    verify(stats).incInt(eq(registerInterestInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(registerInterestInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(registerInterestDurationId), anyLong());
   }
 
@@ -2783,8 +2783,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterInterest(1, true, false);
 
-    verify(stats).incInt(eq(registerInterestInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(registerInterestInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(registerInterestDurationId), anyLong());
   }
 
@@ -2794,8 +2794,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterInterest(1, false, true);
 
-    verify(stats).incInt(eq(registerInterestInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(registerInterestInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(registerInterestDurationId), anyLong());
   }
 
@@ -2805,8 +2805,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRegisterInterest(1, false, false);
 
-    verify(stats).incInt(eq(registerInterestInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(registerInterestInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(registerInterestDurationId), anyLong());
   }
 
@@ -2817,8 +2817,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startRegisterInterest();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2827,8 +2827,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRemoveAllSend(1, true);
 
-    verify(sendStats).incInt(eq(removeAllSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(removeAllSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(removeAllSendDurationId), anyLong());
   }
 
@@ -2838,8 +2838,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRemoveAllSend(1, false);
 
-    verify(sendStats).incInt(eq(removeAllSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(removeAllSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(removeAllSendDurationId), anyLong());
   }
 
@@ -2849,8 +2849,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRemoveAll(1, true, true);
 
-    verify(stats).incInt(eq(removeAllInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(removeAllInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(removeAllDurationId), anyLong());
   }
 
@@ -2860,8 +2860,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRemoveAll(1, true, false);
 
-    verify(stats).incInt(eq(removeAllInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(removeAllInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(removeAllDurationId), anyLong());
   }
 
@@ -2871,8 +2871,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRemoveAll(1, false, true);
 
-    verify(stats).incInt(eq(removeAllInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(removeAllInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(removeAllDurationId), anyLong());
   }
 
@@ -2882,8 +2882,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRemoveAll(1, false, false);
 
-    verify(stats).incInt(eq(removeAllInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(removeAllInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(removeAllDurationId), anyLong());
   }
 
@@ -2894,8 +2894,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startRemoveAll();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2904,8 +2904,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRollbackSend(1, true);
 
-    verify(sendStats).incInt(eq(rollbackSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(rollbackSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(rollbackSendDurationId), anyLong());
   }
 
@@ -2915,8 +2915,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRollbackSend(1, false);
 
-    verify(sendStats).incInt(eq(rollbackSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(rollbackSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(rollbackSendDurationId), anyLong());
   }
 
@@ -2926,8 +2926,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRollback(1, true, true);
 
-    verify(stats).incInt(eq(rollbackInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(rollbackInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(rollbackDurationId), anyLong());
   }
 
@@ -2937,8 +2937,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRollback(1, true, false);
 
-    verify(stats).incInt(eq(rollbackInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(rollbackInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(rollbackDurationId), anyLong());
   }
 
@@ -2948,8 +2948,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRollback(1, false, true);
 
-    verify(stats).incInt(eq(rollbackInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(rollbackInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(rollbackDurationId), anyLong());
   }
 
@@ -2959,8 +2959,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endRollback(1, false, false);
 
-    verify(stats).incInt(eq(rollbackInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(rollbackInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(rollbackDurationId), anyLong());
   }
 
@@ -2971,8 +2971,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startRollback();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -2981,8 +2981,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endSizeSend(1, true);
 
-    verify(sendStats).incInt(eq(sizeSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(sizeSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(sizeSendDurationId), anyLong());
   }
 
@@ -2992,8 +2992,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endSizeSend(1, false);
 
-    verify(sendStats).incInt(eq(sizeSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(sizeSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(sizeSendDurationId), anyLong());
   }
 
@@ -3003,8 +3003,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endSize(1, true, true);
 
-    verify(stats).incInt(eq(sizeInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(sizeInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(sizeDurationId), anyLong());
   }
 
@@ -3014,8 +3014,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endSize(1, true, false);
 
-    verify(stats).incInt(eq(sizeInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(sizeInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(sizeDurationId), anyLong());
   }
 
@@ -3025,8 +3025,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endSize(1, false, true);
 
-    verify(stats).incInt(eq(sizeInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(sizeInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(sizeDurationId), anyLong());
   }
 
@@ -3036,8 +3036,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endSize(1, false, false);
 
-    verify(stats).incInt(eq(sizeInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(sizeInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(sizeDurationId), anyLong());
   }
 
@@ -3048,8 +3048,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startSize();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -3058,8 +3058,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endStopCQSend(1, true);
 
-    verify(sendStats).incInt(eq(stopCQSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(stopCQSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(stopCQSendDurationId), anyLong());
   }
 
@@ -3069,8 +3069,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endStopCQSend(1, false);
 
-    verify(sendStats).incInt(eq(stopCQSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(stopCQSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(stopCQSendDurationId), anyLong());
   }
 
@@ -3080,8 +3080,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endStopCQ(1, true, true);
 
-    verify(stats).incInt(eq(stopCQInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(stopCQInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(stopCQDurationId), anyLong());
   }
 
@@ -3091,8 +3091,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endStopCQ(1, true, false);
 
-    verify(stats).incInt(eq(stopCQInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(stopCQInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(stopCQDurationId), anyLong());
   }
 
@@ -3102,8 +3102,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endStopCQ(1, false, true);
 
-    verify(stats).incInt(eq(stopCQInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(stopCQInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(stopCQDurationId), anyLong());
   }
 
@@ -3113,8 +3113,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endStopCQ(1, false, false);
 
-    verify(stats).incInt(eq(stopCQInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(stopCQInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(stopCQDurationId), anyLong());
   }
 
@@ -3125,8 +3125,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startStopCQ();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -3135,8 +3135,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endTxFailoverSend(1, true);
 
-    verify(sendStats).incInt(eq(txFailoverSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(txFailoverSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(txFailoverSendDurationId), anyLong());
   }
 
@@ -3146,8 +3146,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endTxFailoverSend(1, false);
 
-    verify(sendStats).incInt(eq(txFailoverSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(txFailoverSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(txFailoverSendDurationId), anyLong());
   }
 
@@ -3157,8 +3157,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endTxFailover(1, true, true);
 
-    verify(stats).incInt(eq(txFailoverInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(txFailoverInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(txFailoverDurationId), anyLong());
   }
 
@@ -3168,8 +3168,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endTxFailover(1, true, false);
 
-    verify(stats).incInt(eq(txFailoverInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(txFailoverInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(txFailoverDurationId), anyLong());
   }
 
@@ -3179,8 +3179,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endTxFailover(1, false, true);
 
-    verify(stats).incInt(eq(txFailoverInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(txFailoverInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(txFailoverDurationId), anyLong());
   }
 
@@ -3190,8 +3190,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endTxFailover(1, false, false);
 
-    verify(stats).incInt(eq(txFailoverInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(txFailoverInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(txFailoverDurationId), anyLong());
   }
 
@@ -3202,8 +3202,8 @@ public class ConnectionStatsTest {
 
     connectionStats.startTxFailover();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 
   @Test
@@ -3212,8 +3212,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endUnregisterInterestSend(1, true);
 
-    verify(sendStats).incInt(eq(unregisterInterestSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(unregisterInterestSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(unregisterInterestSendDurationId), anyLong());
   }
 
@@ -3223,8 +3223,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endUnregisterInterestSend(1, false);
 
-    verify(sendStats).incInt(eq(unregisterInterestSendInProgressId), eq(-1));
-    verify(sendStats).incInt(statId, 1);
+    verify(sendStats).incLong(eq(unregisterInterestSendInProgressId), eq(-1));
+    verify(sendStats).incLong(statId, 1);
     verify(sendStats).incLong(eq(unregisterInterestSendDurationId), anyLong());
   }
 
@@ -3234,8 +3234,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endUnregisterInterest(1, true, true);
 
-    verify(stats).incInt(eq(unregisterInterestInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(unregisterInterestInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(unregisterInterestDurationId), anyLong());
   }
 
@@ -3245,8 +3245,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endUnregisterInterest(1, true, false);
 
-    verify(stats).incInt(eq(unregisterInterestInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(unregisterInterestInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(unregisterInterestDurationId), anyLong());
   }
 
@@ -3256,8 +3256,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endUnregisterInterest(1, false, true);
 
-    verify(stats).incInt(eq(unregisterInterestInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(unregisterInterestInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(unregisterInterestDurationId), anyLong());
   }
 
@@ -3267,8 +3267,8 @@ public class ConnectionStatsTest {
 
     connectionStats.endUnregisterInterest(1, false, false);
 
-    verify(stats).incInt(eq(unregisterInterestInProgressId), eq(-1));
-    verify(stats).incInt(statId, 1);
+    verify(stats).incLong(eq(unregisterInterestInProgressId), eq(-1));
+    verify(stats).incLong(statId, 1);
     verify(stats).incLong(eq(unregisterInterestDurationId), anyLong());
   }
 
@@ -3279,7 +3279,7 @@ public class ConnectionStatsTest {
 
     connectionStats.startUnregisterInterest();
 
-    verify(stats).incInt(statId, 1);
-    verify(sendStats).incInt(sendStatId, 1);
+    verify(stats).incLong(statId, 1);
+    verify(sendStats).incLong(sendStatId, 1);
   }
 }

@@ -172,8 +172,8 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
     assertEquals(1, statsArray.length);
 
     final Statistics statSamplerStats = statsArray[0];
-    final int initialSampleCount = statSamplerStats.getInt("sampleCount");
-    final int expectedSampleCount = initialSampleCount + 2;
+    final long initialSampleCount = statSamplerStats.getLong("sampleCount");
+    final long expectedSampleCount = initialSampleCount + 2;
 
     waitForStatSample(statSamplerStats, expectedSampleCount, 20000, 10);
   }
@@ -234,8 +234,8 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
     assertEquals(1, statsArray.length);
 
     final Statistics statSamplerStats = statsArray[0];
-    final int initialSampleCount = statSamplerStats.getInt("sampleCount");
-    final int expectedSampleCount = initialSampleCount + 2;
+    final long initialSampleCount = statSamplerStats.getLong("sampleCount");
+    final long expectedSampleCount = initialSampleCount + 2;
 
     waitForStatSample(statSamplerStats, expectedSampleCount, 20000, 10);
 
@@ -243,12 +243,12 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
     statSampler.stop();
 
     // validate the stat sampler has stopped
-    final int stoppedSampleCount = statSamplerStats.getInt("sampleCount");
+    final long stoppedSampleCount = statSamplerStats.getLong("sampleCount");
 
     // the following should timeout without completing
     assertStatValueDoesNotChange(statSamplerStats, "sampleCount", stoppedSampleCount, 5000, 10);
 
-    assertEquals(stoppedSampleCount, statSamplerStats.getInt("sampleCount"));
+    assertEquals(stoppedSampleCount, statSamplerStats.getLong("sampleCount"));
   }
 
   /**

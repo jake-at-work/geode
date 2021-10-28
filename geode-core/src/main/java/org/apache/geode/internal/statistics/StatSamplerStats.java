@@ -48,23 +48,23 @@ public class StatSamplerStats {
     StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
     samplerType = f.createType("StatSampler", "Stats on the statistic sampler.",
         new StatisticDescriptor[] {
-            f.createIntCounter(SAMPLE_COUNT, "Total number of samples taken by this sampler.",
+            f.createLongCounter(SAMPLE_COUNT, "Total number of samples taken by this sampler.",
                 "samples", false),
             f.createLongCounter(SAMPLE_TIME, "Total amount of time spent taking samples.",
                 "milliseconds", false),
-            f.createIntGauge(DELAY_DURATION,
+            f.createLongGauge(DELAY_DURATION,
                 "Actual duration of sampling delay taken before taking this sample.",
                 "milliseconds", false),
-            f.createIntGauge(STAT_RESOURCES,
+            f.createLongGauge(STAT_RESOURCES,
                 "Current number of statistic resources being sampled by this sampler.", "resources",
                 false),
-            f.createIntCounter(JVM_PAUSES,
+            f.createLongCounter(JVM_PAUSES,
                 "Total number of JVM pauses (which may or may not be full GC pauses) detected by this sampler. A JVM pause is defined as a system event which kept the statistics sampler thread from sampling for 3000 or more milliseconds. This threshold can be customized by setting the system property gemfire.statSamplerDelayThreshold (units are milliseconds).",
                 "jvmPauses", false),
-            f.createIntGauge(SAMPLE_CALLBACKS,
+            f.createLongGauge(SAMPLE_CALLBACKS,
                 "Current number of statistics that are sampled using callbacks.", "resources",
                 false),
-            f.createIntCounter(SAMPLE_CALLBACK_ERRORS,
+            f.createLongCounter(SAMPLE_CALLBACK_ERRORS,
                 "Total number of exceptions thrown by callbacks when performing sampling", "errors",
                 false),
             f.createLongCounter(SAMPLE_CALLBACK_DURATION,
@@ -86,46 +86,46 @@ public class StatSamplerStats {
   }
 
   public void tookSample(long nanosSpentWorking, int statResources, long nanosSpentSleeping) {
-    this.samplerStats.incInt(sampleCountId, 1);
+    this.samplerStats.incLong(sampleCountId, 1);
     this.samplerStats.incLong(sampleTimeId, nanosSpentWorking / 1000000);
-    this.samplerStats.setInt(delayDurationId, (int) (nanosSpentSleeping / 1000000));
-    this.samplerStats.setInt(statResourcesId, statResources);
+    this.samplerStats.setLong(delayDurationId, (int) (nanosSpentSleeping / 1000000));
+    this.samplerStats.setLong(statResourcesId, statResources);
   }
 
   public void incJvmPauses() {
-    this.samplerStats.incInt(jvmPausesId, 1);
+    this.samplerStats.incLong(jvmPausesId, 1);
   }
 
   public void incSampleCallbackErrors(int delta) {
-    this.samplerStats.incInt(sampleCallbackErrorsId, delta);
+    this.samplerStats.incLong(sampleCallbackErrorsId, delta);
   }
 
   public void setSampleCallbacks(int count) {
-    this.samplerStats.setInt(sampleCallbacksId, count);
+    this.samplerStats.setLong(sampleCallbacksId, count);
   }
 
   public void incSampleCallbackDuration(long delta) {
     this.samplerStats.incLong(sampleCallbackDurationId, delta);
   }
 
-  public int getSampleCount() {
-    return this.samplerStats.getInt(SAMPLE_COUNT);
+  public long getSampleCount() {
+    return this.samplerStats.getLong(SAMPLE_COUNT);
   }
 
   public long getSampleTime() {
     return this.samplerStats.getLong(SAMPLE_TIME);
   }
 
-  public int getDelayDuration() {
-    return this.samplerStats.getInt(DELAY_DURATION);
+  public long getDelayDuration() {
+    return this.samplerStats.getLong(DELAY_DURATION);
   }
 
-  public int getStatResources() {
-    return this.samplerStats.getInt(STAT_RESOURCES);
+  public long getStatResources() {
+    return this.samplerStats.getLong(STAT_RESOURCES);
   }
 
-  public int getJvmPauses() {
-    return this.samplerStats.getInt(JVM_PAUSES);
+  public long getJvmPauses() {
+    return this.samplerStats.getLong(JVM_PAUSES);
   }
 
   public void close() {
@@ -141,11 +141,11 @@ public class StatSamplerStats {
     final StringBuilder sb = new StringBuilder(getClass().getName());
     sb.append("@").append(System.identityHashCode(this)).append("{");
     sb.append("isClosed=").append(this.samplerStats.isClosed());
-    sb.append(", ").append(SAMPLE_COUNT + "=").append(this.samplerStats.getInt(SAMPLE_COUNT));
+    sb.append(", ").append(SAMPLE_COUNT + "=").append(this.samplerStats.getLong(SAMPLE_COUNT));
     sb.append(", ").append(SAMPLE_TIME + "=").append(this.samplerStats.getLong(SAMPLE_TIME));
-    sb.append(", ").append(DELAY_DURATION + "=").append(this.samplerStats.getInt(DELAY_DURATION));
-    sb.append(", ").append(STAT_RESOURCES + "=").append(this.samplerStats.getInt(STAT_RESOURCES));
-    sb.append(", ").append(JVM_PAUSES + "=").append(this.samplerStats.getInt(JVM_PAUSES));
+    sb.append(", ").append(DELAY_DURATION + "=").append(this.samplerStats.getLong(DELAY_DURATION));
+    sb.append(", ").append(STAT_RESOURCES + "=").append(this.samplerStats.getLong(STAT_RESOURCES));
+    sb.append(", ").append(JVM_PAUSES + "=").append(this.samplerStats.getLong(JVM_PAUSES));
     sb.append("}");
     return sb.toString();
   }

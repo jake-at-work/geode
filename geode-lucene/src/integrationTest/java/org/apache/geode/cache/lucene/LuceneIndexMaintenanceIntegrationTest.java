@@ -183,7 +183,7 @@ public class LuceneIndexMaintenanceIntegrationTest extends LuceneIntegrationTest
     assertEquals(5, results.size());
     LuceneIndexForPartitionedRegion indexForPR = (LuceneIndexForPartitionedRegion) index;
     LuceneIndexStats indexStats = indexForPR.getIndexStats();
-    assertThat("indexStats.getUpdates()", indexStats.getUpdates(), greaterThanOrEqualTo(10));
+    assertThat("indexStats.getUpdates()", indexStats.getUpdates(), greaterThanOrEqualTo(10L));
   }
 
   @Test

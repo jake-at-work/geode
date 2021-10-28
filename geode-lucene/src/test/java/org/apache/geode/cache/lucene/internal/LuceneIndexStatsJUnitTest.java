@@ -22,7 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.function.IntSupplier;
+import java.util.function.LongSupplier;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -125,16 +125,16 @@ public class LuceneIndexStatsJUnitTest {
     stats.addDocumentsSupplier(() -> 3);
 
     int documentsId = type.nameToId("documents");
-    ArgumentCaptor<IntSupplier> documentsSupplierCaptor =
-        ArgumentCaptor.forClass(IntSupplier.class);
-    verify(statistics).setIntSupplier(eq(documentsId), documentsSupplierCaptor.capture());
-    IntSupplier documentsSuppler = documentsSupplierCaptor.getValue();
-    assertEquals(8, documentsSuppler.getAsInt());
+    ArgumentCaptor<LongSupplier> documentsSupplierCaptor =
+        ArgumentCaptor.forClass(LongSupplier.class);
+    verify(statistics).setLongSupplier(eq(documentsId), documentsSupplierCaptor.capture());
+    LongSupplier documentsSuppler = documentsSupplierCaptor.getValue();
+    assertEquals(8, documentsSuppler.getAsLong());
   }
 
   private void verifyIncInt(final String statName, final int value) {
     final int statId = type.nameToId(statName);
-    verify(statistics).incInt(eq(statId), eq(value));
+    verify(statistics).incLong(eq(statId), eq(value));
   }
 
   private void verifyIncLong(final String statName, final long value) {

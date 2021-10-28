@@ -203,13 +203,13 @@ public class ClientStatsManager {
     long gets = -1;
     long puts = -1;
     long misses = -1;
-    int cacheListenerCalls = -1;
+    long cacheListenerCalls = -1;
 
     if (cachePerfStats != null) {
       gets = cachePerfStats.getLong("gets");
       puts = cachePerfStats.getLong("puts");
       misses = cachePerfStats.getLong("misses");
-      cacheListenerCalls = cachePerfStats.getInt("cacheListenerCallsCompleted");
+      cacheListenerCalls = cachePerfStats.getLong("cacheListenerCallsCompleted");
     }
 
     long processCpuTime = -1;
@@ -217,8 +217,8 @@ public class ClientStatsManager {
     int cpus = -1;
     if (vmStats != null) {
       processCpuTime = vmStats.getLong("processCpuTime");
-      threads = vmStats.getInt("threads");
-      cpus = vmStats.getInt("cpus");
+      threads = (int) vmStats.getLong("threads");
+      cpus = (int) vmStats.getLong("cpus");
     }
 
     stats.setNumOfGets(gets);

@@ -107,7 +107,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
 
   private void waitForAcceptsInProgressToBe(final int target) throws Exception {
     await().timeout(300, TimeUnit.SECONDS).until(() -> {
-      int actual = getAcceptsInProgress();
+      long actual = getAcceptsInProgress();
       if (actual == getAcceptsInProgress()) {
         return true;
       }
@@ -115,11 +115,11 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     });
   }
 
-  protected int getAcceptsInProgress() {
+  protected long getAcceptsInProgress() {
     DistributedSystem distributedSystem = getCache().getDistributedSystem();
     StatisticsType st = distributedSystem.findType("CacheServerStats");
     Statistics[] s = distributedSystem.findStatisticsByType(st);
-    return s[0].getInt("acceptsInProgress");
+    return s[0].getLong("acceptsInProgress");
   }
 
   protected static Socket meanSocket;

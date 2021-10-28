@@ -186,13 +186,6 @@ public abstract class DataSerializer {
   /** The originator of this <code>DataSerializer</code> */
   private ClientProxyMembershipID context;
 
-  /**
-   * @deprecated Use Boolean.getBoolean("DataSerializer.TRACE_SERIALIZABLE") instead.
-   */
-  @Deprecated
-  protected static final boolean TRACE_SERIALIZABLE =
-      Boolean.getBoolean("DataSerializer.TRACE_SERIALIZABLE");
-
   /* Used to prevent standard Java serialization when sending data to a non-Java client */
   protected static final ThreadLocal<Boolean> DISALLOW_JAVA_SERIALIZATION = new ThreadLocal<>();
 
@@ -2857,7 +2850,7 @@ public abstract class DataSerializer {
    *         found
    *
    * @see #writeObject(Object, DataOutput)
-   * @see ObjectInputStream#readObject
+   * @see ObjectInputStream#readObject()
    */
   @SuppressWarnings("unchecked")
   public static <T> T readObject(final DataInput in) throws IOException, ClassNotFoundException {

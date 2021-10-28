@@ -56,7 +56,7 @@ public class AtomicStatsJUnitTest {
     StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
 
     StatisticsType type = f.createType(statName, statDescription, new StatisticDescriptor[] {
-        f.createIntGauge("stat", statDesc, "bottles of beer on the wall"),});
+        f.createLongGauge("stat", statDesc, "bottles of beer on the wall"),});
 
     final int statId = type.nameToId("stat");
 
@@ -71,7 +71,7 @@ public class AtomicStatsJUnitTest {
           try {
             while (true) {
               beforeIncrement.await();
-              statsRef.get().incInt(statId, 1);
+              statsRef.get().incLong(statId, 1);
               afterIncrement.await();
             }
           } catch (InterruptedException e) {
@@ -90,7 +90,7 @@ public class AtomicStatsJUnitTest {
             while (true) {
               beforeIncrement.await();
               afterIncrement.await();
-              statsRef.get().getInt(statId);
+              statsRef.get().getLong(statId);
             }
           } catch (InterruptedException e) {
             // TODO Auto-generated catch block
@@ -108,7 +108,7 @@ public class AtomicStatsJUnitTest {
         statsRef.set(stats);
         beforeIncrement.await();
         afterIncrement.await();
-        assertEquals("On loop " + i, 1, stats.getInt(statId));
+        assertEquals("On loop " + i, 1, stats.getLong(statId));
         stats.close();
       }
 

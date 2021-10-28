@@ -160,7 +160,7 @@ public class HARegionQueueThreadIdExpiryRegressionTest implements Serializable {
   private void verifyThreadsBeforeExpiration(int expectedThreadIds) {
     HARegionQueueStats stats = getCacheClientProxy().getHARegionQueue().getStatistics();
 
-    int actualThreadIds = stats.getThreadIdentiferCount();
+    long actualThreadIds = stats.getThreadIdentiferCount();
 
     assertThat(actualThreadIds)
         .as("Expected ThreadIdentifier count >= " + expectedThreadIds + " but actual: "
@@ -185,7 +185,7 @@ public class HARegionQueueThreadIdExpiryRegressionTest implements Serializable {
             + actualEventsExpired + (isPrimaryServer() ? " at primary." : " at secondary."))
         .isEqualTo(expectedEventsExpired);
 
-    int actualThreadIds = stats.getThreadIdentiferCount();
+    long actualThreadIds = stats.getThreadIdentiferCount();
 
     // Sometimes we may see 1 threadIdentifier due to slow machines, but never equal to
     // expectedThreadIds

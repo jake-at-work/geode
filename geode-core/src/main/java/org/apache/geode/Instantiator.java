@@ -154,28 +154,6 @@ public abstract class Instantiator {
   }
 
   /**
-   * Registers a {@code DataSerializable} class with the data serialization framework. This method
-   * is usually invoked from the static initializer of a class that implements
-   * {@code DataSerializable}.
-   *
-   * @param instantiator An {@code Instantiator} whose {@link #newInstance} method is invoked when
-   *        an object is data deserialized.
-   *
-   * @param distribute True if the registered {@code Instantiator} has to be distributed to other
-   *        members of the distributed system. Note that if distribute is set to false it may still
-   *        be distributed in some cases.
-   *
-   * @throws IllegalArgumentException If class {@code c} is already registered with a different
-   *         class id, or another class has already been registered with id {@code classId}
-   * @throws NullPointerException If {@code instantiator} is {@code null}.
-   * @deprecated as of 9.0 use {@link Instantiator#register(Instantiator)} instead
-   */
-  @Deprecated
-  public static synchronized void register(Instantiator instantiator, boolean distribute) {
-    InternalInstantiator.register(instantiator, distribute);
-  }
-
-  /**
    * Creates a new {@code Instantiator} that instantiates a given class.
    *
    * @param c The {@code DataSerializable} class to register. This class must have a static

@@ -131,7 +131,7 @@ public class DiskStoreStats {
             f.createLongCounter("reads", readsDesc, "ops"),
             f.createLongCounter("readTime", readTimeDesc, "nanoseconds"),
             f.createLongCounter("readBytes", bytesReadDesc, "bytes"),
-            f.createIntGauge("recoveriesInProgress",
+            f.createLongGauge("recoveriesInProgress",
                 "current number of persistent regions being recovered from disk", "ops"),
             f.createLongCounter("recoveryTime", recoveryTimeDesc, "nanoseconds"),
             f.createLongCounter("recoveredBytes", recoveredBytesDesc, "bytes"),
@@ -151,12 +151,12 @@ public class DiskStoreStats {
             f.createLongCounter("recoveryRecordsSkipped",
                 "The total number of oplog records skipped during recovery.", "ops"),
 
-            f.createIntCounter("oplogRecoveries", oplogRecoveriesDesc, "ops"),
+            f.createLongCounter("oplogRecoveries", oplogRecoveriesDesc, "ops"),
             f.createLongCounter("oplogRecoveryTime", oplogRecoveryTimeDesc, "nanoseconds"),
             f.createLongCounter("oplogRecoveredBytes", oplogRecoveredBytesDesc, "bytes"),
             f.createLongCounter("removes", removesDesc, "ops"),
             f.createLongCounter("removeTime", removeTimeDesc, "nanoseconds"),
-            f.createIntGauge("queueSize", queueSizeDesc, "entries"),
+            f.createLongGauge("queueSize", queueSizeDesc, "entries"),
             f.createLongCounter("compactInserts",
                 "Total number of times an oplog compact did a db insert", "inserts"),
             f.createLongCounter("compactInsertTime",
@@ -172,29 +172,29 @@ public class DiskStoreStats {
             f.createLongCounter("compactDeleteTime",
                 "Total amount of time, in nanoseconds, spent doing deletes during a compact",
                 "nanoseconds"),
-            f.createIntGauge("compactsInProgress",
+            f.createLongGauge("compactsInProgress",
                 "current number of oplog compacts that are in progress", "compacts"),
-            f.createIntGauge("writesInProgress",
+            f.createLongGauge("writesInProgress",
                 "current number of oplog writes that are in progress", "writes"),
-            f.createIntGauge("flushesInProgress",
+            f.createLongGauge("flushesInProgress",
                 "current number of oplog flushes that are in progress", "flushes"),
             f.createLongCounter("compactTime",
                 "Total amount of time, in nanoseconds, spent compacting oplogs", "nanoseconds"),
-            f.createIntCounter("compacts", "Total number of completed oplog compacts", "compacts"),
-            f.createIntGauge("openOplogs", "Current number of oplogs this disk store has open",
+            f.createLongCounter("compacts", "Total number of completed oplog compacts", "compacts"),
+            f.createLongGauge("openOplogs", "Current number of oplogs this disk store has open",
                 "oplogs"),
-            f.createIntGauge("compactableOplogs", "Current number of oplogs ready to be compacted",
+            f.createLongGauge("compactableOplogs", "Current number of oplogs ready to be compacted",
                 "oplogs"),
-            f.createIntGauge("inactiveOplogs",
+            f.createLongGauge("inactiveOplogs",
                 "Current number of oplogs that are no longer being written but are not ready ready to compact",
                 "oplogs"),
             f.createLongCounter("oplogReads", "Total number of oplog reads", "reads"),
             f.createLongCounter("oplogSeeks", "Total number of oplog seeks", "seeks"),
-            f.createIntGauge("uncreatedRecoveredRegions",
+            f.createLongGauge("uncreatedRecoveredRegions",
                 "The current number of regions that have been recovered but have not yet been created.",
                 "regions"),
-            f.createIntGauge("backupsInProgress", backupsInProgressDesc, "backups"),
-            f.createIntCounter("backupsCompleted", backupsCompletedDesc, "backups"),});
+            f.createLongGauge("backupsInProgress", backupsInProgressDesc, "backups"),
+            f.createLongCounter("backupsCompleted", backupsCompletedDesc, "backups"),});
 
     // Initialize id fields
     writesId = type.nameToId("writes");
@@ -336,19 +336,19 @@ public class DiskStoreStats {
    * Return the current number of entries in the async queue
    */
   public long getQueueSize() {
-    return this.stats.getInt(queueSizeId);
+    return this.stats.getLong(queueSizeId);
   }
 
   public void setQueueSize(int value) {
-    this.stats.setInt(queueSizeId, value);
+    this.stats.setLong(queueSizeId, value);
   }
 
   public void incQueueSize(int delta) {
-    this.stats.incInt(queueSizeId, delta);
+    this.stats.incLong(queueSizeId, delta);
   }
 
   public void incUncreatedRecoveredRegions(int delta) {
-    this.stats.incInt(uncreatedRecoveredRegionsId, delta);
+    this.stats.incLong(uncreatedRecoveredRegionsId, delta);
   }
 
   /**
@@ -359,12 +359,12 @@ public class DiskStoreStats {
    * @see DiskRegion#put
    */
   public long startWrite() {
-    this.stats.incInt(writesInProgressId, 1);
+    this.stats.incLong(writesInProgressId, 1);
     return getTime();
   }
 
   public long startFlush() {
-    this.stats.incInt(flushesInProgressId, 1);
+    this.stats.incLong(flushesInProgressId, 1);
     return getTime();
   }
 
@@ -378,7 +378,7 @@ public class DiskStoreStats {
    * @param start The time at which the write operation started
    */
   public long endWrite(long start) {
-    this.stats.incInt(writesInProgressId, -1);
+    this.stats.incLong(writesInProgressId, -1);
     long end = getTime();
     this.stats.incLong(writesId, 1);
     this.stats.incLong(writeTimeId, end - start);
@@ -386,7 +386,7 @@ public class DiskStoreStats {
   }
 
   public void endFlush(long start) {
-    this.stats.incInt(flushesInProgressId, -1);
+    this.stats.incLong(flushesInProgressId, -1);
     long end = getTime();
     this.stats.incLong(flushesId, 1);
     this.stats.incLong(flushTimeId, end - start);
@@ -428,12 +428,12 @@ public class DiskStoreStats {
    *
    */
   public long startRecovery() {
-    this.stats.incInt(recoveriesInProgressId, 1);
+    this.stats.incLong(recoveriesInProgressId, 1);
     return getTime();
   }
 
   public long startCompaction() {
-    this.stats.incInt(compactsInProgressId, 1);
+    this.stats.incLong(compactsInProgressId, 1);
     return getTime();
   }
 
@@ -448,22 +448,22 @@ public class DiskStoreStats {
    * @param bytesRead The number of bytes that were recovered
    */
   public void endRecovery(long start, long bytesRead) {
-    this.stats.incInt(recoveriesInProgressId, -1);
+    this.stats.incLong(recoveriesInProgressId, -1);
     long end = getTime();
     this.stats.incLong(recoveryTimeId, end - start);
     this.stats.incLong(recoveredBytesId, bytesRead);
   }
 
   public void endCompaction(long start) {
-    this.stats.incInt(compactsInProgressId, -1);
+    this.stats.incLong(compactsInProgressId, -1);
     long end = getTime();
-    this.stats.incInt(compactsId, 1);
+    this.stats.incLong(compactsId, 1);
     this.stats.incLong(compactTimeId, end - start);
   }
 
   public void endOplogRead(long start, long bytesRead) {
     long end = getTime();
-    this.stats.incInt(oplogRecoveriesId, 1);
+    this.stats.incLong(oplogRecoveriesId, 1);
     this.stats.incLong(oplogRecoveryTimeId, end - start);
     this.stats.incLong(oplogRecoveredBytesId, bytesRead);
   }
@@ -520,11 +520,11 @@ public class DiskStoreStats {
   }
 
   public void incInactiveOplogs(int delta) {
-    this.stats.incInt(inactiveOplogsId, delta);
+    this.stats.incLong(inactiveOplogsId, delta);
   }
 
   public void incCompactableOplogs(int delta) {
-    this.stats.incInt(compactableOplogsId, delta);
+    this.stats.incLong(compactableOplogsId, delta);
   }
 
   public void endCompactionDeletes(int count, long delta) {
@@ -547,20 +547,20 @@ public class DiskStoreStats {
   }
 
   public void incOpenOplogs() {
-    this.stats.incInt(openOplogsId, 1);
+    this.stats.incLong(openOplogsId, 1);
   }
 
   public void decOpenOplogs() {
-    this.stats.incInt(openOplogsId, -1);
+    this.stats.incLong(openOplogsId, -1);
   }
 
   public void startBackup() {
-    this.stats.incInt(backupsInProgress, 1);
+    this.stats.incLong(backupsInProgress, 1);
   }
 
   public void endBackup() {
-    this.stats.incInt(backupsInProgress, -1);
-    this.stats.incInt(backupsCompleted, 1);
+    this.stats.incLong(backupsInProgress, -1);
+    this.stats.incLong(backupsCompleted, 1);
   }
 
   public Statistics getStats() {

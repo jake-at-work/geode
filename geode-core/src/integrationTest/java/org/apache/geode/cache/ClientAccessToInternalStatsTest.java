@@ -32,7 +32,7 @@ public class ClientAccessToInternalStatsTest {
       region.put("key", "value");
       Statistics[] stats = cache.getDistributedSystem().findStatisticsByTextId("cachePerfStats");
       assertThat(stats).hasSize(1);
-      assertThat(stats[0].getInt("puts")).isEqualTo(1);
+      assertThat(stats[0].getLong("puts")).isEqualTo(1);
     }
   }
 }

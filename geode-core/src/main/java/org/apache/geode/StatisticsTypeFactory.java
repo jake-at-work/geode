@@ -89,16 +89,6 @@ import org.apache.geode.internal.statistics.StatArchiveFormat;
 public interface StatisticsTypeFactory {
 
   /**
-   * Creates and returns an int counter {@link StatisticDescriptor} with the given
-   * <code>name</code>, <code>description</code>, <code>units</code>, and with larger values
-   * indicating better performance.
-   *
-   * @deprecated as of Geode 1.10, use {@link #createLongCounter(String, String, String)} instead
-   */
-  @Deprecated
-  StatisticDescriptor createIntCounter(String name, String description, String units);
-
-  /**
    * Creates and returns a long counter {@link StatisticDescriptor} with the given
    * <code>name</code>, <code>description</code>, <code>units</code>, and with larger values
    * indicating better performance.
@@ -111,16 +101,6 @@ public interface StatisticsTypeFactory {
    * indicating better performance.
    */
   StatisticDescriptor createDoubleCounter(String name, String description, String units);
-
-  /**
-   * Creates and returns an int gauge {@link StatisticDescriptor} with the given <code>name</code>,
-   * <code>description</code>, <code>units</code>, and with smaller values indicating better
-   * performance.
-   *
-   * @deprecated as of Geode 1.10, use {@link #createLongGauge(String, String, String)} instead
-   */
-  @Deprecated
-  StatisticDescriptor createIntGauge(String name, String description, String units);
 
   /**
    * Creates and returns a long gauge {@link StatisticDescriptor} with the given <code>name</code>,
@@ -137,17 +117,6 @@ public interface StatisticsTypeFactory {
   StatisticDescriptor createDoubleGauge(String name, String description, String units);
 
   /**
-   * Creates and returns an int counter {@link StatisticDescriptor} with the given
-   * <code>name</code>, <code>description</code>, <code>largerBetter</code>, and <code>units</code>.
-   *
-   * @deprecated as of Geode 1.10, use {@link #createLongCounter(String, String, String, boolean)}
-   *             instead
-   */
-  @Deprecated
-  StatisticDescriptor createIntCounter(String name, String description, String units,
-      boolean largerBetter);
-
-  /**
    * Creates and returns a long counter {@link StatisticDescriptor} with the given
    * <code>name</code>, <code>description</code>, <code>largerBetter</code>, and <code>units</code>.
    */
@@ -159,17 +128,6 @@ public interface StatisticsTypeFactory {
    * <code>name</code>, <code>description</code>, <code>largerBetter</code>, and <code>units</code>.
    */
   StatisticDescriptor createDoubleCounter(String name, String description, String units,
-      boolean largerBetter);
-
-  /**
-   * Creates and returns an int gauge {@link StatisticDescriptor} with the given <code>name</code>,
-   * <code>description</code>, <code>largerBetter</code>, and <code>units</code>.
-   *
-   * @deprecated as of Geode 1.10, use {@link #createLongGauge(String, String, String, boolean)}
-   *             instead
-   */
-  @Deprecated
-  StatisticDescriptor createIntGauge(String name, String description, String units,
       boolean largerBetter);
 
   /**

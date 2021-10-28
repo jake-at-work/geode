@@ -152,7 +152,7 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
     int maxTimeBetweenPingsInReceiver = 15000;
     Thread.sleep(maxTimeBetweenPingsInReceiver);
 
-    int senderPoolDisconnects = getSenderPoolDisconnects(vm1, senderId);
+    long senderPoolDisconnects = getSenderPoolDisconnects(vm1, senderId);
     assertEquals(0, senderPoolDisconnects);
   }
 
@@ -324,7 +324,7 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
     });
   }
 
-  private static int getSenderPoolDisconnects(VM vm, String senderId) {
+  private static long getSenderPoolDisconnects(VM vm, String senderId) {
     return vm.invoke(() -> {
       AbstractGatewaySender sender =
           (AbstractGatewaySender) CacheFactory.getAnyInstance().getGatewaySender(senderId);

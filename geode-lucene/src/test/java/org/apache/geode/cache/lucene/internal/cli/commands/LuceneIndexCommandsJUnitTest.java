@@ -594,7 +594,7 @@ public class LuceneIndexCommandsJUnitTest {
     return queryResultsList;
   }
 
-  private LuceneIndexStats getMockIndexStats(int queries, int commits, int updates, int docs) {
+  private LuceneIndexStats getMockIndexStats(long queries, long commits, long updates, long docs) {
     LuceneIndexStats mockIndexStats = mock(LuceneIndexStats.class);
     when(mockIndexStats.getQueryExecutions()).thenReturn(queries);
     when(mockIndexStats.getCommits()).thenReturn(commits);

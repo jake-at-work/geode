@@ -220,7 +220,7 @@ public class ClientDeserializationCopyOnReadRegressionTest extends ClientServerT
 
       // Capture the current processed message count to know
       // when the next message has been serialized
-      final int currMesgCount = ccp.getStatistics().getMessagesProcessed();
+      final long currMesgCount = ccp.getStatistics().getMessagesProcessed();
 
       SerializationCountingKey ks2 = new SerializationCountingKey(k2);
       SerializationCountingValue sc = new SerializationCountingValue();

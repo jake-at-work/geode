@@ -123,9 +123,9 @@ public class CqServiceVsdStats {
                 "nanoseconds"),
             f.createLongCounter(CQ_QUERY_EXECUTIONS_COMPLETED, "Number of CQ Query Executions.",
                 "operations"),
-            f.createIntGauge(CQ_QUERY_EXECUTION_IN_PROGRESS, "CQ Query Execution In Progress.",
+            f.createLongGauge(CQ_QUERY_EXECUTION_IN_PROGRESS, "CQ Query Execution In Progress.",
                 "operations"),
-            f.createIntGauge(UNIQUE_CQ_QUERY, "Number of Unique CQ Querys.", "Queries"),
+            f.createLongGauge(UNIQUE_CQ_QUERY, "Number of Unique CQ Querys.", "Queries"),
 
         });
 
@@ -290,7 +290,7 @@ public class CqServiceVsdStats {
    * Start the CQ Query Execution time.
    */
   long startCqQueryExecution() {
-    this._stats.incInt(_cqQueryExecutionInProgressId, 1);
+    this._stats.incLong(_cqQueryExecutionInProgressId, 1);
     return NanoTimer.getTime();
   }
 
@@ -302,7 +302,7 @@ public class CqServiceVsdStats {
   void endCqQueryExecution(long start) {
     long ts = NanoTimer.getTime();
     this._stats.incLong(_cqQueryExecutionTimeId, ts - start);
-    this._stats.incInt(_cqQueryExecutionInProgressId, -1);
+    this._stats.incLong(_cqQueryExecutionInProgressId, -1);
     this._stats.incLong(_cqQueryExecutionsCompletedId, 1);
   }
 
@@ -319,14 +319,14 @@ public class CqServiceVsdStats {
    * Increments number of Unique queries.
    */
   void incUniqueCqQuery() {
-    this._stats.incInt(_numUniqueCqQuery, 1);
+    this._stats.incLong(_numUniqueCqQuery, 1);
   }
 
   /**
    * Decrements number of unique Queries.
    */
   void decUniqueCqQuery() {
-    this._stats.incInt(_numUniqueCqQuery, -1);
+    this._stats.incLong(_numUniqueCqQuery, -1);
   }
 
 

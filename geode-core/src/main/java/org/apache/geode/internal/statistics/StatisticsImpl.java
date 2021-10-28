@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 
 import org.apache.commons.lang3.StringUtils;
@@ -63,14 +62,11 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
   private final StatisticsManager statisticsManager;
 
   /**
-   * Suppliers of int sample values to be sampled every sample-interval
-   */
-  private final CopyOnWriteHashMap<Integer, IntSupplier> intSuppliers = new CopyOnWriteHashMap<>();
-  /**
    * Suppliers of long sample values to be sampled every sample-interval
    */
   private final CopyOnWriteHashMap<Integer, LongSupplier> longSuppliers =
       new CopyOnWriteHashMap<>();
+
   /**
    * Suppliers of double sample values to be sampled every sample-interval
    */
@@ -184,21 +180,6 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
   }
 
   @Override
-  public void setInt(String name, int value) {
-    setLong(name, value);
-  }
-
-  @Override
-  public void setInt(StatisticDescriptor descriptor, int value) {
-    setLong(descriptor, value);
-  }
-
-  @Override
-  public void setInt(int id, int value) {
-    setLong(id, value);
-  }
-
-  @Override
   public void setLong(String name, long value) {
     setLong(nameToDescriptor(name), value);
   }
@@ -230,21 +211,6 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
     if (isOpen()) {
       _setDouble(id, value);
     }
-  }
-
-  @Override
-  public int getInt(String name) {
-    return (int) getLong(name);
-  }
-
-  @Override
-  public int getInt(StatisticDescriptor descriptor) {
-    return (int) getLong(descriptor);
-  }
-
-  @Override
-  public int getInt(int id) {
-    return (int) getLong(id);
   }
 
   @Override
@@ -317,21 +283,6 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
   }
 
   @Override
-  public void incInt(String name, int delta) {
-    incLong(name, delta);
-  }
-
-  @Override
-  public void incInt(StatisticDescriptor descriptor, int delta) {
-    incLong(descriptor, delta);
-  }
-
-  @Override
-  public void incInt(int id, int delta) {
-    incLong(id, delta);
-  }
-
-  @Override
   public void incLong(String name, long delta) {
     incLong(nameToDescriptor(name), delta);
   }
@@ -363,28 +314,6 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
     if (isOpen()) {
       _incDouble(id, delta);
     }
-  }
-
-  @Override
-  public IntSupplier setIntSupplier(final int id, final IntSupplier supplier) {
-    // setIntSupplier is deprecated but it is too much of a pain to wrap the IntSupplier
-    // in a LongSupplier. So the implementation continues to store IntSupplier instances
-    // but all the checks and actions are long based instead of int based.
-    if (!type.isValidLongId(id)) {
-      throw new IllegalArgumentException("Id " + id + " is not in range for stat" + type);
-    }
-    return intSuppliers.put(id, supplier);
-  }
-
-  @Override
-  public IntSupplier setIntSupplier(final String name, final IntSupplier supplier) {
-    return setIntSupplier(nameToId(name), supplier);
-  }
-
-  @Override
-  public IntSupplier setIntSupplier(final StatisticDescriptor descriptor,
-      final IntSupplier supplier) {
-    return setIntSupplier(getLongId(descriptor), supplier);
   }
 
   @Override
@@ -505,14 +434,6 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
   @Override
   public int updateSuppliedValues() {
     int errors = 0;
-    for (Map.Entry<Integer, IntSupplier> entry : intSuppliers.entrySet()) {
-      try {
-        _setLong(entry.getKey(), entry.getValue().getAsInt());
-      } catch (Throwable t) {
-        logSupplierError(t, entry.getKey(), entry.getValue());
-        errors++;
-      }
-    }
     for (Map.Entry<Integer, LongSupplier> entry : longSuppliers.entrySet()) {
       try {
         _setLong(entry.getKey(), entry.getValue().getAsLong());
@@ -537,7 +458,7 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
    * @return the number of statistics that are measured using supplier callbacks
    */
   int getSupplierCount() {
-    return intSuppliers.size() + doubleSuppliers.size() + longSuppliers.size();
+    return doubleSuppliers.size() + longSuppliers.size();
   }
 
   boolean usesSystemCalls() {

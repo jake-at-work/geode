@@ -202,7 +202,7 @@ public class StatArchiveWithConsecutiveResourceInstGenerator {
 
   private StatisticsType createStatisticsType(final String name, final String description) {
     StatisticDescriptor[] descriptors = new StatisticDescriptor[] {
-        manager.createIntCounter("stat", "description of stat", "units"),};
+        manager.createLongCounter("stat", "description of stat", "units"),};
     return manager.createType(name, description, descriptors);
   }
 
@@ -218,8 +218,8 @@ public class StatArchiveWithConsecutiveResourceInstGenerator {
       statValues = new HashMap<>();
       this.allStatistics.put(statistics.getTextId(), statValues);
     }
-    statistics.incInt(stat, value);
-    statValues.put(stat, statistics.getInt(stat));
+    statistics.incLong(stat, value);
+    statValues.put(stat, statistics.getLong(stat));
     if (this.statisticTypes.get(statistics.getTextId()) == null) {
       this.statisticTypes.put(statistics.getTextId(), statistics.getType().getName());
     }
