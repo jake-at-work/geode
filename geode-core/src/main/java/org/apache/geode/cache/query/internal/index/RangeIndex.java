@@ -1548,41 +1548,26 @@ public class RangeIndex extends AbstractIndex {
       this.vsdStats.incReadLockCount(delta);
     }
 
-    /**
-     * Returns the total amount of time (in nanoseconds) spent updating this index.
-     */
     @Override
     public long getTotalUpdateTime() {
       return this.vsdStats.getTotalUpdateTime();
     }
 
-    /**
-     * Returns the total number of times this index has been accessed by a query.
-     */
     @Override
     public long getTotalUses() {
       return this.vsdStats.getTotalUses();
     }
 
-    /**
-     * Returns the number of keys in this index.
-     */
     @Override
     public long getNumberOfKeys() {
       return this.vsdStats.getNumberOfKeys();
     }
 
-    /**
-     * Returns the number of values in this index.
-     */
     @Override
     public long getNumberOfValues() {
       return this.vsdStats.getNumberOfValues();
     }
 
-    /**
-     * Return the number of values for the specified key in this index.
-     */
     @Override
     public long getNumberOfValues(Object key) {
       if (key == null) {
@@ -1599,11 +1584,8 @@ public class RangeIndex extends AbstractIndex {
       return rvMap.getNumValues();
     }
 
-    /**
-     * Return the number of read locks taken on this index
-     */
     @Override
-    public int getReadLockCount() {
+    public long getReadLockCountLong() {
       return this.vsdStats.getReadLockCount();
     }
 
