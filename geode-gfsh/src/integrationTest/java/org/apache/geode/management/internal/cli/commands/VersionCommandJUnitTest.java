@@ -14,6 +14,10 @@
  */
 package org.apache.geode.management.internal.cli.commands;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
 import static org.apache.geode.internal.SystemDescription.RUNNING_ON;
 import static org.apache.geode.internal.VersionDescription.BUILD_ID;
 import static org.apache.geode.internal.VersionDescription.BUILD_JAVA_VERSION;
@@ -24,6 +28,8 @@ import static org.apache.geode.internal.VersionDescription.SOURCE_DATE;
 import static org.apache.geode.internal.VersionDescription.SOURCE_REPOSITORY;
 import static org.apache.geode.internal.VersionDescription.SOURCE_REVISION;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
 
 import junitparams.Parameters;
 import org.junit.ClassRule;
@@ -44,6 +50,10 @@ public class VersionCommandJUnitTest {
   private static final String[] EXPECTED_FULL_DATA =
       {BUILD_ID, BUILD_JAVA_VERSION, BUILD_PLATFORM, PRODUCT_NAME, PRODUCT_VERSION,
           SOURCE_DATE, SOURCE_REPOSITORY, SOURCE_REVISION, RUNNING_ON};
+  public static final List<String> EXPECTED_FULL_DATA_JSON =
+      concat(
+          stream(EXPECTED_FULL_DATA).filter(v -> !v.equals("Running on")).map(v -> "\"" + v + "\""),
+          of("\"Apache Geode\" : {")).collect(toList());
 
   @ClassRule
   public static LocatorStarterRule locator = new LocatorStarterRule().withAutoStart();
@@ -70,9 +80,7 @@ public class VersionCommandJUnitTest {
   @Parameters({"version --full", "version --full=true"})
   public void versionFull(String versionCommand) throws Exception {
     String result = gfsh.execute(versionCommand);
-    for (String datum : EXPECTED_FULL_DATA) {
-      assertThat(result).contains(datum);
-    }
+    assertThat(result).contains(EXPECTED_FULL_DATA);
   }
 
   @Test
@@ -82,4 +90,20 @@ public class VersionCommandJUnitTest {
     // Behavior should be the same while connected
     versionFull(versionCommand);
   }
+
+  @Test
+  @Parameters({"version --full", "version --full --format", "version --full --format=text"})
+  public void versionFullFormatText(String versionCommand) throws Exception {
+    final String result = gfsh.execute(versionCommand);
+    assertThat(result).contains(EXPECTED_FULL_DATA);
+    assertThat(result).doesNotContain(EXPECTED_FULL_DATA_JSON);
+  }
+
+  @Test
+  @Parameters({"version --full --format=json"})
+  public void versionFullFormatJson(String versionCommand) throws Exception {
+    final String result = gfsh.execute(versionCommand);
+    assertThat(result).contains(EXPECTED_FULL_DATA_JSON);
+  }
+
 }

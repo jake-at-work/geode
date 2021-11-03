@@ -2942,6 +2942,8 @@ public class CliStrings {
   public static final String VERSION__HELP = "Display product version information.";
   public static final String VERSION__FULL = "full";
   public static final String VERSION__FULL__HELP = "Whether to show the full version information.";
+  public static final String VERSION__FORMAT = "format";
+  public static final String VERSION__FORMAT__HELP = "Format of output. (text|json)";
 
   /* start gateway command messages */
   public static final String GATEWAY__MSG__OPTIONS = "Provide only one of member/group";

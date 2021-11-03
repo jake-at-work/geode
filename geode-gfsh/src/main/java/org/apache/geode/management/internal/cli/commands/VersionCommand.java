@@ -15,6 +15,7 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
+
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
@@ -27,7 +28,22 @@ public class VersionCommand extends OfflineGfshCommand {
   @CliMetaData(shellOnly = true, relatedTopic = {CliStrings.TOPIC_GFSH})
   public ResultModel version(
       @CliOption(key = {CliStrings.VERSION__FULL}, specifiedDefaultValue = "true",
-          unspecifiedDefaultValue = "false", help = CliStrings.VERSION__FULL__HELP) boolean full) {
-    return ResultModel.createInfo(getGfsh().getVersion(full));
+          unspecifiedDefaultValue = "false", help = CliStrings.VERSION__FULL__HELP) boolean full,
+      @CliOption(key = CliStrings.VERSION__FORMAT, specifiedDefaultValue = "text",
+          unspecifiedDefaultValue = "text",
+          help = CliStrings.VERSION__FORMAT__HELP) Format format) {
+
+    switch (format) {
+      case text:
+        return ResultModel.createInfo(getGfsh().getVersion(full));
+      case json:
+        return ResultModel.createInfo(getGfsh().getVersionJson(full));
+    }
+    throw new IllegalStateException();
+  }
+
+  public enum Format {
+    text,
+    json
   }
 }

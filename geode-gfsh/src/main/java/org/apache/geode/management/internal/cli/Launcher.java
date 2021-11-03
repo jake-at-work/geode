@@ -77,6 +77,7 @@ import org.apache.geode.management.internal.i18n.CliStrings;
  * @since GemFire 7.0
  */
 public class Launcher {
+  private static final String QUIET_OPTION = "quiet";
   private static final String EXECUTE_OPTION = "execute";
   private static final String HELP_OPTION = "help";
   private static final String HELP = CliStrings.HELP;
@@ -114,6 +115,7 @@ public class Launcher {
 
     this.commandLineParser = new OptionParser();
     this.commandLineParser.accepts(EXECUTE_OPTION).withOptionalArg().ofType(String.class);
+    this.commandLineParser.accepts(QUIET_OPTION);
     this.commandLineParser.accepts(HELP_OPTION).withOptionalArg().ofType(Boolean.class);
     this.commandLineParser.posixlyCorrect(false);
   }
@@ -220,13 +222,17 @@ public class Launcher {
           @SuppressWarnings("unchecked")
           List<String> commandsToExecute = (List<String>) parsedOptions.valuesOf(EXECUTE_OPTION);
 
+          final boolean quiet = parsedOptions.has(QUIET_OPTION);
+
           // Execute all of the commands in the list, one at a time.
           for (int i = 0; i < commandsToExecute.size()
               && exitRequest == ExitShellRequest.NORMAL_EXIT; i++) {
             String command = commandsToExecute.get(i);
             // sanitize the output string to not show the password
-            System.out.println(GfshParser.LINE_SEPARATOR + "(" + (i + 1) + ") Executing - "
-                + ArgumentRedactor.redact(command) + GfshParser.LINE_SEPARATOR);
+            if (!quiet) {
+              System.out.println(GfshParser.LINE_SEPARATOR + "(" + (i + 1) + ") Executing - "
+                  + ArgumentRedactor.redact(command) + GfshParser.LINE_SEPARATOR);
+            }
             if (!gfsh.executeScriptLine(command) || gfsh.getLastExecutionStatus() != 0) {
               exitRequest = ExitShellRequest.FATAL_EXIT;
             }
@@ -275,6 +281,7 @@ public class Launcher {
             + GfshParser.LINE_SEPARATOR);
     stream.println("OPTIONS");
     stream.println("-e  Execute a command");
+    stream.println("-q  Execute commands without extra output");
     stream.println(Gfsh.wrapText(
         "Commands may be any that are available from the interactive gfsh prompt.  "
             + "For commands that require a Manager to complete, the first command in the list must be \"connect\".",

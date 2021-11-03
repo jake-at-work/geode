@@ -16,7 +16,6 @@ package org.apache.geode.management.internal.cli.shell;
 
 import static java.lang.System.lineSeparator;
 import static org.apache.geode.internal.util.ProductVersionUtil.getDistributionVersion;
-import static org.apache.geode.internal.util.ProductVersionUtil.getFullVersion;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,6 +36,9 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jline.Terminal;
 import jline.console.ConsoleReader;
 import org.springframework.shell.core.AbstractShell;
@@ -697,6 +699,33 @@ public class Gfsh extends JLineShell {
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
+  }
+
+  public String getVersionJson(boolean full) {
+    final ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(
+          full ? getFullVersionJson(objectMapper) : getShortVersionJson(objectMapper));
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  private ObjectNode getShortVersionJson(final ObjectMapper objectMapper) {
+    return objectMapper.createObjectNode().put("Version", getShortVersion());
+  }
+
+  private ObjectNode getFullVersionJson(final ObjectMapper objectMapper) {
+    final ObjectNode rootNode = objectMapper.createObjectNode();
+
+    ProductVersionUtil.buildFullVersion((componentName) -> {
+      final ObjectNode componentNode = objectMapper.createObjectNode();
+      rootNode.set(componentName, componentNode);
+      return componentNode;
+    }, ObjectNode::put, (n, componentName) -> {
+    });
+
+    return rootNode;
   }
 
   public String getGeodeSerializationVersion() {

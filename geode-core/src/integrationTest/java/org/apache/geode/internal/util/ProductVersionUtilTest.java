@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -60,6 +62,21 @@ public class ProductVersionUtilTest {
         .contains("Build-Id")
         .contains("Fake Distribution")
         .contains("Fake-Attribute");
+  }
+
+  @Test
+  public void fullVersionAsJson() {
+    final ObjectMapper objectMapper = new ObjectMapper();
+    final ObjectNode rootNode = objectMapper.createObjectNode();
+
+    ProductVersionUtil.buildFullVersion((componentName) -> {
+      final ObjectNode componentNode = objectMapper.createObjectNode();
+      rootNode.set(componentName, componentNode);
+      return componentNode;
+    }, ObjectNode::put, (n, componentName) -> {
+    });
+
+    rootNode.toString();
   }
 
   public static class FakeVersion implements DistributionVersion, ComponentVersion {

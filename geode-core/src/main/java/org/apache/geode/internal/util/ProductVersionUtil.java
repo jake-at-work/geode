@@ -21,7 +21,10 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
+import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.internal.GeodeVersion;
@@ -48,16 +51,12 @@ public class ProductVersionUtil {
 
   public static <T extends Appendable> @NotNull T appendFullVersion(final @NotNull T appendable)
       throws IOException {
-    for (final ComponentVersion version : getComponentVersions()) {
-      appendable
-          .append(LINE).append(lineSeparator())
-          .append(version.getName()).append(lineSeparator())
-          .append(LINE).append(lineSeparator());
-      for (final Map.Entry<String, String> entry : version.getDetails().entrySet()) {
-        appendable.append(entry.getKey()).append(KEY_VALUE_SEPARATOR).append(entry.getValue())
-            .append(lineSeparator());
-      }
-    }
+    buildFullVersion(
+        (n) -> appendable.append(LINE).append(lineSeparator()).append(n).append(lineSeparator())
+            .append(LINE).append(lineSeparator()),
+        (c, k, v) -> appendable.append(k).append(KEY_VALUE_SEPARATOR).append(v)
+            .append(lineSeparator()),
+        (c, n) -> appendable.append(LINE).append(lineSeparator()));
 
     return appendable;
   }
@@ -70,4 +69,64 @@ public class ProductVersionUtil {
     }
   }
 
+
+  @FunctionalInterface
+  public interface BeginComponent<Context> extends
+      Function<@NotNull String, Context> {
+    @Override
+    default Context apply(final @NotNull String name) {
+      try {
+        return applyThrows(name);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    Context applyThrows(@NotNull String name) throws Exception;
+  }
+
+  @FunctionalInterface
+  public interface ComponentDetail<Context> extends
+      TriConsumer<Context, @NotNull String, @NotNull String> {
+    @Override
+    default void accept(final Context context, final @NotNull String key,
+        final @NotNull String value) {
+      try {
+        acceptThrows(context, key, value);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    void acceptThrows(Context context, @NotNull String key, @NotNull String value)
+        throws IOException;
+  }
+
+  @FunctionalInterface
+  public interface EndComponent<Context> extends
+      BiConsumer<Context, @NotNull String> {
+    @Override
+    default void accept(final Context context, final @NotNull String name) {
+      try {
+        acceptThrows(context, name);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    void acceptThrows(Context context, @NotNull String name) throws IOException;
+  }
+
+  public static <Context> void buildFullVersion(
+      final @NotNull BeginComponent<Context> beginComponent,
+      final @NotNull ComponentDetail<Context> detail,
+      final @NotNull EndComponent<Context> endComponent) {
+    for (final ComponentVersion version : getComponentVersions()) {
+      final Context context = beginComponent.apply(version.getName());
+      for (final Map.Entry<String, String> entry : version.getDetails().entrySet()) {
+        detail.accept(context, entry.getKey(), entry.getValue());
+      }
+      endComponent.accept(context, version.getName());
+    }
+  }
 }
