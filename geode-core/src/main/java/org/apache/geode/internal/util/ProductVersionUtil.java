@@ -30,7 +30,8 @@ import org.apache.geode.internal.version.DistributionVersion;
 
 public class ProductVersionUtil {
 
-  public static final String line = "----------------------------------------";
+  private static final String LINE = "----------------------------------------";
+  private static final String KEY_VALUE_SEPARATOR = ": ";
 
   public static @NotNull DistributionVersion getDistributionVersion() {
     final ServiceLoader<DistributionVersion> loader = ServiceLoader.load(DistributionVersion.class);
@@ -49,11 +50,11 @@ public class ProductVersionUtil {
       throws IOException {
     for (final ComponentVersion version : getComponentVersions()) {
       appendable
-          .append(line).append(lineSeparator())
+          .append(LINE).append(lineSeparator())
           .append(version.getName()).append(lineSeparator())
-          .append(line).append(lineSeparator());
+          .append(LINE).append(lineSeparator());
       for (final Map.Entry<String, String> entry : version.getDetails().entrySet()) {
-        appendable.append(entry.getKey()).append(": ").append(entry.getValue())
+        appendable.append(entry.getKey()).append(KEY_VALUE_SEPARATOR).append(entry.getValue())
             .append(lineSeparator());
       }
     }
