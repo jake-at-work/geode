@@ -14,7 +14,7 @@
  */
 package org.apache.geode.management.internal.cli;
 
-import static org.apache.geode.internal.util.ProductVersionUtil.getProductVersion;
+import static org.apache.geode.internal.util.ProductVersionUtil.getDistributionVersion;
 
 import java.io.PrintStream;
 import java.util.HashSet;
@@ -264,8 +264,8 @@ public class Launcher {
 
   private void printUsage(final Gfsh gfsh, final PrintStream stream) {
     int terminalWidth = gfsh.getTerminalWidth();
-    stream.print(getProductVersion().getName() + " v");
-    stream.print(getProductVersion().getVersion());
+    stream.print(getDistributionVersion().getName() + " v");
+    stream.print(getDistributionVersion().getVersion());
     stream.println(" Command Line Shell" + GfshParser.LINE_SEPARATOR);
     stream.println("USAGE");
     stream.println(

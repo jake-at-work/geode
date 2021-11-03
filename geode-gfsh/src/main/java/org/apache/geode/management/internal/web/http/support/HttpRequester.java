@@ -15,7 +15,7 @@
 
 package org.apache.geode.management.internal.web.http.support;
 
-import static org.apache.geode.internal.util.ProductVersionUtil.getProductVersion;
+import static org.apache.geode.internal.util.ProductVersionUtil.getDistributionVersion;
 
 import java.io.IOException;
 import java.net.URI;
@@ -62,8 +62,8 @@ public class HttpRequester {
   private Properties securityProperties;
 
   protected static final String USER_AGENT_HTTP_REQUEST_HEADER_VALUE =
-      "gfsh (pronounced " + getProductVersion().getName() + " shell)/v"
-          + getProductVersion().getVersion();
+      "gfsh (pronounced " + getDistributionVersion().getName() + " shell)/v"
+          + getDistributionVersion().getVersion();
 
   // a list of acceptable content/media types supported by Gfsh
   private final List<MediaType> acceptableMediaTypes = Arrays.asList(MediaType.APPLICATION_JSON,
