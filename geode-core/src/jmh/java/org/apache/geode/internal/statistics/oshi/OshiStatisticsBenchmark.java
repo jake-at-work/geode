@@ -13,51 +13,47 @@
  * the License.
  */
 
-package org.apache.geode.internal.statistics.platform;
+package org.apache.geode.internal.statistics.oshi;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 
+import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import oshi.SystemInfo;
 
 import org.apache.geode.StatisticDescriptor;
+import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsType;
 import org.apache.geode.internal.statistics.SuppliableStatistics;
+import org.apache.geode.internal.statistics.platform.OsStatisticsFactory;
 
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.SampleTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public class OshiStatisticsBenchmark {
 
-  private final int pid = new SystemInfo().getOperatingSystem().getProcessId();
-  private final SuppliableStatistics noopStatistics = new NoopStatistics();
+  private final OshiStatisticsProviderImpl oshiStatisticsProvider =
+      new OshiStatisticsProviderImpl();
 
-  // @Setup
-  // public void setup() {
-  // OshiStatistics.init();
-  // }
-  //
-  // @Benchmark
-  // public void noop() {
-  //
-  // }
-  //
-  // @Benchmark
-  // public void refreshProcess() {
-  // OshiStatistics.refreshProcess(pid, noopStatistics);
-  // }
-  //
-  // @Benchmark
-  // public void refreshSystem() {
-  // OshiStatistics.refreshSystem(noopStatistics);
-  // }
+  @Setup
+  public void setup() throws OshiStatisticsProviderException {
+    oshiStatisticsProvider.init(new NoopStatisticsProvider(), 0);
+  }
+
+//  @Benchmark
+//  public void noop() {}
+
+  @Benchmark
+  public void sampleProcess() {
+    oshiStatisticsProvider.sampleProcess();
+  }
 
   private static class NoopStatistics implements SuppliableStatistics {
     @Override
@@ -311,6 +307,15 @@ public class OshiStatisticsBenchmark {
     public DoubleSupplier setDoubleSupplier(final StatisticDescriptor descriptor,
         final DoubleSupplier supplier) {
       return null;
+    }
+  }
+
+  private static class NoopStatisticsProvider implements OsStatisticsFactory {
+    @Override
+    public Statistics createOsStatistics(final StatisticsType type, final String textId,
+        final long numericId,
+        final int osStatFlags) {
+      return new NoopStatistics();
     }
   }
 }
