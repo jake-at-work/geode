@@ -241,7 +241,6 @@ public class GemFireStatSampler extends HostStatSampler {
               statListener.checkForChange(statListenerMessage);
             } else {
               // its stale; indicate this with a negative listener id
-              // fix for bug 29405
               statListenerMessage.addChange(-statListener.getListenerId(), 0);
             }
           }
