@@ -26,7 +26,7 @@ import org.apache.geode.logging.internal.log4j.api.LogService;
 public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
   private static final Logger log = LogService.getLogger();
 
-  final SystemInfo systemInfo = new SystemInfo();
+  final SystemInfo systemInfo;
 
   private int processId;
   private CentralProcessor processor;
@@ -42,6 +42,14 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
   private Statistics systemStats;
   private Statistics[] processorStats;
   private Statistics[] networkInterfaceStats;
+
+  public OshiStatisticsProviderImpl() {
+    this(new SystemInfo());
+  }
+
+  OshiStatisticsProviderImpl(final SystemInfo systemInfo) {
+    this.systemInfo = systemInfo;
+  }
 
   @Override
   public void init(final @NotNull OsStatisticsFactory osStatisticsFactory,
@@ -77,10 +85,11 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
     networkInterfaceStats = new Statistics[networkIFs.size()];
     for (int i = 0, size = networkIFs.size(); i < size; i++) {
       final NetworkIF networkIF = networkIFs.get(i);
-      log.info("Creating network interfaces stats for {}", networkIF.getDisplayName());
+      final String displayName = networkIF.getDisplayName();
+      log.info("Creating network interfaces stats for {}", displayName);
       networkInterfaceStats[i] =
           osStatisticsFactory.createOsStatistics(NetworkInterfaceStats.getType(),
-              networkIF.getDisplayName(), id, 0);
+              displayName, id, 0);
     }
   }
 
@@ -95,7 +104,7 @@ public class OshiStatisticsProviderImpl implements OshiStatisticsProvider {
   @Override
   public void destroy() {}
 
-  private void sampleProcess() {
+  void sampleProcess() {
     final OSProcess process = operatingSystem.getProcess(processId);
 
     final double processCpuLoadBetweenTicks = process.getProcessCpuLoadBetweenTicks(this.process);
