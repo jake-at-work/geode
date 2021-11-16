@@ -174,6 +174,7 @@ class DependencyConstraints implements Plugin<Project> {
         api(group: 'redis.clients', name: 'jedis', version: '3.6.3')
         api(group: 'xerces', name: 'xercesImpl', version: '2.12.0')
         api(group: 'xml-apis', name: 'xml-apis', version: '1.4.01')
+        api(group: 'com.github.oshi', name: 'oshi-core', version: '5.8.3')
       }
     }
 
