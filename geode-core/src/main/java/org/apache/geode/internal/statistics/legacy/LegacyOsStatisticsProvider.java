@@ -33,8 +33,6 @@ import org.apache.geode.internal.statistics.platform.ProcessStats;
  * Only Linux OS is currently allowed.
  */
 public class LegacyOsStatisticsProvider implements OsStatisticsProvider {
-  private static final int PROCESS_STAT_FLAG = 1;
-  private static final int SYSTEM_STAT_FLAG = 2;
   private final boolean osStatsSupported;
   private Statistics systemStatistics;
   private Statistics processStatistics;
