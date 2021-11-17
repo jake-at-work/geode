@@ -314,7 +314,8 @@ public class StatisticsRegistryTest {
     when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), any()))
         .thenReturn(statisticsCreatedByFactory);
 
-    Statistics result = registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
+    Statistics result =
+        registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
 
     assertThat(result)
         .isSameAs(statisticsCreatedByFactory);

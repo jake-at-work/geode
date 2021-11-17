@@ -20,10 +20,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.Statistics;
@@ -35,7 +37,6 @@ import org.apache.geode.internal.GemFireVersion;
 import org.apache.geode.internal.admin.ListenerIdMap;
 import org.apache.geode.internal.admin.remote.StatListenerMessage;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.statistics.oshi.OshiStatisticsProvider;
 import org.apache.geode.internal.statistics.platform.ProcessStats;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.logging.internal.spi.LogFile;
@@ -66,13 +67,14 @@ public class GemFireStatSampler extends HostStatSampler {
   private int nextListenerId = 1;
   private ProcessStats processStats;
 
-  private OsStatisticsProvider osStatisticsProvider = new OshiStatisticsProvider();
+  private final OsStatisticsProvider[] osStatisticsProviders;
 
   public GemFireStatSampler(InternalDistributedSystem internalDistributedSystem) {
     this(internalDistributedSystem, null);
   }
 
-  public GemFireStatSampler(InternalDistributedSystem internalDistributedSystem, LogFile logFile) {
+  public GemFireStatSampler(final @NotNull InternalDistributedSystem internalDistributedSystem,
+      final @NotNull LogFile logFile) {
     this(internalDistributedSystem.getCancelCriterion(),
         new StatSamplerStats(internalDistributedSystem,
             internalDistributedSystem.getStatisticsManager().getPid()),
@@ -84,18 +86,41 @@ public class GemFireStatSampler extends HostStatSampler {
   }
 
   @VisibleForTesting
-  public GemFireStatSampler(CancelCriterion cancelCriterion,
-      StatSamplerStats statSamplerStats,
-      LogFile logFile,
-      StatisticsConfig statisticsConfig,
-      StatisticsManager statisticsManager,
-      DistributionManager distributionManager,
+  public GemFireStatSampler(final @NotNull CancelCriterion cancelCriterion,
+      final @NotNull StatSamplerStats statSamplerStats,
+      final @NotNull LogFile logFile,
+      final @NotNull StatisticsConfig statisticsConfig,
+      final @NotNull StatisticsManager statisticsManager,
+      final @NotNull DistributionManager distributionManager,
       long systemId) {
+    this(cancelCriterion, statSamplerStats, logFile, statisticsConfig, statisticsManager,
+        distributionManager, systemId, loadOsStatisticsProviders());
+  }
+
+  private static OsStatisticsProvider[] loadOsStatisticsProviders() {
+    final ServiceLoader<OsStatisticsProvider> loader =
+        ServiceLoader.load(OsStatisticsProvider.class);
+    final List<OsStatisticsProvider> osStatisticsProviders = new ArrayList<>();
+    for (OsStatisticsProvider osStatisticsProvider : loader) {
+      osStatisticsProviders.add(osStatisticsProvider);
+    }
+    return osStatisticsProviders.toArray(new OsStatisticsProvider[0]);
+  }
+
+  private GemFireStatSampler(final @NotNull CancelCriterion cancelCriterion,
+      final @NotNull StatSamplerStats statSamplerStats,
+      final @NotNull LogFile logFile,
+      final @NotNull StatisticsConfig statisticsConfig,
+      final @NotNull StatisticsManager statisticsManager,
+      final @NotNull DistributionManager distributionManager,
+      final long systemId,
+      final @NotNull OsStatisticsProvider[] osStatisticsProviders) {
     super(cancelCriterion, statSamplerStats, logFile);
     this.systemId = systemId;
     this.statisticsConfig = statisticsConfig;
     this.statisticsManager = statisticsManager;
     this.distributionManager = distributionManager;
+    this.osStatisticsProviders = osStatisticsProviders;
   }
 
   /**
@@ -274,13 +299,20 @@ public class GemFireStatSampler extends HostStatSampler {
       return;
     }
 
+    if (osStatisticsProviders.length == 0) {
+      logger.warn(LogMarker.STATISTICS_MARKER, "No OS statistics providers available.");
+    }
+
+    final OsStatisticsFactory osStatisticsFactory = getOsStatisticsFactory();
     try {
-      osStatisticsProvider.init(getOsStatisticsFactory(), pid);
+      for (final OsStatisticsProvider osStatisticsProvider : osStatisticsProviders) {
+        osStatisticsProvider.init(osStatisticsFactory, pid);
+      }
     } catch (OsStatisticsProviderException e) {
       logger.error(LogMarker.STATISTICS_MARKER, "Failed to initialize OS statistics.", e);
     }
 
-    processStats = null; // osStatisticsProvider.newProcessStats(stats);
+    processStats = null; // TODO jbarrett osStatisticsProvider.newProcessStats(stats);
   }
 
   @Override
@@ -288,12 +320,16 @@ public class GemFireStatSampler extends HostStatSampler {
     if (prepareOnly || osStatsDisabled() || stopRequested()) {
       return;
     }
-    osStatisticsProvider.sample();
+    for (final OsStatisticsProvider osStatisticsProvider : osStatisticsProviders) {
+      osStatisticsProvider.sample();
+    }
   }
 
   @Override
   protected void closeProcessStats() {
-    osStatisticsProvider.destroy();
+    for (final OsStatisticsProvider osStatisticsProvider : osStatisticsProviders) {
+      osStatisticsProvider.destroy();
+    }
   }
 
   private void checkLocalListeners() {

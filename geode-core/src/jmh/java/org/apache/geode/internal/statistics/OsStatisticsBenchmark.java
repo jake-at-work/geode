@@ -330,7 +330,8 @@ public class OsStatisticsBenchmark {
 
   public static class NoopStatisticsProvider implements OsStatisticsFactory {
     @Override
-    public Statistics createOsStatistics(final StatisticsType type, final String textId, final long numericId) {
+    public Statistics createOsStatistics(final StatisticsType type, final String textId,
+        final long numericId) {
       return new NoopStatistics();
     }
   }

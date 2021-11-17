@@ -51,7 +51,8 @@ public class StatisticsRegistry implements StatisticsManager {
    * Creates an instance of OS Statistics for this registry.
    */
   public interface OsStatisticsFactory {
-    Statistics create(StatisticsType type, String textId, long numericId, long uniqueId, StatisticsManager manager);
+    Statistics create(StatisticsType type, String textId, long numericId, long uniqueId,
+        StatisticsManager manager);
   }
 
   /**
