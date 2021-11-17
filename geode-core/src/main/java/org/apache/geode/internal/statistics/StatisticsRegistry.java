@@ -51,9 +51,7 @@ public class StatisticsRegistry implements StatisticsManager {
    * Creates an instance of OS Statistics for this registry.
    */
   public interface OsStatisticsFactory {
-
-    Statistics create(StatisticsType type, String textId, long numericId, long uniqueId,
-        int osStatFlags, StatisticsManager manager);
+    Statistics create(StatisticsType type, String textId, long numericId, long uniqueId, StatisticsManager manager);
   }
 
   /**
@@ -158,7 +156,7 @@ public class StatisticsRegistry implements StatisticsManager {
 
   @Override
   public Statistics createStatistics(StatisticsType type) {
-    return createOsStatistics(type, null, 0, 0);
+    return createOsStatistics(type, null, 0);
   }
 
   @Override
@@ -168,7 +166,7 @@ public class StatisticsRegistry implements StatisticsManager {
 
   @Override
   public Statistics createStatistics(StatisticsType type, String textId) {
-    return createOsStatistics(type, textId, 0, 0);
+    return createOsStatistics(type, textId, 0);
   }
 
   @Override
@@ -178,7 +176,7 @@ public class StatisticsRegistry implements StatisticsManager {
 
   @Override
   public Statistics createStatistics(StatisticsType type, String textId, long numericId) {
-    return createOsStatistics(type, textId, numericId, 0);
+    return createOsStatistics(type, textId, numericId);
   }
 
   @Override
@@ -188,10 +186,9 @@ public class StatisticsRegistry implements StatisticsManager {
   }
 
   @Override
-  public Statistics createOsStatistics(StatisticsType type, String textId, long numericId,
-      int osStatFlags) {
+  public Statistics createOsStatistics(StatisticsType type, String textId, long numericId) {
     long uniqueId = nextUniqueId.getAndIncrement();
-    return newOsStatistics(type, uniqueId, numericId, textId, osStatFlags);
+    return newOsStatistics(type, uniqueId, numericId, textId);
   }
 
   @Override
@@ -304,9 +301,8 @@ public class StatisticsRegistry implements StatisticsManager {
   }
 
   protected Statistics newOsStatistics(StatisticsType type, long uniqueId, long numericId,
-      String textId, int osStatFlags) {
-    Statistics statistics = osStatisticsFactory.create(type, textId, numericId, uniqueId,
-        osStatFlags, this);
+      String textId) {
+    Statistics statistics = osStatisticsFactory.create(type, textId, numericId, uniqueId, this);
     registerNewStatistics(statistics);
     return statistics;
   }

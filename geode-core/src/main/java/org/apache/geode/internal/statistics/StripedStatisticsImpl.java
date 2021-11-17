@@ -33,7 +33,7 @@ public class StripedStatisticsImpl extends StatisticsImpl {
 
   public StripedStatisticsImpl(StatisticsType type, String textId, long numericId,
       long uniqueId, StatisticsManager statisticsManager) {
-    super(type, textId, numericId, uniqueId, 0, statisticsManager);
+    super(type, textId, numericId, uniqueId, statisticsManager);
 
     StatisticsTypeImpl realType = (StatisticsTypeImpl) type;
 

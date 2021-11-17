@@ -17,7 +17,7 @@ package org.apache.geode.internal.statistics.platform;
 
 import org.junit.Test;
 
-public class OshiStatisticsBenchmarkTest {
+public class OsStatisticsBenchmarkTest {
   @Test
   public void getsValidValues() {
 

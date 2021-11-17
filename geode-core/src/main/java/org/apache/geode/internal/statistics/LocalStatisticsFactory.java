@@ -79,12 +79,11 @@ public class LocalStatisticsFactory extends AbstractStatisticsFactory
   }
 
   @Override
-  public Statistics createOsStatistics(StatisticsType type, String textId, long numericId,
-      int osStatFlags) {
+  public Statistics createOsStatistics(StatisticsType type, String textId, long numericId) {
     if (statsDisabled) {
       return new DummyStatisticsImpl(type, textId, numericId);
     }
-    return super.createOsStatistics(type, textId, numericId, osStatFlags);
+    return super.createOsStatistics(type, textId, numericId);
   }
 
   @Override

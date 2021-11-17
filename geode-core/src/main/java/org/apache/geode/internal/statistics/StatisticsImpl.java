@@ -53,9 +53,6 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
   /** Numeric information display with these statistics */
   private final long numericId;
 
-  /** Non-zero if stats values come from operating system system calls */
-  private final int osStatFlags;
-
   /** Uniquely identifies this instance */
   private final long uniqueId;
 
@@ -103,13 +100,11 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
    * @param textId Text that helps identifies this instance
    * @param numericId A number that helps identify this instance
    * @param uniqueId A number that uniquely identifies this instance
-   * @param osStatFlags Non-zero if stats require system calls to collect them; for internal use
-   *        only
    * @param statisticsManager The StatisticsManager responsible for creating this instance
    */
   StatisticsImpl(StatisticsType type, String textId, long numericId, long uniqueId,
-      int osStatFlags, StatisticsManager statisticsManager) {
-    this(type, textId, numericId, uniqueId, osStatFlags, statisticsManager,
+      StatisticsManager statisticsManager) {
+    this(type, textId, numericId, uniqueId, statisticsManager,
         logger::warn);
   }
 
@@ -120,18 +115,15 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
    * @param textId Text that helps identifies this instance
    * @param numericId A number that helps identify this instance
    * @param uniqueId A number that uniquely identifies this instance
-   * @param osStatFlags Non-zero if stats require system calls to collect them; for internal use
-   *        only
    * @param statisticsManager The StatisticsManager responsible for creating this instance
    * @param statisticsLogger The StatisticsLogger to log warning about flaky suppliers
    */
   StatisticsImpl(StatisticsType type, String textId, long numericId, long uniqueId,
-      int osStatFlags, StatisticsManager statisticsManager, StatisticsLogger statisticsLogger) {
+      StatisticsManager statisticsManager, StatisticsLogger statisticsLogger) {
     this.type = (ValidatingStatisticsType) type;
     this.textId = StringUtils.isEmpty(textId) ? statisticsManager.getName() : textId;
     this.numericId = numericId == 0 ? statisticsManager.getPid() : numericId;
     this.uniqueId = uniqueId;
-    this.osStatFlags = osStatFlags;
     this.statisticsManager = statisticsManager;
     this.statisticsLogger = statisticsLogger;
     closed = false;
@@ -538,14 +530,6 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
    */
   int getSupplierCount() {
     return intSuppliers.size() + doubleSuppliers.size() + longSuppliers.size();
-  }
-
-  boolean usesSystemCalls() {
-    return osStatFlags != 0;
-  }
-
-  int getOsStatFlags() {
-    return osStatFlags;
   }
 
   private void logSupplierError(final Throwable throwable, int statId, Object supplier) {

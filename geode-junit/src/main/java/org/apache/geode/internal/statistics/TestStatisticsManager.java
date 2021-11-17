@@ -16,7 +16,6 @@ package org.apache.geode.internal.statistics;
 
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.internal.statistics.platform.OsStatisticsFactory;
 
 /**
  * @since GemFire 7.0
@@ -30,7 +29,7 @@ public class TestStatisticsManager extends AbstractStatisticsFactory
 
   @Override
   public Statistics createOsStatistics(final StatisticsType type, final String textId,
-      final long numericId, final int osStatFlags) {
+      final long numericId) {
     return null;
   }
 }

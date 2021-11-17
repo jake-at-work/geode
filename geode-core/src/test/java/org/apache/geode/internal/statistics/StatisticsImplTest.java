@@ -219,12 +219,12 @@ public class StatisticsImplTest {
 
     SimpleStatistics(StatisticsType type, String textId, long numericId, long uniqueId,
         int osStatFlags, StatisticsManager statisticsManager) {
-      super(type, textId, numericId, uniqueId, osStatFlags, statisticsManager);
+      super(type, textId, numericId, uniqueId, statisticsManager);
     }
 
     SimpleStatistics(StatisticsType type, String textId, long numericId, long uniqueId,
         int osStatFlags, StatisticsManager statisticsManager, StatisticsLogger statisticsLogger) {
-      super(type, textId, numericId, uniqueId, osStatFlags, statisticsManager, statisticsLogger);
+      super(type, textId, numericId, uniqueId, statisticsManager, statisticsLogger);
     }
 
     @Override

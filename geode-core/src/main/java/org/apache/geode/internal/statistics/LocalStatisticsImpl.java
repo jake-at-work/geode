@@ -56,13 +56,11 @@ public class LocalStatisticsImpl extends StatisticsImpl {
    * @param uniqueId A number that uniquely identifies this instance
    * @param atomicIncrements Are increment operations atomic? If only one application thread
    *        increments a statistic, then a <code>false</code> value may yield better performance.
-   * @param osStatFlags Non-zero if stats require system calls to collect them; for internal use
-   *        only
    * @param statisticsManager The statistics manager that is creating this instance
    */
   public LocalStatisticsImpl(StatisticsType type, String textId, long numericId, long uniqueId,
-      boolean atomicIncrements, int osStatFlags, StatisticsManager statisticsManager) {
-    super(type, textId, numericId, uniqueId, osStatFlags, statisticsManager);
+      boolean atomicIncrements, StatisticsManager statisticsManager) {
+    super(type, textId, numericId, uniqueId, statisticsManager);
 
     StatisticsTypeImpl realType = (StatisticsTypeImpl) type;
     longCount = realType.getLongStatCount();
@@ -107,15 +105,13 @@ public class LocalStatisticsImpl extends StatisticsImpl {
    * @param numericId A number that displayed when this statistic is monitored
    * @param uniqueId A number that uniquely identifies this instance
    *        increments a statistic, then a <code>false</code> value may yield better performance.
-   * @param osStatFlags Non-zero if stats require system calls to collect them; for internal use
-   *        only
    * @param statisticsManager The distributed system that determines whether or not these statistics
    *        are stored
    *        (and collected) in GemFire shared memory or in the local VM
    */
   public static Statistics createNonAtomic(StatisticsType type, String textId, long numericId,
-      long uniqueId, int osStatFlags, StatisticsManager statisticsManager) {
-    return new LocalStatisticsImpl(type, textId, numericId, uniqueId, false, osStatFlags,
+      long uniqueId, StatisticsManager statisticsManager) {
+    return new LocalStatisticsImpl(type, textId, numericId, uniqueId, false,
         statisticsManager);
   }
 

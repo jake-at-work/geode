@@ -56,7 +56,7 @@ public class DummyStatisticsRegistry extends StatisticsRegistry {
 
   @Override
   protected Statistics newOsStatistics(StatisticsType type, long uniqueId, long numericId,
-      String textId, int osStatFlags) {
+      String textId) {
     return new DummyStatisticsImpl(type, textId, numericId);
   }
 }

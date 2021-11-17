@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.apache.geode.internal.statistics.platform;
+package org.apache.geode.internal.statistics;
 
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsType;
@@ -32,6 +32,5 @@ public interface OsStatisticsFactory {
    * <p>
    * The created instance may not be {@link Statistics#isAtomic atomic}.
    */
-  Statistics createOsStatistics(StatisticsType type, String textId, long numericId,
-      int osStatFlags);
+  Statistics createOsStatistics(StatisticsType type, String textId, long numericId);
 }

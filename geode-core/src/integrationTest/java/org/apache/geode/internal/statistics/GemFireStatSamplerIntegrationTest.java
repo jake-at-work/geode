@@ -61,6 +61,7 @@ import org.apache.geode.StatisticsType;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.statistics.GemFireStatSampler.LocalStatListenerImpl;
+import org.apache.geode.internal.statistics.legacy.LegacyOsStatisticsProvider;
 import org.apache.geode.internal.statistics.platform.ProcessStats;
 import org.apache.geode.internal.stats50.VMStats50;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -171,7 +172,7 @@ public class GemFireStatSamplerIntegrationTest extends StatSamplerTestCase {
       assertThat(processStats)
           .withFailMessage("ProcessStats were not created on" + osName)
           .isNotNull();
-      assertThat(OsStatisticsProvider.build().osStatsSupported())
+      assertThat(LegacyOsStatisticsProvider.build().osStatsSupported())
           .as("os stats are available on Linux")
           .isTrue();
       assertThat(allStats.containsStatisticsType("LinuxProcessStats"))

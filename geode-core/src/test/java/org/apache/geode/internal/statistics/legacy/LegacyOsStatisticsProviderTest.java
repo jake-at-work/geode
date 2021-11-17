@@ -13,15 +13,19 @@
  * the License.
  */
 
-package org.apache.geode.internal.statistics;
+package org.apache.geode.internal.statistics.legacy;
 
-import org.jetbrains.annotations.NotNull;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
 
-public interface OsStatisticsProvider {
-  void init(final @NotNull OsStatisticsFactory osStatisticsFactory,
-      final long pid) throws OsStatisticsProviderException;
+import org.apache.geode.internal.lang.SystemUtils;
 
-  void sample();
+public class LegacyOsStatisticsProviderTest {
 
-  void destroy();
+  @Test
+  public void osSystemSupportedOnLinuxOnly() {
+    Assertions.assertThat(LegacyOsStatisticsProvider.build().osStatsSupported()).isEqualTo(
+        SystemUtils.isLinux());
+  }
+
 }

@@ -73,10 +73,10 @@ import org.apache.geode.internal.offheap.OffHeapMemoryStats;
 import org.apache.geode.internal.process.PidUnavailableException;
 import org.apache.geode.internal.process.ProcessUtils;
 import org.apache.geode.internal.serialization.KnownVersion;
-import org.apache.geode.internal.statistics.OsStatisticsProvider;
 import org.apache.geode.internal.statistics.StatSamplerStats;
 import org.apache.geode.internal.statistics.StatisticsManager;
 import org.apache.geode.internal.statistics.VMStatsContract;
+import org.apache.geode.internal.statistics.legacy.LegacyOsStatisticsProvider;
 import org.apache.geode.internal.statistics.platform.LinuxSystemStats;
 import org.apache.geode.internal.statistics.platform.ProcessStats;
 import org.apache.geode.internal.stats50.VMStats50;
@@ -110,7 +110,8 @@ public class MemberMBeanBridge {
   private static final String MEMBER_LEVEL_REGION_MONITOR = "MemberLevelRegionMonitor";
   private static final long MBFactor = 1024 * 1024;
 
-  private final OsStatisticsProvider osStatisticsProvider = OsStatisticsProvider.build();
+  private final LegacyOsStatisticsProvider osStatisticsProvider =
+      LegacyOsStatisticsProvider.build();
 
   private InternalCache cache;
   private DistributionConfig config;

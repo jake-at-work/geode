@@ -28,11 +28,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
+import org.apache.geode.Statistics;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.annotations.internal.MakeNotStatic;
-import org.apache.geode.internal.statistics.LocalStatisticsImpl;
 import org.apache.geode.util.internal.GeodeGlossary;
 
 public class LinuxProcFsStatistics {
@@ -110,16 +111,13 @@ public class LinuxProcFsStatistics {
     cpuStatSingleton = null;
   }
 
-  public static void readyRefresh() { // TODO: was package-protected
-  }
-
   /*
    * get the statistics for the specified process. ( pid_rssSize, pid_imageSize ) vsize is assumed
    * to be in units of kbytes System property gemfire.statistics.pagesSize can be used to configure
    * pageSize. This is the mem_unit member of the struct returned by sysinfo()
    *
    */
-  public static void refreshProcess(int pid, LocalStatisticsImpl stats) {
+  public static void refreshProcess(int pid, @NotNull final Statistics stats) {
     // Just incase a pid is not available
     if (pid == 0) {
       return;
@@ -151,13 +149,14 @@ public class LinuxProcFsStatistics {
     }
   }
 
-  public static void refreshSystem(LocalStatisticsImpl stats) {
+  public static void refreshSystem(@NotNull final Statistics stats) {
     refreshSystem(stats, "/proc/stat", "/proc/net/netstat");
   }
 
   @VisibleForTesting
-  public static void refreshSystem(LocalStatisticsImpl stats, String statFilePath,
-      String netstatStatsFilePath) {
+  public static void refreshSystem(@NotNull final Statistics stats,
+      final @NotNull String statFilePath,
+      final @NotNull String netstatStatsFilePath) {
     if (cpuStatSingleton == null) {
       // stats have been closed or haven't been properly initialized
       return;
@@ -224,7 +223,7 @@ public class LinuxProcFsStatistics {
 
   // Example of /proc/loadavg
   // 0.00 0.00 0.07 1/218 7907
-  private static void getLoadAvg(LocalStatisticsImpl stats) {
+  private static void getLoadAvg(@NotNull final Statistics stats) {
     try (FileInputStream fileInputStream = new FileInputStream("/proc/loadavg");
         InputStreamReader isr = new InputStreamReader(fileInputStream);
         BufferedReader br = new BufferedReader(isr, 512)) {
@@ -277,7 +276,7 @@ public class LinuxProcFsStatistics {
   // total: used: free: shared: buffers: cached:
   // Mem: 4118380544 3816050688 302329856 0 109404160 3060326400
   // Swap: 4194881536 127942656 4066938880
-  private static void getMemInfo(LocalStatisticsImpl stats) {
+  private static void getMemInfo(@NotNull final Statistics stats) {
     try (FileInputStream fileInputStream = new FileInputStream("/proc/meminfo");
         InputStreamReader isr = new InputStreamReader(fileInputStream);
         BufferedReader br = new BufferedReader(isr)) {
@@ -334,8 +333,8 @@ public class LinuxProcFsStatistics {
     }
   }
 
-  private static void getNetStatStats(LocalStatisticsImpl stats,
-      String netstatStatsFilePath) {
+  private static void getNetStatStats(@NotNull final Statistics stats,
+      final @NotNull String netstatStatsFilePath) {
     SpaceTokenizer headerTokenizer = new SpaceTokenizer();
     try (FileInputStream netstatStatsFileInputStream = new FileInputStream(netstatStatsFilePath);
         InputStreamReader isr = new InputStreamReader(netstatStatsFileInputStream);
@@ -409,7 +408,7 @@ public class LinuxProcFsStatistics {
    * 326949246 0 0 0 0 0 0
    */
 
-  private static void getNetStats(LocalStatisticsImpl stats) {
+  private static void getNetStats(@NotNull final Statistics stats) {
     try (FileInputStream fileInputStream = new FileInputStream("/proc/net/dev");
         InputStreamReader isr = new InputStreamReader(fileInputStream);
         BufferedReader br = new BufferedReader(isr)) {
@@ -499,7 +498,7 @@ public class LinuxProcFsStatistics {
   // 2024138028
   // 8 17 sdb1 12601113 213085114 216407197 1731257800
   // 3 0 hda 0 0 0 0 0 0 0 0 0 0 0
-  private static void getDiskStats(LocalStatisticsImpl stats) {
+  private static void getDiskStats(@NotNull final Statistics stats) {
     InputStreamReader isr = null;
     BufferedReader br = null;
     String line;
@@ -611,7 +610,7 @@ public class LinuxProcFsStatistics {
   // pgpgout 1057420300
   // pswpin 19422
   // pswpout 14495
-  private static void getVmStats(LocalStatisticsImpl stats) {
+  private static void getVmStats(@NotNull final Statistics stats) {
     assert hasProcVmStat : "getVmStats called when hasVmStat was false";
     try (FileInputStream fileInputStream = new FileInputStream("/proc/vmstat");
         InputStreamReader isr = new InputStreamReader(fileInputStream);
@@ -843,6 +842,7 @@ public class LinuxProcFsStatistics {
 
     protected void skipTokens(int numberToSkip) {
       int remaining = numberToSkip + 1;
+      // noinspection StatementWithEmptyBody
       while (--remaining > 0 && skipToken()) {
       }
     }
