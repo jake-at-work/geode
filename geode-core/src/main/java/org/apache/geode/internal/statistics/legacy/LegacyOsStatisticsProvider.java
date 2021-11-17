@@ -120,8 +120,8 @@ public class LegacyOsStatisticsProvider implements OsStatisticsProvider {
     refreshSystem(systemStatistics);
   }
 
-  void sampleProcess() {
-    refreshSystem(processStatistics);
+  private void sampleProcess() {
+    refreshProcess(processStatistics);
   }
 
   @Override
