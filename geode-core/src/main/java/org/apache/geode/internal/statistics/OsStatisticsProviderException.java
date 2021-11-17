@@ -15,13 +15,5 @@
 
 package org.apache.geode.internal.statistics;
 
-import org.jetbrains.annotations.NotNull;
-
-public interface OsStatisticsProvider {
-  void init(final @NotNull OsStatisticsFactory osStatisticsFactory,
-      final long pid) throws OsStatisticsProviderException;
-
-  void sample();
-
-  void destroy();
+public class OsStatisticsProviderException extends Exception {
 }

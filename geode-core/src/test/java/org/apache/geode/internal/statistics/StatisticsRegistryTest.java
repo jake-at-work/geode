@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -312,11 +311,10 @@ public class StatisticsRegistryTest {
   public void createsOsStatisticsViaFactory() {
     Statistics statisticsCreatedByFactory = mock(Statistics.class);
 
-    when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), anyInt(), any()))
+    when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), any()))
         .thenReturn(statisticsCreatedByFactory);
 
-    Statistics result = registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID,
-        STATISTICS_OS_FLAGS);
+    Statistics result = registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
 
     assertThat(result)
         .isSameAs(statisticsCreatedByFactory);
@@ -338,20 +336,20 @@ public class StatisticsRegistryTest {
 
   @Test
   public void incrementsUniqueIdForEachCreatedStatistics() {
-    registry.createOsStatistics(type, STATISTICS_TEXT_ID, 0, 0);
-    verify(osStatisticsFactory).create(type, STATISTICS_TEXT_ID, 0L, 1, 0, registry);
+    registry.createOsStatistics(type, STATISTICS_TEXT_ID, 0);
+    verify(osStatisticsFactory).create(type, STATISTICS_TEXT_ID, 0L, 1, registry);
 
-    registry.createOsStatistics(type, STATISTICS_TEXT_ID, 0, 0);
-    verify(osStatisticsFactory).create(type, STATISTICS_TEXT_ID, 0, 2, 0, registry);
+    registry.createOsStatistics(type, STATISTICS_TEXT_ID, 0);
+    verify(osStatisticsFactory).create(type, STATISTICS_TEXT_ID, 0, 2, registry);
 
-    registry.createOsStatistics(type, STATISTICS_TEXT_ID, 0, 0);
-    verify(osStatisticsFactory).create(type, STATISTICS_TEXT_ID, 0, 3, 0, registry);
+    registry.createOsStatistics(type, STATISTICS_TEXT_ID, 0);
+    verify(osStatisticsFactory).create(type, STATISTICS_TEXT_ID, 0, 3, registry);
 
     registry.createAtomicStatistics(type, STATISTICS_TEXT_ID, 0);
     verify(atomicStatisticsFactory).create(type, STATISTICS_TEXT_ID, 0, 4, registry);
 
-    registry.createOsStatistics(type, STATISTICS_TEXT_ID, 0, 0);
-    verify(osStatisticsFactory).create(type, STATISTICS_TEXT_ID, 0, 5, 0, registry);
+    registry.createOsStatistics(type, STATISTICS_TEXT_ID, 0);
+    verify(osStatisticsFactory).create(type, STATISTICS_TEXT_ID, 0, 5, registry);
 
     registry.createAtomicStatistics(type, STATISTICS_TEXT_ID, 0);
     verify(atomicStatisticsFactory).create(type, STATISTICS_TEXT_ID, 0, 6, registry);
@@ -369,7 +367,7 @@ public class StatisticsRegistryTest {
     Statistics osStatistics2 = mock(Statistics.class, "os 1");
     Statistics osStatistics3 = mock(Statistics.class, "os 1");
 
-    when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), anyInt(), any()))
+    when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), any()))
         .thenReturn(osStatistics1)
         .thenReturn(osStatistics2)
         .thenReturn(osStatistics3);
@@ -380,13 +378,10 @@ public class StatisticsRegistryTest {
         .thenReturn(atomicStatistics3);
 
     registry.createAtomicStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
-    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID,
-        STATISTICS_OS_FLAGS);
-    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID,
-        STATISTICS_OS_FLAGS);
+    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
+    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
     registry.createAtomicStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
-    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID,
-        STATISTICS_OS_FLAGS);
+    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
     registry.createAtomicStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
 
     assertThat(registry.getStatsList())
@@ -404,7 +399,7 @@ public class StatisticsRegistryTest {
     Statistics osStatistics1 = mock(Statistics.class, "os 1");
     Statistics osStatistics2 = mock(Statistics.class, "os 2");
     Statistics osStatistics3 = mock(Statistics.class, "os 3");
-    when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), anyInt(), any()))
+    when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), any()))
         .thenReturn(osStatistics1)
         .thenReturn(osStatistics2)
         .thenReturn(osStatistics3);
@@ -418,13 +413,10 @@ public class StatisticsRegistryTest {
         .thenReturn(atomicStatistics3);
 
     registry.createAtomicStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
-    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID,
-        STATISTICS_OS_FLAGS);
-    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID,
-        STATISTICS_OS_FLAGS);
+    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
+    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
     registry.createAtomicStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
-    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID,
-        STATISTICS_OS_FLAGS);
+    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
     registry.createAtomicStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
 
     registry.destroyStatistics(osStatistics2);
@@ -449,7 +441,7 @@ public class StatisticsRegistryTest {
     Statistics osStatistics = mock(Statistics.class, "os");
     Statistics atomicStatistics = mock(Statistics.class, "atomic");
 
-    when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), anyInt(), any()))
+    when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), any()))
         .thenReturn(osStatistics);
 
     when(atomicStatisticsFactory.create(any(), any(), anyLong(), anyLong(), any()))
@@ -460,8 +452,7 @@ public class StatisticsRegistryTest {
         .as("modification count after first modification")
         .isEqualTo(1);
 
-    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID,
-        STATISTICS_OS_FLAGS);
+    registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
     assertThat(registry.getStatListModCount())
         .as("modification count after second modification")
         .isEqualTo(2);

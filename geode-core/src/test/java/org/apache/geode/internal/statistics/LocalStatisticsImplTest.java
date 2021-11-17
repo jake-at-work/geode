@@ -37,7 +37,7 @@ public class LocalStatisticsImplTest {
     };
     StatisticsType statisticsType = new StatisticsTypeImpl("abc", "mock stats", stats);
     LocalStatisticsImpl localStatistics = new LocalStatisticsImpl(statisticsType, "abc", 123L, 123L,
-        false, 90, mockStatisticsManager);
+        false, mockStatisticsManager);
 
     localStatistics.incInt("intCount", 7);
     localStatistics.incLong("longCount", 15);
@@ -65,7 +65,7 @@ public class LocalStatisticsImplTest {
     };
     StatisticsType statisticsType = new StatisticsTypeImpl("abc", "mock stats", stats);
     LocalStatisticsImpl localStatistics = new LocalStatisticsImpl(statisticsType, "abc", 123L, 123L,
-        false, 90, mockStatisticsManager);
+        false, mockStatisticsManager);
 
     localStatistics.incInt("intCount", 7);
     localStatistics.incLong("longCount", 15);

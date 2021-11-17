@@ -13,7 +13,7 @@
  * the License.
  */
 
-package org.apache.geode.internal.statistics.oshi;
+package org.apache.geode.internal.statistics;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.DoubleSupplier;
@@ -24,6 +24,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
@@ -31,28 +32,45 @@ import org.openjdk.jmh.annotations.State;
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.internal.statistics.SuppliableStatistics;
-import org.apache.geode.internal.statistics.platform.OsStatisticsFactory;
+import org.apache.geode.internal.process.ProcessUtils;
+import org.apache.geode.internal.statistics.legacy.LegacyOsStatisticsProvider;
+import org.apache.geode.internal.statistics.oshi.OshiStatisticsProvider;
 
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.SampleTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-public class OshiStatisticsBenchmark {
+public class OsStatisticsBenchmark {
 
-  private final OshiStatisticsProviderImpl oshiStatisticsProvider =
-      new OshiStatisticsProviderImpl();
-
-  @Setup
-  public void setup() throws OshiStatisticsProviderException {
-    oshiStatisticsProvider.init(new NoopStatisticsProvider(), 0);
+  public enum Impl {
+    Legacy,
+    Oshi
   }
 
-//  @Benchmark
-//  public void noop() {}
+  @Param
+  public Impl impl;
+  private OsStatisticsProvider osStatisticsProvider;
+
+  @Setup
+  public void setup() throws OsStatisticsProviderException {
+    switch (impl) {
+      case Legacy:
+        osStatisticsProvider = new LegacyOsStatisticsProvider();
+        break;
+      case Oshi:
+        osStatisticsProvider = new OshiStatisticsProvider();
+        break;
+      default:
+        throw new IllegalArgumentException(impl.name());
+    }
+    osStatisticsProvider.init(new NoopStatisticsProvider(), ProcessUtils.identifyPidAsUnchecked());
+  }
+
+  // @Benchmark
+  // public void noop() {}
 
   @Benchmark
   public void sampleProcess() {
-    oshiStatisticsProvider.sampleProcess();
+    osStatisticsProvider.sample();
   }
 
   private static class NoopStatistics implements SuppliableStatistics {
@@ -310,12 +328,11 @@ public class OshiStatisticsBenchmark {
     }
   }
 
-  private static class NoopStatisticsProvider implements OsStatisticsFactory {
+  public static class NoopStatisticsProvider implements OsStatisticsFactory {
     @Override
-    public Statistics createOsStatistics(final StatisticsType type, final String textId,
-        final long numericId,
-        final int osStatFlags) {
+    public Statistics createOsStatistics(final StatisticsType type, final String textId, final long numericId) {
       return new NoopStatistics();
     }
   }
+
 }

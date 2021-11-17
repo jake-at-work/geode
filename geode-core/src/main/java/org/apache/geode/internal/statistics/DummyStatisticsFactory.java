@@ -49,7 +49,7 @@ public class DummyStatisticsFactory implements StatisticsFactory {
 
   @Override
   public Statistics createStatistics(StatisticsType type, String textId, long numericId) {
-    Statistics result = new LocalStatisticsImpl(type, textId, numericId, 1, false, 0, null);
+    Statistics result = new LocalStatisticsImpl(type, textId, numericId, 1, false, null);
     return result;
   }
 
@@ -72,7 +72,7 @@ public class DummyStatisticsFactory implements StatisticsFactory {
 
   @Override
   public Statistics createAtomicStatistics(StatisticsType type, String textId, long numericId) {
-    Statistics result = new LocalStatisticsImpl(type, textId, numericId, 1, true, 0, null);
+    Statistics result = new LocalStatisticsImpl(type, textId, numericId, 1, true, null);
     return result;
   }
 

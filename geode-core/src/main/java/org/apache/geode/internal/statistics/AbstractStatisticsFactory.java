@@ -111,28 +111,27 @@ public abstract class AbstractStatisticsFactory implements StatisticsFactory, St
 
   @Override
   public Statistics createStatistics(StatisticsType type) {
-    return createOsStatistics(type, null, 0, 0);
+    return createOsStatistics(type, null, 0);
   }
 
   @Override
   public Statistics createStatistics(StatisticsType type, String textId) {
-    return createOsStatistics(type, textId, 0, 0);
+    return createOsStatistics(type, textId, 0);
   }
 
   @Override
   public Statistics createStatistics(StatisticsType type, String textId, long numericId) {
-    return createOsStatistics(type, textId, 0, 0);
+    return createOsStatistics(type, textId, 0);
   }
 
   @Override
-  public Statistics createOsStatistics(StatisticsType type, String textId, long numericId,
-      int osStatFlags) {
+  public Statistics createOsStatistics(StatisticsType type, String textId, long numericId) {
     long myUniqueId;
     synchronized (statsListUniqueIdLock) {
-      myUniqueId = statsListUniqueId++; // fix for bug 30597
+      myUniqueId = statsListUniqueId++;
     }
     Statistics result =
-        new LocalStatisticsImpl(type, textId, numericId, myUniqueId, false, osStatFlags, this);
+        new LocalStatisticsImpl(type, textId, numericId, myUniqueId, false, this);
     synchronized (statsList) {
       statsList.add(result);
       statsListModCount++;

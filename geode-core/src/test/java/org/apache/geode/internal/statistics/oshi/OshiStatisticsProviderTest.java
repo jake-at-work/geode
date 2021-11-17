@@ -17,7 +17,6 @@ package org.apache.geode.internal.statistics.oshi;
 
 import static java.util.Arrays.asList;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -34,9 +33,10 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 
 import org.apache.geode.Statistics;
-import org.apache.geode.internal.statistics.platform.OsStatisticsFactory;
+import org.apache.geode.internal.statistics.OsStatisticsFactory;
+import org.apache.geode.internal.statistics.OsStatisticsProviderException;
 
-public class OshiStatisticsProviderImplTest {
+public class OshiStatisticsProviderTest {
 
   private static final String SYSTEM_IDENTITY = "mock-operating-system";
   private static final String PROCESS_IDENTITY = "mock-process";
@@ -45,12 +45,12 @@ public class OshiStatisticsProviderImplTest {
   private static final String NETWORK_IF_0_DISPLAY_NAME = "mock-if0";
   private static final String NETWORK_IF_1_DISPLAY_NAME = "mock-if1";
 
-  private final OshiStatisticsProviderImpl oshiStatisticsProvider;
+  private final OshiStatisticsProvider oshiStatisticsProvider;
   private final OSProcess osProcess;
 
-  public OshiStatisticsProviderImplTest() {
+  public OshiStatisticsProviderTest() {
     SystemInfo systemInfo = mock(SystemInfo.class);
-    oshiStatisticsProvider = new OshiStatisticsProviderImpl(systemInfo);
+    oshiStatisticsProvider = new OshiStatisticsProvider(systemInfo);
 
     final OperatingSystem operatingSystem = mock(OperatingSystem.class);
     when(systemInfo.getOperatingSystem()).thenReturn(operatingSystem);
@@ -89,40 +89,36 @@ public class OshiStatisticsProviderImplTest {
   }
 
   @Test
-  public void initCreatesOsStatistics() throws OshiStatisticsProviderException {
+  public void initCreatesOsStatistics() throws OsStatisticsProviderException {
     final OsStatisticsFactory osStatisticsFactory = mock(OsStatisticsFactory.class);
     final long id = 13;
     oshiStatisticsProvider.init(osStatisticsFactory, id);
 
     verify(osStatisticsFactory).createOsStatistics(eq(ProcessStats.getType()), eq(PROCESS_IDENTITY),
-        eq(id),
-        eq(0));
+        eq(id));
     verify(osStatisticsFactory).createOsStatistics(eq(OperatingSystemStats.getType()),
         eq(SYSTEM_IDENTITY),
-        eq(id), eq(0));
+        eq(id));
     verify(osStatisticsFactory)
-        .createOsStatistics(eq(ProcessorStats.getType()), eq(LOGICAL_PROCESSOR_0_IDENTITY), eq(id),
-            eq(0));
+        .createOsStatistics(eq(ProcessorStats.getType()), eq(LOGICAL_PROCESSOR_0_IDENTITY), eq(id));
     verify(osStatisticsFactory)
-        .createOsStatistics(eq(ProcessorStats.getType()), eq(LOGICAL_PROCESSOR_1_IDENTITY), eq(id),
-            eq(0));
+        .createOsStatistics(eq(ProcessorStats.getType()), eq(LOGICAL_PROCESSOR_1_IDENTITY), eq(id));
     verify(osStatisticsFactory)
         .createOsStatistics(eq(NetworkInterfaceStats.getType()), eq(NETWORK_IF_0_DISPLAY_NAME),
-            eq(id), eq(0));
+            eq(id));
     verify(osStatisticsFactory)
         .createOsStatistics(eq(NetworkInterfaceStats.getType()), eq(NETWORK_IF_1_DISPLAY_NAME),
-            eq(id), eq(0));
+            eq(id));
 
     verifyNoMoreInteractions(osStatisticsFactory);
   }
 
   @Test
-  public void sampleProcessUpdatesStats() throws OshiStatisticsProviderException {
+  public void sampleProcessUpdatesStats() throws OsStatisticsProviderException {
     final OsStatisticsFactory osStatisticsFactory = mock(OsStatisticsFactory.class);
     final Statistics statistics = mock(Statistics.class);
     when(osStatisticsFactory.createOsStatistics(eq(ProcessStats.getType()), eq(PROCESS_IDENTITY),
-        anyLong(),
-        anyInt())).thenReturn(statistics);
+        anyLong())).thenReturn(statistics);
 
     when(osProcess.getProcessCpuLoadBetweenTicks(any())).thenReturn(0.123D);
     when(osProcess.getVirtualSize()).thenReturn(456L);

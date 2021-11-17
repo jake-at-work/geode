@@ -36,9 +36,6 @@ import org.apache.geode.internal.admin.ListenerIdMap;
 import org.apache.geode.internal.admin.remote.StatListenerMessage;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.statistics.oshi.OshiStatisticsProvider;
-import org.apache.geode.internal.statistics.oshi.OshiStatisticsProviderException;
-import org.apache.geode.internal.statistics.oshi.OshiStatisticsProviderImpl;
-import org.apache.geode.internal.statistics.platform.OsStatisticsFactory;
 import org.apache.geode.internal.statistics.platform.ProcessStats;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.logging.internal.spi.LogFile;
@@ -69,8 +66,7 @@ public class GemFireStatSampler extends HostStatSampler {
   private int nextListenerId = 1;
   private ProcessStats processStats;
 
-  // private OsStatisticsProvider osStatisticsProvider = OsStatisticsProvider.build();
-  private OshiStatisticsProvider oshiStatisticsProvider = new OshiStatisticsProviderImpl();
+  private OsStatisticsProvider osStatisticsProvider = new OshiStatisticsProvider();
 
   public GemFireStatSampler(InternalDistributedSystem internalDistributedSystem) {
     this(internalDistributedSystem, null);
@@ -279,20 +275,12 @@ public class GemFireStatSampler extends HostStatSampler {
     }
 
     try {
-      oshiStatisticsProvider.init(getOsStatisticsFactory(), pid);
-    } catch (OshiStatisticsProviderException e) {
+      osStatisticsProvider.init(getOsStatisticsFactory(), pid);
+    } catch (OsStatisticsProviderException e) {
       logger.error(LogMarker.STATISTICS_MARKER, "Failed to initialize OS statistics.", e);
     }
 
-    // osStatisticsProvider.newSystem(getOsStatisticsFactory(), pid);
-    // String statName = getStatisticsManager().getName();
-    // if (statName == null || statName.length() == 0) {
-    // statName = "javaApp" + getSystemId();
-    // }
-    // Statistics stats =
-    // osStatisticsProvider.newProcess(getOsStatisticsFactory(), id, statName + "-proc");
     processStats = null; // osStatisticsProvider.newProcessStats(stats);
-
   }
 
   @Override
@@ -300,30 +288,12 @@ public class GemFireStatSampler extends HostStatSampler {
     if (prepareOnly || osStatsDisabled() || stopRequested()) {
       return;
     }
-    oshiStatisticsProvider.sample();
-    // List<Statistics> statisticsList = getStatisticsManager().getStatsList();
-    // for (Statistics statistics : statisticsList) {
-    // if (stopRequested()) {
-    // return;
-    // }
-    // StatisticsImpl statisticsImpl = (StatisticsImpl) statistics;
-    // if (statisticsImpl.usesSystemCalls()) {
-    // osStatisticsProvider.refresh((LocalStatisticsImpl) statisticsImpl);
-    // }
-    // }
+    osStatisticsProvider.sample();
   }
 
   @Override
   protected void closeProcessStats() {
-    oshiStatisticsProvider.destroy();
-    // if (osStatisticsProvider.osStatsSupported()) {
-    // if (!osStatsDisabled()) {
-    // if (processStats != null) {
-    // processStats.close();
-    // }
-    // osStatisticsProvider.closeOSStats();
-    // }
-    // }
+    osStatisticsProvider.destroy();
   }
 
   private void checkLocalListeners() {
