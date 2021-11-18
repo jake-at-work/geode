@@ -13,19 +13,16 @@
  * the License.
  */
 
-package org.apache.geode.internal.statistics.legacy;
+package org.apache.geode.internal.statistics;
 
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.apache.geode.internal.statistics.platform.ProcessStats;
 
-import org.apache.geode.internal.lang.SystemUtils;
+/**
+ * @deprecated no replacement
+ */
+@Deprecated
+public interface LegacyOsStatisticsProvider {
 
-public class LegacyOsStatisticsProviderTest {
-
-  @Test
-  public void osSystemSupportedOnLinuxOnly() {
-    Assertions.assertThat(LinuxOsStatisticsProvider.build().osStatsSupported()).isEqualTo(
-        SystemUtils.isLinux());
-  }
-
+  @Deprecated
+  ProcessStats getProcessStats();
 }

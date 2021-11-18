@@ -22,8 +22,10 @@ import org.apache.geode.Statistics;
  *
  *
  * @since GemFire 3.5
+ * @deprecated no replacement
  */
-public abstract class ProcessStats {
+@Deprecated
+public class ProcessStats {
 
   /** The underlying statistics */
   private final Statistics stats;
@@ -31,26 +33,12 @@ public abstract class ProcessStats {
   /**
    * Creates a new <code>ProcessStats</code> that wraps the given <code>Statistics</code>.
    */
-  ProcessStats(Statistics stats) {
+  public ProcessStats(Statistics stats) {
     this.stats = stats;
   }
 
-  /**
-   * Closes these process stats
-   *
-   * @see Statistics#close
-   */
-  public void close() {
-    this.stats.close();
-  }
-
   public Statistics getStatistics() {
-    return this.stats;
+    return stats;
   }
-
-  /**
-   * Returns the size of this process (resident set on UNIX or working set on Windows) in megabytes
-   */
-  public abstract long getProcessSize();
 
 }

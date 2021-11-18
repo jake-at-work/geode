@@ -26,7 +26,7 @@ import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.CachePerfStats;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.statistics.GemFireStatSampler;
-import org.apache.geode.internal.statistics.platform.ProcessStats;
+import org.apache.geode.internal.statistics.ProcessSizeSuppler;
 import org.apache.geode.logging.internal.OSProcess;
 
 /**
@@ -44,7 +44,7 @@ class MemberHealthEvaluator extends AbstractHealthEvaluator {
   private final String description;
 
   /** Statistics about this process (may be null) */
-  private ProcessStats processStats;
+  private ProcessSizeSuppler processSizeSuppler;
 
   /** Statistics about the distribution manager */
   private final DMStats dmStats;
@@ -64,7 +64,7 @@ class MemberHealthEvaluator extends AbstractHealthEvaluator {
     GemFireStatSampler sampler = system.getStatSampler();
     if (sampler != null) {
       // Sampling is enabled
-      this.processStats = sampler.getProcessStats();
+      this.processSizeSuppler = sampler.getProcessSizeSuppler();
     }
 
     this.dmStats = dm.getStats();
@@ -86,17 +86,18 @@ class MemberHealthEvaluator extends AbstractHealthEvaluator {
   }
 
   /**
-   * Checks to make sure that the {@linkplain ProcessStats#getProcessSize VM's process size} is less
+   * Checks to make sure that the {@linkplain GemFireStatSampler#getProcessSizeSuppler() VM's
+   * process size} is less
    * than the {@linkplain MemberHealthConfig#getMaxVMProcessSize threshold}. If not, the status is
    * "okay" health.
    */
   void checkVMProcessSize(List<HealthStatus> status) {
     // There is no need to check isFirstEvaluation()
-    if (this.processStats == null) {
+    if (this.processSizeSuppler == null) {
       return;
     }
 
-    long vmSize = this.processStats.getProcessSize();
+    long vmSize = this.processSizeSuppler.getAsLong();
     long threshold = this.config.getMaxVMProcessSize();
     if (vmSize > threshold) {
       String s =

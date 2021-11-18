@@ -21,13 +21,14 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
 import org.apache.geode.admin.GemFireHealth;
 import org.apache.geode.admin.GemFireHealthConfig;
 import org.apache.geode.internal.statistics.GemFireStatSampler;
-import org.apache.geode.internal.statistics.legacy.LegacyOsStatisticsProvider;
-import org.apache.geode.internal.statistics.platform.ProcessStats;
+import org.apache.geode.internal.statistics.ProcessSizeSuppler;
+import org.apache.geode.internal.statistics.legacy.LinuxOsStatisticsProvider;
 
 /**
  * Contains simple tests for the {@link MemberHealthEvaluator}.
@@ -46,17 +47,18 @@ public class MemberHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
    */
   @Test
   public void testCheckVMProcessSize() throws InterruptedException {
-    if (LegacyOsStatisticsProvider.build().osStatsSupported()) {
+    if (LinuxOsStatisticsProvider.build().osStatsSupported()) {
       GemFireStatSampler sampler = system.getStatSampler();
       assertNotNull(sampler);
 
       sampler.waitForInitialization(10000); // fix: remove infinite wait
 
-      ProcessStats stats = sampler.getProcessStats();
-      assertNotNull(stats);
+      @Nullable
+      ProcessSizeSuppler processSizeSuppler = sampler.getProcessSizeSuppler();
+      assertNotNull(processSizeSuppler);
 
       List status = new ArrayList();
-      long threshold = stats.getProcessSize() * 2;
+      long threshold = processSizeSuppler.getAsLong() * 2;
 
       if (threshold <= 0) {
         // The process size is zero on some Linux versions
@@ -72,7 +74,7 @@ public class MemberHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
       assertTrue(status.isEmpty());
 
       status = new ArrayList();
-      long processSize = stats.getProcessSize();
+      long processSize = processSizeSuppler.getAsLong();
       threshold = processSize / 2;
       assertTrue("Threshold (" + threshold + ") is > 0.  " + "Process size is " + processSize,
           threshold > 0);

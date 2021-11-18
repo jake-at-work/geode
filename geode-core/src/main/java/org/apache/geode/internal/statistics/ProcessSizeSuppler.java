@@ -13,19 +13,11 @@
  * the License.
  */
 
-package org.apache.geode.internal.statistics.legacy;
+package org.apache.geode.internal.statistics;
 
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import java.util.function.LongSupplier;
 
-import org.apache.geode.internal.lang.SystemUtils;
-
-public class LegacyOsStatisticsProviderTest {
-
-  @Test
-  public void osSystemSupportedOnLinuxOnly() {
-    Assertions.assertThat(LinuxOsStatisticsProvider.build().osStatsSupported()).isEqualTo(
-        SystemUtils.isLinux());
-  }
+@FunctionalInterface
+public interface ProcessSizeSuppler extends LongSupplier {
 
 }

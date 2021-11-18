@@ -13,7 +13,7 @@
  * the License.
  */
 
-package org.apache.geode.internal.statistics.platform;
+package org.apache.geode.internal.statistics.legacy;
 
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.StatisticsType;

@@ -16,6 +16,7 @@
 package org.apache.geode.internal.statistics;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface OsStatisticsProvider {
   void init(final @NotNull OsStatisticsFactory osStatisticsFactory,
@@ -24,4 +25,8 @@ public interface OsStatisticsProvider {
   void sample();
 
   void destroy();
+
+  default @Nullable ProcessSizeSuppler createProcessSizeSuppler() {
+    return null;
+  }
 }
