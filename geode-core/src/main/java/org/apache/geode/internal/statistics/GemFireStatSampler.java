@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.Statistics;
@@ -65,9 +66,12 @@ public class GemFireStatSampler extends HostStatSampler {
   private final DistributionManager distributionManager;
 
   private int nextListenerId = 1;
+
+  @Deprecated
   private ProcessStats processStats;
 
   private final OsStatisticsProvider[] osStatisticsProviders;
+  private ProcessSizeSuppler processSizeSuppler;
 
   public GemFireStatSampler(InternalDistributedSystem internalDistributedSystem) {
     this(internalDistributedSystem, null);
@@ -128,9 +132,15 @@ public class GemFireStatSampler extends HostStatSampler {
    * returned if operating statistics are disabled.
    *
    * @since GemFire 3.5
+   * @deprecated no replacement
    */
-  public ProcessStats getProcessStats() {
+  @Deprecated
+  public @Nullable ProcessStats getProcessStats() {
     return processStats;
+  }
+
+  public @Nullable ProcessSizeSuppler getProcessSizeSuppler() {
+    return processSizeSuppler;
   }
 
   @Override
@@ -307,12 +317,22 @@ public class GemFireStatSampler extends HostStatSampler {
     try {
       for (final OsStatisticsProvider osStatisticsProvider : osStatisticsProviders) {
         osStatisticsProvider.init(osStatisticsFactory, pid);
+        if (null == processSizeSuppler) {
+          processSizeSuppler = osStatisticsProvider.createProcessSizeSuppler();
+        }
+        registerLegacyOsStatisticsProvider(osStatisticsProvider);
       }
     } catch (OsStatisticsProviderException e) {
       logger.error(LogMarker.STATISTICS_MARKER, "Failed to initialize OS statistics.", e);
     }
+  }
 
-    processStats = null; // TODO jbarrett osStatisticsProvider.newProcessStats(stats);
+  @SuppressWarnings("deprecation")
+  private void registerLegacyOsStatisticsProvider(
+      final @NotNull OsStatisticsProvider osStatisticsProvider) {
+    if (null == processStats && osStatisticsProvider instanceof LegacyOsStatisticsProvider) {
+      processStats = ((LegacyOsStatisticsProvider) osStatisticsProvider).getProcessStats();
+    }
   }
 
   @Override

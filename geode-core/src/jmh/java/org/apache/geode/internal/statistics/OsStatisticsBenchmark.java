@@ -33,7 +33,7 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsType;
 import org.apache.geode.internal.process.ProcessUtils;
-import org.apache.geode.internal.statistics.legacy.LegacyOsStatisticsProvider;
+import org.apache.geode.internal.statistics.legacy.LinuxOsStatisticsProvider;
 import org.apache.geode.internal.statistics.oshi.OshiStatisticsProvider;
 
 @State(Scope.Benchmark)
@@ -54,7 +54,7 @@ public class OsStatisticsBenchmark {
   public void setup() throws OsStatisticsProviderException {
     switch (impl) {
       case Legacy:
-        osStatisticsProvider = new LegacyOsStatisticsProvider();
+        osStatisticsProvider = new LinuxOsStatisticsProvider();
         break;
       case Oshi:
         osStatisticsProvider = new OshiStatisticsProvider();

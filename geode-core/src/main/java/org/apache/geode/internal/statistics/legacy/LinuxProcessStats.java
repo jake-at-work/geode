@@ -13,7 +13,7 @@
  * the License.
  */
 
-package org.apache.geode.internal.statistics.platform;
+package org.apache.geode.internal.statistics.legacy;
 
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
@@ -21,6 +21,7 @@ import org.apache.geode.StatisticsType;
 import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
+import org.apache.geode.internal.statistics.platform.ProcessStats;
 
 /**
  * <P>
@@ -56,17 +57,11 @@ public class LinuxProcessStats {
   }
 
   /**
-   * Returns a <code>ProcessStats</code> that wraps Linux process <code>Statistics</code>.
-   *
-   * @since GemFire 3.5
+   * @deprecated no replacement
    */
+  @Deprecated
   public static ProcessStats createProcessStats(final Statistics stats) {
-    return new ProcessStats(stats) {
-      @Override
-      public long getProcessSize() {
-        return stats.getLong(rssSizeLONG);
-      }
-    };
+    return new ProcessStats(stats);
   }
 
 }

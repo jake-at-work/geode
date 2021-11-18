@@ -105,7 +105,7 @@ import org.apache.geode.internal.statistics.StatisticsConfig;
 import org.apache.geode.internal.statistics.StatisticsManager;
 import org.apache.geode.internal.statistics.StatisticsManagerFactory;
 import org.apache.geode.internal.statistics.StatisticsRegistry;
-import org.apache.geode.internal.statistics.platform.LinuxProcFsStatistics;
+import org.apache.geode.internal.statistics.legacy.LinuxProcFsStatistics;
 import org.apache.geode.internal.tcp.ConnectionTable;
 import org.apache.geode.logging.internal.LoggingSession;
 import org.apache.geode.logging.internal.NullLoggingSession;

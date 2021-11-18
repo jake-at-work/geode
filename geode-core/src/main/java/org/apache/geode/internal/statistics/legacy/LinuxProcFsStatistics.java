@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.apache.geode.internal.statistics.platform;
+package org.apache.geode.internal.statistics.legacy;
 
 import java.io.BufferedReader;
 import java.io.File;

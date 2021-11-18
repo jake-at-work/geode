@@ -14,10 +14,10 @@
  */
 package org.apache.geode.internal.statistics;
 
-import static org.apache.geode.internal.statistics.platform.LinuxSystemStats.TCP_EXT_LISTEN_DROPS;
-import static org.apache.geode.internal.statistics.platform.LinuxSystemStats.TCP_EXT_LISTEN_OVERFLOWS;
-import static org.apache.geode.internal.statistics.platform.LinuxSystemStats.TCP_EXT_SYN_COOKIES_RECV;
-import static org.apache.geode.internal.statistics.platform.LinuxSystemStats.TCP_EXT_SYN_COOKIES_SENT;
+import static org.apache.geode.internal.statistics.legacy.LinuxSystemStats.TCP_EXT_LISTEN_DROPS;
+import static org.apache.geode.internal.statistics.legacy.LinuxSystemStats.TCP_EXT_LISTEN_OVERFLOWS;
+import static org.apache.geode.internal.statistics.legacy.LinuxSystemStats.TCP_EXT_SYN_COOKIES_RECV;
+import static org.apache.geode.internal.statistics.legacy.LinuxSystemStats.TCP_EXT_SYN_COOKIES_SENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
@@ -32,8 +32,8 @@ import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.Statistics;
-import org.apache.geode.internal.statistics.platform.LinuxProcFsStatistics;
-import org.apache.geode.internal.statistics.platform.LinuxSystemStats;
+import org.apache.geode.internal.statistics.legacy.LinuxProcFsStatistics;
+import org.apache.geode.internal.statistics.legacy.LinuxSystemStats;
 import org.apache.geode.test.junit.categories.StatisticsTest;
 
 

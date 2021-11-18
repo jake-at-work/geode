@@ -17,22 +17,22 @@ package org.apache.geode.internal.statistics.legacy;
 import java.net.UnknownHostException;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import org.apache.geode.Statistics;
 import org.apache.geode.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.lang.SystemUtils;
+import org.apache.geode.internal.statistics.LegacyOsStatisticsProvider;
 import org.apache.geode.internal.statistics.OsStatisticsFactory;
 import org.apache.geode.internal.statistics.OsStatisticsProvider;
-import org.apache.geode.internal.statistics.platform.LinuxProcFsStatistics;
-import org.apache.geode.internal.statistics.platform.LinuxProcessStats;
-import org.apache.geode.internal.statistics.platform.LinuxSystemStats;
+import org.apache.geode.internal.statistics.ProcessSizeSuppler;
 import org.apache.geode.internal.statistics.platform.ProcessStats;
 
 /**
  * Provides methods which fetch operating system statistics.
  * Only Linux OS is currently allowed.
  */
-public class LegacyOsStatisticsProvider implements OsStatisticsProvider {
+public class LinuxOsStatisticsProvider implements OsStatisticsProvider, LegacyOsStatisticsProvider {
   private final boolean osStatsSupported;
   private Statistics systemStatistics;
   private Statistics processStatistics;
@@ -42,27 +42,19 @@ public class LegacyOsStatisticsProvider implements OsStatisticsProvider {
     return osStatsSupported;
   }
 
-  public LegacyOsStatisticsProvider() {
+  public LinuxOsStatisticsProvider() {
     osStatsSupported = SystemUtils.isLinux();
   }
 
-  public static LegacyOsStatisticsProvider build() {
-    return new LegacyOsStatisticsProvider();
-  }
-
-  private void initOSStats() {
-    LinuxProcFsStatistics.init();
-  }
-
-  private void closeOSStats() {
-    LinuxProcFsStatistics.close();
+  public static LinuxOsStatisticsProvider build() {
+    return new LinuxOsStatisticsProvider();
   }
 
   /**
    * Refreshes the specified process stats instance by fetching the current OS values for the given
    * stats and storing them in the instance.
    */
-  private void refreshProcess(@NotNull final Statistics statistics) {
+  private void refreshProcess(final @NotNull Statistics statistics) {
     int pid = (int) statistics.getNumericId();
     LinuxProcFsStatistics.refreshProcess(pid, statistics);
   }
@@ -71,7 +63,7 @@ public class LegacyOsStatisticsProvider implements OsStatisticsProvider {
    * Refreshes the specified system stats instance by fetching the current OS values for the local
    * machine and storing them in the instance.
    */
-  private void refreshSystem(@NotNull final Statistics statistics) {
+  private void refreshSystem(final @NotNull Statistics statistics) {
     LinuxProcFsStatistics.refreshSystem(statistics);
   }
 
@@ -79,7 +71,8 @@ public class LegacyOsStatisticsProvider implements OsStatisticsProvider {
    * Creates and returns a {@link Statistics} with the given pid and name. The resource's stats will
    * contain a snapshot of the current statistic values for the specified process.
    */
-  private Statistics newProcess(OsStatisticsFactory osStatisticsFactory, long pid, String name) {
+  private Statistics newProcess(final @NotNull OsStatisticsFactory osStatisticsFactory, long pid,
+      String name) {
     return osStatisticsFactory.createOsStatistics(LinuxProcessStats.getType(), name, pid);
   }
 
@@ -89,7 +82,7 @@ public class LegacyOsStatisticsProvider implements OsStatisticsProvider {
    * @see #newProcess
    * @since GemFire 3.5
    */
-  private @NotNull ProcessStats newProcessStats(@NotNull Statistics statistics) {
+  private @NotNull ProcessStats newProcessStats(final @NotNull Statistics statistics) {
     refreshProcess(statistics);
     return LinuxProcessStats.createProcessStats(statistics);
   }
@@ -98,7 +91,7 @@ public class LegacyOsStatisticsProvider implements OsStatisticsProvider {
    * Creates a {@link Statistics} with the current machine's stats. The resource's stats
    * will contain a snapshot of the current statistic values for the local machine.
    */
-  private Statistics newSystem(@NotNull OsStatisticsFactory osStatisticsFactory, long id) {
+  private Statistics newSystem(final @NotNull OsStatisticsFactory osStatisticsFactory, long id) {
     final Statistics statistics = osStatisticsFactory.createOsStatistics(LinuxSystemStats.getType(),
         getHostSystemName(), id);
     refreshSystem(statistics);
@@ -126,28 +119,43 @@ public class LegacyOsStatisticsProvider implements OsStatisticsProvider {
 
   @Override
   public void init(final @NotNull OsStatisticsFactory osStatisticsFactory, final long pid) {
-    initOSStats();
-    systemStatistics = newSystem(osStatisticsFactory, pid);
+    if (osStatsSupported) {
+      LinuxProcFsStatistics.init();
 
-    // TODO jbarrett
-    // String statName = getStatisticsManager().getName();
-    // if (statName == null || statName.length() == 0) {
-    // statName = "javaApp" + getSystemId();
-    // }
-    processStatistics = newProcess(osStatisticsFactory, pid, "javaApp-proc");
-    processStats = newProcessStats(processStatistics);
+      systemStatistics = newSystem(osStatisticsFactory, pid);
+
+      // TODO jbarrett
+      // String statName = getStatisticsManager().getName();
+      // if (statName == null || statName.length() == 0) {
+      // statName = "javaApp" + getSystemId();
+      // }
+      processStatistics = newProcess(osStatisticsFactory, pid, "javaApp-proc");
+      processStats = newProcessStats(processStatistics);
+    }
   }
 
   @Override
   public void sample() {
-    sampleSystem();
-    sampleProcess();
+    if (osStatsSupported) {
+      sampleSystem();
+      sampleProcess();
+    }
   }
 
   @Override
   public void destroy() {
-    processStats.close();
-    closeOSStats();
+    if (osStatsSupported) {
+      LinuxProcFsStatistics.close();
+    }
   }
 
+  @Override
+  public @Nullable ProcessSizeSuppler createProcessSizeSuppler() {
+    return osStatsSupported ? () -> processStatistics.getLong(LinuxProcessStats.rssSizeLONG) : null;
+  }
+
+  @Override
+  public ProcessStats getProcessStats() {
+    return processStats;
+  }
 }

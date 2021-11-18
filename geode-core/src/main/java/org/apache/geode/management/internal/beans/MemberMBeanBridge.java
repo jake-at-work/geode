@@ -76,8 +76,8 @@ import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.statistics.StatSamplerStats;
 import org.apache.geode.internal.statistics.StatisticsManager;
 import org.apache.geode.internal.statistics.VMStatsContract;
-import org.apache.geode.internal.statistics.legacy.LegacyOsStatisticsProvider;
-import org.apache.geode.internal.statistics.platform.LinuxSystemStats;
+import org.apache.geode.internal.statistics.legacy.LinuxOsStatisticsProvider;
+import org.apache.geode.internal.statistics.legacy.LinuxSystemStats;
 import org.apache.geode.internal.statistics.platform.ProcessStats;
 import org.apache.geode.internal.stats50.VMStats50;
 import org.apache.geode.internal.tcp.ConnectionTable;
@@ -110,8 +110,8 @@ public class MemberMBeanBridge {
   private static final String MEMBER_LEVEL_REGION_MONITOR = "MemberLevelRegionMonitor";
   private static final long MBFactor = 1024 * 1024;
 
-  private final LegacyOsStatisticsProvider osStatisticsProvider =
-      LegacyOsStatisticsProvider.build();
+  private final LinuxOsStatisticsProvider osStatisticsProvider =
+      LinuxOsStatisticsProvider.build();
 
   private InternalCache cache;
   private DistributionConfig config;
@@ -424,6 +424,10 @@ public class MemberMBeanBridge {
     monitor.addStatisticsToMonitor(stats.getStats());
   }
 
+  /**
+   * @deprecated no replacement
+   */
+  @Deprecated
   private ProcessStats fetchProcessStats() {
     return system.getStatSampler().getProcessStats();
   }

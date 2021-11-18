@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
@@ -23,6 +24,7 @@ import org.apache.geode.Statistics;
 import org.apache.geode.internal.statistics.OsStatisticsFactory;
 import org.apache.geode.internal.statistics.OsStatisticsProvider;
 import org.apache.geode.internal.statistics.OsStatisticsProviderException;
+import org.apache.geode.internal.statistics.ProcessSizeSuppler;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 public class OshiStatisticsProvider implements OsStatisticsProvider {
@@ -305,5 +307,10 @@ public class OshiStatisticsProvider implements OsStatisticsProvider {
       networkInterfaceStat.setLong(NetworkInterfaceStats.speed, networkIF.getSpeed());
     }
 
+  }
+
+  @Override
+  public @Nullable ProcessSizeSuppler createProcessSizeSuppler() {
+    return () -> processStats.getLong(ProcessStats.residentSetSize);
   }
 }
