@@ -13,4 +13,4 @@
 # the License.
 #
 
-org.apache.geode.internal.statistics.oshi.OshiStatisticsProvider
+org.apache.geode.internal.statistics.legacy.LinuxOsStatisticsProvider

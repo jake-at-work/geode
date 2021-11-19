@@ -105,7 +105,6 @@ import org.apache.geode.internal.statistics.StatisticsConfig;
 import org.apache.geode.internal.statistics.StatisticsManager;
 import org.apache.geode.internal.statistics.StatisticsManagerFactory;
 import org.apache.geode.internal.statistics.StatisticsRegistry;
-import org.apache.geode.internal.statistics.legacy.LinuxProcFsStatistics;
 import org.apache.geode.internal.tcp.ConnectionTable;
 import org.apache.geode.logging.internal.LoggingSession;
 import org.apache.geode.logging.internal.NullLoggingSession;
@@ -737,7 +736,7 @@ public class InternalDistributedSystem extends DistributedSystem
         // This calculation is not exact, but seems fairly close. So far we have
         // not loaded much into the heap and the current RSS usage is already
         // included the available memory calculation.
-        long avail = LinuxProcFsStatistics.getAvailableMemory(logger);
+        long avail = 0; //LinuxProcFsStatistics.getAvailableMemory(logger);
         long size = offHeapMemorySize + Runtime.getRuntime().totalMemory();
         lockMemory(avail, size);
       }
