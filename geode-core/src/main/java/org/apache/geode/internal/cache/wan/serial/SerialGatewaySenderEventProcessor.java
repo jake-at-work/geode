@@ -47,6 +47,7 @@ import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EnumListenerEvent;
 import org.apache.geode.internal.cache.EventID;
+import org.apache.geode.internal.cache.InternalCacheEvent;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender.EventWrapper;
@@ -428,8 +429,7 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
               ((EntryEventImpl) event).isConcurrencyConflict() && !event.isOriginRemote();
           if (!(isUpdateVersionStamp || isCME_And_NotOriginRemote)) {
             senderEvent =
-                new GatewaySenderEventImpl(operation, event, substituteValue, false,
-                    isLastEventInTransaction);
+                createGatewaySenderEvent(operation, (InternalCacheEvent) event, substituteValue, isLastEventInTransaction);
             handleSecondaryEvent(senderEvent);
           }
         }
@@ -461,6 +461,16 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
         }
       }
     }
+  }
+
+  @Override
+  protected @NotNull GatewaySenderEventImpl createGatewaySenderEvent(
+      @NotNull EnumListenerEvent operation,
+      @NotNull InternalCacheEvent event,
+      @Nullable Object substituteValue,
+      boolean isLastEventInTransaction) throws IOException {
+    return new GatewaySenderEventImpl(operation, event, substituteValue, false,
+        null);
   }
 
   private boolean queuePrimaryEvent(GatewaySenderEventImpl gatewayEvent)

@@ -52,6 +52,7 @@ import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EnumListenerEvent;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.InternalCache;
+import org.apache.geode.internal.cache.InternalCacheEvent;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.RegionQueue;
@@ -1305,6 +1306,12 @@ public abstract class AbstractGatewaySenderEventProcessor extends LoggingThread
       threadMonitoring.endMonitor();
     }
   }
+
+  protected abstract @NotNull GatewaySenderEventImpl createGatewaySenderEvent(
+      @NotNull EnumListenerEvent operation,
+      @NotNull InternalCacheEvent event,
+      @Nullable Object substituteValue,
+      boolean isLastEventInTransaction) throws IOException;
 
   protected abstract void enqueueEvent(GatewayQueueEvent<?, ?> event);
 

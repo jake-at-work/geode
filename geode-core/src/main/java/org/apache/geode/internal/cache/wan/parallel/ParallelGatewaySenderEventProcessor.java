@@ -32,6 +32,7 @@ import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EnumListenerEvent;
 import org.apache.geode.internal.cache.EventID;
+import org.apache.geode.internal.cache.InternalCacheEvent;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
@@ -115,24 +116,20 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
       return;
     }
 
-    // TODO: Looks like for PDX region bucket id is set to -1.
-    EventID eventID = ((EntryEventImpl) event).getEventId();
-
     final GatewaySenderEventImpl gatewayQueueEvent =
-        createGatewaySenderEvent(operation, event, substituteValue, isLastEventInTransaction,
-            eventID);
+        createGatewaySenderEvent(operation, (InternalCacheEvent) event, substituteValue, isLastEventInTransaction);
 
     enqueueEvent(gatewayQueueEvent);
   }
 
+  @Override
   protected @NotNull GatewaySenderEventImpl createGatewaySenderEvent(
       final @NotNull EnumListenerEvent operation,
-      final @NotNull EntryEvent<?, ?> event,
+      final @NotNull InternalCacheEvent event,
       final @Nullable Object substituteValue,
-      final boolean isLastEventInTransaction,
-      final @NotNull EventID eventID) throws IOException {
+      final boolean isLastEventInTransaction) throws IOException {
     return new GatewaySenderEventImpl(operation, event, substituteValue, true,
-        eventID.getBucketID(), isLastEventInTransaction);
+        event.getEventId().getBucketID(), null);
   }
 
   @Override

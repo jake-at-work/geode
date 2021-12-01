@@ -47,20 +47,18 @@ public class TxBatchRemoteParallelGatewaySenderEventProcessor extends
 
   @Override
   protected @NotNull GatewaySenderEventImpl createGatewaySenderEvent(
-      final @NotNull EnumListenerEvent operation,
-      final @NotNull EntryEvent<?, ?> event,
-      final @Nullable Object substituteValue,
-      final boolean isLastEventInTransaction,
-      final @NotNull EventID eventID)
-      throws IOException {
+      @NotNull EnumListenerEvent operation,
+      @NotNull InternalCacheEvent event,
+      @Nullable Object substituteValue,
+      boolean isLastEventInTransaction) throws IOException {
     final TransactionId transactionId = event.getTransactionId();
     if (null == transactionId) {
       return super.createGatewaySenderEvent(operation, event, substituteValue,
-          isLastEventInTransaction, eventID);
+          isLastEventInTransaction);
     }
 
     return new GatewaySenderEventImpl(operation, event, substituteValue, true,
-        eventID.getBucketID(), new TxBatchMetadata(transactionId, isLastEventInTransaction));
+        event.getEventId().getBucketID(), new TxBatchMetadata(transactionId, isLastEventInTransaction));
   }
 
   @Override
