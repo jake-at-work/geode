@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 
+import org.apache.geode.api.EntryFunction;
+import org.apache.geode.async.api.AsyncRegion;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.ServerConnectivityException;
@@ -2737,6 +2739,14 @@ public interface Region<K, V> extends ConcurrentMap<K, V> {
    */
   @Override
   V replace(K key, V value);
+
+  default <R> R execute(K key, EntryFunction<K, V, R> function) {
+    throw new UnsupportedOperationException();
+  }
+
+  default AsyncRegion<K, V> asAsync() {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * A key-value pair containing the cached data in a region. This object's operations (except

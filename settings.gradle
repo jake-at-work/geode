@@ -67,6 +67,9 @@ include 'boms:geode-all-bom'
 include 'static-analysis:pmd-rules'
 include 'geode-deployment'
 include 'geode-deployment:geode-deployment-legacy'
+include 'geode-api'
+include 'geode-async-api'
+include 'geode-async-core'
 
 
 ['1.0.0-incubating',
