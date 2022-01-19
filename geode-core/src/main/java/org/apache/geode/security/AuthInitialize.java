@@ -18,6 +18,7 @@ package org.apache.geode.security;
 import java.util.Properties;
 
 import org.apache.geode.LogWriter;
+import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheCallback;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystem;
@@ -47,16 +48,18 @@ public interface AuthInitialize extends CacheCallback {
    *
    * @throws AuthenticationFailedException if some exception occurs during the initialization
    *
+   * @deprecated Use {@link #initialize(Cache, Properties)}.
    */
+  @Deprecated
   default void init(LogWriter systemLogger, LogWriter securityLogger)
       throws AuthenticationFailedException {};
 
   /**
-   *
    * @since Geode 1.0.
-   * @deprecated in Geode 1.5. Never called by the product. Use {@link #init(LogWriter systemLogger,
-   *             LogWriter securityLogger)}
+   * @deprecated in Geode 1.5. Never called by the product. Use
+   *             {@link #initialize(Cache, Properties)}.
    */
+  @Deprecated
   default void init() {}
 
   /**
@@ -95,7 +98,9 @@ public interface AuthInitialize extends CacheCallback {
    * @deprecated in Geode 1.3. Never called by the product. Use {@link #getCredentials(Properties
    *             securityProps, DistributedMember server, boolean isPeer)}
    */
+  @Deprecated
   default Properties getCredentials(Properties securityProps) {
     return getCredentials(securityProps, null, true);
   }
+
 }

@@ -49,9 +49,14 @@ public class LogWrapper {
     logger = Logger.getLogger(this.getClass().getCanonicalName());
 
     if (cache != null && !cache.isClosed()) {
-      logger.addHandler(cache.getLogger().getHandler());
+      logger.addHandler(getLogger(cache).getHandler());
     }
     logger.setUseParentHandlers(false);
+  }
+
+  @SuppressWarnings("deprecation")
+  private org.apache.geode.LogWriter getLogger(final Cache cache) {
+    return cache.getLogger();
   }
 
   /**

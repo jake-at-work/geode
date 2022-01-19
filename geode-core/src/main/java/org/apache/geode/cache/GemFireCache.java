@@ -138,7 +138,10 @@ public interface GemFireCache extends RegionService {
    * the cache is closed.
    *
    * @return the logging object
+   *
+   * @deprecated Use Log4J.
    */
+  @Deprecated
   LogWriter getLogger();
 
   /**
@@ -146,7 +149,10 @@ public interface GemFireCache extends RegionService {
    * {@code CacheClosedException} if the cache is closed.
    *
    * @return the security logging object
+   *
+   * @deprecated Use Log4J.
    */
+  @Deprecated
   LogWriter getSecurityLogger();
 
   /**

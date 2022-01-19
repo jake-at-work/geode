@@ -92,7 +92,7 @@ public class DestroyFunctionCommand extends GfshCommand {
         FunctionService.onMembers(DsMembers).setArguments(new Object[] {functionId});
 
     if (execution == null) {
-      cache.getLogger().error("executeUnregister execution is null");
+      getLogger(cache).error("executeUnregister execution is null");
       return ResultModel.createError(CliStrings.DESTROY_FUNCTION__MSG__CANNOT_EXECUTE);
     }
 
@@ -115,6 +115,11 @@ public class DestroyFunctionCommand extends GfshCommand {
     } else {
       return ResultModel.createInfo("Failed in unregistering");
     }
+  }
+
+  @SuppressWarnings("deprecation")
+  private org.apache.geode.LogWriter getLogger(final Cache cache) {
+    return cache.getLogger();
   }
 
   /**

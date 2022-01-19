@@ -138,7 +138,10 @@ public interface Agent {
 
   /**
    * Returns the <code>LogWriter</code> used for logging information.
+   *
+   * @deprecated Use Log4J.
    */
+  @Deprecated
   LogWriter getLogWriter();
 
 }

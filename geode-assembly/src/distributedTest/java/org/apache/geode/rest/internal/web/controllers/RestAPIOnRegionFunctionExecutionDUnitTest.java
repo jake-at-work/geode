@@ -261,7 +261,7 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
     static final String Id = "SampleFunction";
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "deprecation"})
     public void execute(FunctionContext context) {
       invocationCount++;
       if (context instanceof RegionFunctionContext) {

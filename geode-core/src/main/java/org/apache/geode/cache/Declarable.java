@@ -64,8 +64,9 @@ public interface Declarable {
    *
    * @throws IllegalArgumentException If one of the configuration options in <code>props</code> is
    *         illegal or malformed.
-   * @deprecated as of Geode 1.5 implement initialize instead.
+   * @deprecated Use {@link #initialize(Cache, Properties)}.
    */
+  @Deprecated
   default void init(Properties props) {};
 
   /**

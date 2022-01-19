@@ -41,6 +41,7 @@ import org.apache.geode.pdx.PdxInstance;
  */
 public class AddFreeItemToOrders implements Function<Object> {
 
+  @SuppressWarnings("deprecation")
   @Override
   public void execute(FunctionContext<Object> context) {
     List<Object> argsList = new ArrayList<>();

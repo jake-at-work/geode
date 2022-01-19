@@ -93,6 +93,7 @@ public class CacheWithCustomLogConfigIntegrationTest {
         .getAbsolutePath();
   }
 
+  @SuppressWarnings("deprecation")
   @Before
   public void setUp() {
     Properties config = new Properties();

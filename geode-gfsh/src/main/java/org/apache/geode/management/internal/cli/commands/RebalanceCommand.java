@@ -195,7 +195,12 @@ public class RebalanceCommand extends GfshCommand {
       headerText = headerText + " " + rstlist.get(i);
     }
     table1.setHeader(headerText);
-    cache.getLogger().info(headerText + resultStr);
+    getLogger(cache).info(headerText + resultStr);
+  }
+
+  @SuppressWarnings("deprecation")
+  private org.apache.geode.LogWriter getLogger(final InternalCache cache) {
+    return cache.getLogger();
   }
 
 

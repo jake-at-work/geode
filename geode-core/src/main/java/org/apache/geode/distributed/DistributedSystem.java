@@ -288,6 +288,8 @@ public abstract class DistributedSystem implements StatisticsFactory {
    *
    * @throws IllegalStateException This VM has {@linkplain #disconnect() disconnected} from the
    *         distributed system.
+   *
+   * @deprecated Use Log4J.
    */
   @Deprecated
   public abstract LogWriter getLogWriter();
@@ -299,6 +301,8 @@ public abstract class DistributedSystem implements StatisticsFactory {
    * @throws IllegalStateException This VM has {@linkplain #disconnect() disconnected} from the
    *         distributed system.
    * @since GemFire 5.5
+   *
+   * @deprecated Use Log4J.
    */
   @Deprecated
   public abstract LogWriter getSecurityLogWriter();

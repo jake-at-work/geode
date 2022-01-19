@@ -155,7 +155,8 @@ public interface Cache extends GemFireCache {
    * cache is closed.
    *
    * @return the logging object
-   * @deprecated as of 6.5 use getLogger().convertToLogWriterI18n() instead
+   *
+   * @deprecated Use Log4J.
    */
   @Deprecated
   LogWriterI18n getLoggerI18n();
@@ -166,7 +167,8 @@ public interface Cache extends GemFireCache {
    * if the cache is closed.
    *
    * @return the security logging object
-   * @deprecated as of 6.5 use getSecurityLogger().convertToLogWriterI18n() instead
+   *
+   * @deprecated Use Log4J.
    */
   @Deprecated
   LogWriterI18n getSecurityLoggerI18n();

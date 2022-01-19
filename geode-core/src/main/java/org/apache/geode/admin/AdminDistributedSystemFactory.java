@@ -137,7 +137,10 @@ public class AdminDistributedSystemFactory {
    * out.
    *
    * @return a GemFire LogWriterI18n for logging
+   *
+   * @deprecated Use Log4j.
    */
+  @Deprecated
   public static LogWriter getLogWriter() {
     return new LocalLogWriter(DistributionConfig.DEFAULT_LOG_LEVEL);
   }

@@ -137,6 +137,7 @@ public class RestAPIsWithSSLDUnitTest {
     return props.getProperty(HTTP_SERVICE_SSL_TRUSTSTORE);
   }
 
+  @SuppressWarnings("deprecation")
   private void startClusterWithSSL(final Properties sslProperties)
       throws Exception {
     MemberVM locator = cluster.startLocatorVM(0);

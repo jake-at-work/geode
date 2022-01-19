@@ -407,6 +407,7 @@ public abstract class Handshake {
 
     // if authInit exists
     try {
+
       AuthInitialize auth =
           CallbackInstantiator.getObjectOfType(authInitMethod, AuthInitialize.class);
       auth.init(logWriter, securityLogWriter);
