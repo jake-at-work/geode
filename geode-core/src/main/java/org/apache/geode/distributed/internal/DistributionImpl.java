@@ -143,7 +143,7 @@ public class DistributionImpl implements Distribution {
           .setMembershipLocator(locator)
           .setAuthenticator(
               new GMSAuthenticator(system.getSecurityProperties(), system.getSecurityService(),
-                  system.getSecurityLogWriter(), system.getInternalLogWriter()))
+                  system.getSecurityLogWriter(), system.getInternalLogWriter(), system))
           .setStatistics(clusterDistributionManager.stats)
           .setMessageListener(messageListener)
           .setMembershipListener(listener)

@@ -77,7 +77,8 @@ public class GMSAuthenticatorWithSecurityManagerTest extends AbstractGMSAuthenti
     assertThat(auth.isClosed()).isFalse();
 
     SpyAuthInit.setAuthInitialize(auth);
-    Properties credentials = this.authenticator.getCredentials(this.member, this.props);
+    Properties credentials =
+        this.authenticator.getCredentials(this.member, this.props, distributedSystem);
 
     assertThat(credentials).isEqualTo(this.props);
     assertThat(auth.isClosed()).isTrue();
@@ -86,14 +87,16 @@ public class GMSAuthenticatorWithSecurityManagerTest extends AbstractGMSAuthenti
 
   @Test
   public void getCredentialsShouldReturnNullIfNoPeerAuthInit() throws Exception {
-    Properties credentials = this.authenticator.getCredentials(this.member, this.props);
+    Properties credentials =
+        this.authenticator.getCredentials(this.member, this.props, distributedSystem);
     assertThat(credentials).isNull();
   }
 
   @Test
   public void getCredentialsShouldReturnNullIfEmptyPeerAuthInit() throws Exception {
     this.props.setProperty(SECURITY_PEER_AUTH_INIT, "");
-    Properties credentials = this.authenticator.getCredentials(this.member, this.props);
+    Properties credentials =
+        this.authenticator.getCredentials(this.member, this.props, distributedSystem);
     assertThat(credentials).isNull();
   }
 
@@ -101,32 +104,36 @@ public class GMSAuthenticatorWithSecurityManagerTest extends AbstractGMSAuthenti
   public void getCredentialsShouldThrowIfPeerAuthInitDoesNotExist() throws Exception {
     String authInit = getClass().getName() + "$NotExistAuth.create";
     this.props.setProperty(SECURITY_PEER_AUTH_INIT, authInit);
-    assertThatThrownBy(() -> this.authenticator.getCredentials(this.member, this.props))
-        .hasMessageContaining("Instance could not be obtained");
+    assertThatThrownBy(
+        () -> this.authenticator.getCredentials(this.member, this.props, distributedSystem))
+            .hasMessageContaining("Instance could not be obtained");
   }
 
   @Test
   public void getCredentialsShouldThrowIfPeerAuthInitCreateReturnsNull() throws Exception {
     this.props.setProperty(SECURITY_PEER_AUTH_INIT,
         AuthInitCreateReturnsNull.class.getName() + ".create");
-    assertThatThrownBy(() -> this.authenticator.getCredentials(this.member, this.props))
-        .hasMessageContaining("Instance could not be obtained from");
+    assertThatThrownBy(
+        () -> this.authenticator.getCredentials(this.member, this.props, distributedSystem))
+            .hasMessageContaining("Instance could not be obtained from");
   }
 
   @Test
   public void getCredentialsShouldThrowIfPeerAuthInitGetCredentialsAndInitThrow() throws Exception {
     this.props.setProperty(SECURITY_PEER_AUTH_INIT,
         AuthInitGetCredentialsAndInitThrow.class.getName() + ".create");
-    assertThatThrownBy(() -> this.authenticator.getCredentials(this.member, this.props))
-        .hasMessage("expected init error");
+    assertThatThrownBy(
+        () -> this.authenticator.getCredentials(this.member, this.props, distributedSystem))
+            .hasMessage("expected init error");
   }
 
   @Test
   public void getCredentialsShouldThrowIfPeerAuthInitGetCredentialsThrows() throws Exception {
     this.props.setProperty(SECURITY_PEER_AUTH_INIT,
         AuthInitGetCredentialsThrows.class.getName() + ".create");
-    assertThatThrownBy(() -> this.authenticator.getCredentials(this.member, this.props))
-        .hasMessage("expected get credential error");
+    assertThatThrownBy(
+        () -> this.authenticator.getCredentials(this.member, this.props, distributedSystem))
+            .hasMessage("expected get credential error");
   }
 
   @Test

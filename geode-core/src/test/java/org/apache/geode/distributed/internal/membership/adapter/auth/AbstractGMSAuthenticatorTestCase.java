@@ -27,6 +27,7 @@ import org.mockito.MockitoAnnotations;
 
 import org.apache.geode.LogWriter;
 import org.apache.geode.distributed.DistributedMember;
+import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.distributed.internal.membership.api.MembershipConfig;
@@ -57,6 +58,9 @@ public abstract class AbstractGMSAuthenticatorTestCase {
   @Mock
   private DistributionConfig distributionConfig;
 
+  @Mock
+  protected DistributedSystem distributedSystem;
+
   protected GMSAuthenticator authenticator;
 
 
@@ -69,7 +73,7 @@ public abstract class AbstractGMSAuthenticatorTestCase {
     this.props = new Properties();
     this.securityProps = new Properties();
     this.authenticator = new GMSAuthenticator(securityProps, securityService, mock(LogWriter.class),
-        mock(LogWriter.class));
+        mock(LogWriter.class), distributedSystem);
 
     when(this.securityService.isIntegratedSecurity()).thenReturn(isIntegratedSecurity());
     when(this.securityService.isPeerSecurityRequired()).thenReturn(true);

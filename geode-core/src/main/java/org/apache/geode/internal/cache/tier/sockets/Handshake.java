@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.LogWriter;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.cache.CacheClosedException;
@@ -396,8 +395,8 @@ public abstract class Handshake {
   }
 
   public static Properties getCredentials(String authInitMethod, Properties securityProperties,
-      DistributedMember server, boolean isPeer, LogWriter logWriter,
-      LogWriter securityLogWriter) throws AuthenticationRequiredException {
+      DistributedMember server, boolean isPeer, DistributedSystem distributedSystem)
+      throws AuthenticationRequiredException {
 
     Properties credentials = null;
     // if no authInit, Try to extract the credentials directly from securityProps
@@ -410,7 +409,7 @@ public abstract class Handshake {
 
       AuthInitialize auth =
           CallbackInstantiator.getObjectOfType(authInitMethod, AuthInitialize.class);
-      auth.init(logWriter, securityLogWriter);
+      auth.init(distributedSystem);
       try {
         credentials = auth.getCredentials(securityProperties, server, isPeer);
       } finally {
@@ -430,8 +429,7 @@ public abstract class Handshake {
   protected Properties getCredentials(DistributedMember member) {
     String authInitMethod = this.system.getProperties().getProperty(SECURITY_CLIENT_AUTH_INIT);
     return getCredentials(authInitMethod, this.system.getSecurityProperties(), member, false,
-        (InternalLogWriter) this.system.getLogWriter(),
-        (InternalLogWriter) this.system.getSecurityLogWriter());
+        this.system);
   }
 
   /**

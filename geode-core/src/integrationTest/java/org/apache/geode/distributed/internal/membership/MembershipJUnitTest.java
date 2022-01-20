@@ -291,7 +291,7 @@ public class MembershipJUnitTest {
         .getSocketCreatorForComponent(SecurableCommunicationChannel.CLUSTER);
     final GMSAuthenticator authenticator =
         new GMSAuthenticator(config.getSecurityProps(), securityService,
-            mockSystem.getSecurityLogWriter(), mockSystem.getInternalLogWriter());
+            mockSystem.getSecurityLogWriter(), mockSystem.getInternalLogWriter(), mockSystem);
     final Membership<InternalDistributedMember> m1 =
         MembershipBuilder.<InternalDistributedMember>newMembershipBuilder(
             socketCreator, locatorClient, serializer, memberIdentifierFactory)

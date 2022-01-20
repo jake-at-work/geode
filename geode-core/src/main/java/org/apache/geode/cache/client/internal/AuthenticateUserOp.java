@@ -169,8 +169,7 @@ public class AuthenticateUserOp {
           distributedSystem.getProperties().getProperty(SECURITY_CLIENT_AUTH_INIT);
 
       Properties credentials = Handshake.getCredentials(authInitMethod, securityProperties,
-          server, false, distributedSystem.getLogWriter(),
-          distributedSystem.getSecurityLogWriter());
+          server, false, distributedSystem);
       byte[] credentialBytes;
       try (HeapDataOutputStream heapdos = new HeapDataOutputStream(KnownVersion.CURRENT)) {
         DataSerializer.writeProperties(credentials, heapdos);

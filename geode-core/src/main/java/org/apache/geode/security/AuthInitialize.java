@@ -48,7 +48,7 @@ public interface AuthInitialize extends CacheCallback {
    *
    * @throws AuthenticationFailedException if some exception occurs during the initialization
    *
-   * @deprecated Use {@link #initialize(Cache, Properties)}.
+   * @deprecated Use {@link #init(DistributedSystem)}.
    */
   @Deprecated
   default void init(LogWriter systemLogger, LogWriter securityLogger)
@@ -57,10 +57,19 @@ public interface AuthInitialize extends CacheCallback {
   /**
    * @since Geode 1.0.
    * @deprecated in Geode 1.5. Never called by the product. Use
-   *             {@link #initialize(Cache, Properties)}.
+   *             {@link #init(DistributedSystem)}.
    */
   @Deprecated
   default void init() {}
+
+  /**
+   * Invoked after instance is instantiated with current {@link DistributedSystem} instance.
+   *
+   * @param distributedSystem that is initializing this instance.
+   */
+  default void init(final DistributedSystem distributedSystem) {
+    init(distributedSystem.getLogWriter(), distributedSystem.getSecurityLogWriter());
+  }
 
   /**
    * Initialize with the given set of security properties and return the credentials for the
@@ -92,6 +101,12 @@ public interface AuthInitialize extends CacheCallback {
       throws AuthenticationFailedException;
 
   /**
+   * Invoked after the last use of this instance.
+   */
+  @Override
+  default void close() {}
+
+  /**
    *
    * @return the credentials to be used. It needs to contain "security-username" and
    *         "security-password"
@@ -102,5 +117,19 @@ public interface AuthInitialize extends CacheCallback {
   default Properties getCredentials(Properties securityProps) {
     return getCredentials(securityProps, null, true);
   }
+
+  /**
+   * @deprecated Never called by the product. Use {@link #init(DistributedSystem)}
+   */
+  @Deprecated
+  @Override
+  default void initialize(Cache cache, Properties properties) {}
+
+  /**
+   * @deprecated Never called by the product. Use {@link #init(DistributedSystem)}
+   */
+  @Deprecated
+  @Override
+  default void init(Properties props) {}
 
 }

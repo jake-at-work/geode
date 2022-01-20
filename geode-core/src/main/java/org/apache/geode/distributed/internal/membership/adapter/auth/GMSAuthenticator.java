@@ -23,6 +23,8 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.geode.LogWriter;
+import org.apache.geode.annotations.VisibleForTesting;
+import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.distributed.internal.membership.api.Authenticator;
 import org.apache.geode.distributed.internal.membership.api.MemberIdentifier;
@@ -40,15 +42,18 @@ public class GMSAuthenticator implements Authenticator<InternalDistributedMember
   private final SecurityService securityService;
   private final LogWriter securityLogWriter;
   private final LogWriter logWriter;
+  private final DistributedSystem distributedSystem;
 
   public GMSAuthenticator(final Properties securityProps,
       final SecurityService securityService,
       final LogWriter securityLogWriter,
-      final LogWriter logWriter) {
+      final LogWriter logWriter,
+      final DistributedSystem distributedSystem) {
     this.securityProps = securityProps;
     this.securityService = securityService;
     this.securityLogWriter = securityLogWriter;
     this.logWriter = logWriter;
+    this.distributedSystem = distributedSystem;
   }
 
   /**
@@ -140,7 +145,7 @@ public class GMSAuthenticator implements Authenticator<InternalDistributedMember
   @Override
   public Properties getCredentials(InternalDistributedMember member) {
     try {
-      return getCredentials(member, securityProps);
+      return getCredentials(member, securityProps, distributedSystem);
 
     } catch (Exception e) {
       String authMethod = securityProps.getProperty(SECURITY_PEER_AUTH_INIT);
@@ -151,16 +156,13 @@ public class GMSAuthenticator implements Authenticator<InternalDistributedMember
     }
   }
 
-  /**
-   * For testing only.
-   */
-  Properties getCredentials(MemberIdentifier member, Properties secProps) {
+  @VisibleForTesting
+  Properties getCredentials(MemberIdentifier member, Properties secProps,
+      DistributedSystem distributedSystem) {
     String authMethod = secProps.getProperty(SECURITY_PEER_AUTH_INIT);
     return Handshake.getCredentials(authMethod, secProps,
         (InternalDistributedMember) member,
-        true,
-        logWriter,
-        securityLogWriter);
+        true, distributedSystem);
   }
 
   /**
