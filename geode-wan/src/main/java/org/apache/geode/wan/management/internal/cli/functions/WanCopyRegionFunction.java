@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.apache.geode.management.internal.cli.functions;
+package org.apache.geode.wan.management.internal.cli.functions;
 
 import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.cache.wan.internal.cli.commands.WanCopyRegionCommand.WAN_COPY_REGION__MSG__ALREADY__RUNNING__COMMAND;

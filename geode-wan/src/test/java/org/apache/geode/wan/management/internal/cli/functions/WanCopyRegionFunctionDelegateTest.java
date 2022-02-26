@@ -12,10 +12,10 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.apache.geode.management.internal.cli.functions;
+package org.apache.geode.wan.management.internal.cli.functions;
 
-import static org.apache.geode.management.internal.cli.functions.WanCopyRegionFunctionDelegate.EventCreatorImpl;
-import static org.apache.geode.management.internal.cli.functions.WanCopyRegionFunctionDelegate.ThreadSleeper;
+import static org.apache.geode.wan.management.internal.cli.functions.WanCopyRegionFunctionDelegate.EventCreatorImpl;
+import static org.apache.geode.wan.management.internal.cli.functions.WanCopyRegionFunctionDelegate.ThreadSleeper;
 import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
@@ -67,7 +67,8 @@ import org.apache.geode.internal.cache.wan.BatchException70;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventDispatcher;
 import org.apache.geode.internal.cache.wan.InternalGatewaySender;
 import org.apache.geode.internal.serialization.KnownVersion;
-import org.apache.geode.management.internal.cli.functions.WanCopyRegionFunctionDelegate.EventCreator;
+import org.apache.geode.wan.management.internal.cli.functions.WanCopyRegionFunctionDelegate;
+import org.apache.geode.wan.management.internal.cli.functions.WanCopyRegionFunctionDelegate.EventCreator;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 
 public class WanCopyRegionFunctionDelegateTest {

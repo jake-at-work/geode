@@ -27,7 +27,7 @@ import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
-import org.apache.geode.management.internal.cli.functions.WanCopyRegionFunction;
+import org.apache.geode.wan.management.internal.cli.functions.WanCopyRegionFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;

@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.apache.geode.management.internal.cli.functions;
+package org.apache.geode.wan.management.internal.cli.functions;
 
 import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -36,6 +36,7 @@ import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.InternalGatewaySender;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
+import org.apache.geode.wan.management.internal.cli.functions.WanCopyRegionFunction;
 
 public class WanCopyRegionFunctionTest {
 

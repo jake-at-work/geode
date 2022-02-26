@@ -74,3 +74,14 @@ dependencies {
 
   upgradeTestRuntimeOnly(project(path: ':geode-old-versions', configuration: 'classpathsOutput'))
 }
+
+ext.moduleName = group + '.wan'
+
+jar {
+  inputs.property("moduleName", moduleName)
+  manifest {
+    attributes(
+        'Automatic-Module-Name': moduleName,
+    )
+  }
+}
