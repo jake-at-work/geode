@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.apache.geode.cache.util;
+package org.apache.geode.rebalancer;
 
 import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
@@ -34,8 +34,9 @@ import org.junit.Test;
 
 import org.apache.geode.GemFireConfigException;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.util.AutoBalancer.CacheOperationFacade;
-import org.apache.geode.cache.util.AutoBalancer.GeodeCacheFacade;
+import org.apache.geode.rebalancer.AutoBalancer;
+import org.apache.geode.rebalancer.AutoBalancer.CacheOperationFacade;
+import org.apache.geode.rebalancer.AutoBalancer.GeodeCacheFacade;
 import org.apache.geode.distributed.DistributedLockService;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.locks.DLockService;
@@ -152,7 +153,7 @@ public class AutoBalancerIntegrationJUnitTest {
             + " xsi:schemaLocation=\"http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd\""
             + " version=\"1.0\">                                                                             "
             + "   <initializer>                                                                              "
-            + "     <class-name>org.apache.geode.cache.util.AutoBalancer</class-name>                    "
+            + "     <class-name>org.apache.geode.rebalancer.AutoBalancer</class-name>                    "
             + "     <parameter name=\"schedule\">                                                            "
             + "       <string>* * * * * ? </string>                                                          "
             + "     </parameter>                                                                             "
@@ -170,7 +171,7 @@ public class AutoBalancerIntegrationJUnitTest {
             + " xsi:schemaLocation=\"http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd\""
             + " version=\"1.0\">                                                                             "
             + "   <initializer>                                                                              "
-            + "     <class-name>org.apache.geode.cache.util.AutoBalancer</class-name>                    "
+            + "     <class-name>org.apache.geode.rebalancer.AutoBalancer</class-name>                    "
             + "   </initializer>                                                                             "
             + " </cache>";
 

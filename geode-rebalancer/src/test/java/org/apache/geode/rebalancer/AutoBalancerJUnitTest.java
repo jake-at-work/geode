@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.apache.geode.cache.util;
+package org.apache.geode.rebalancer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -44,12 +44,12 @@ import org.apache.geode.cache.control.RebalanceFactory;
 import org.apache.geode.cache.control.RebalanceOperation;
 import org.apache.geode.cache.control.RebalanceResults;
 import org.apache.geode.cache.partition.PartitionMemberInfo;
-import org.apache.geode.cache.util.AutoBalancer.AuditScheduler;
-import org.apache.geode.cache.util.AutoBalancer.CacheOperationFacade;
-import org.apache.geode.cache.util.AutoBalancer.GeodeCacheFacade;
-import org.apache.geode.cache.util.AutoBalancer.OOBAuditor;
-import org.apache.geode.cache.util.AutoBalancer.SizeBasedOOBAuditor;
-import org.apache.geode.cache.util.AutoBalancer.TimeProvider;
+import org.apache.geode.rebalancer.AutoBalancer.AuditScheduler;
+import org.apache.geode.rebalancer.AutoBalancer.CacheOperationFacade;
+import org.apache.geode.rebalancer.AutoBalancer.GeodeCacheFacade;
+import org.apache.geode.rebalancer.AutoBalancer.OOBAuditor;
+import org.apache.geode.rebalancer.AutoBalancer.SizeBasedOOBAuditor;
+import org.apache.geode.rebalancer.AutoBalancer.TimeProvider;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.PRHARedundancyProvider;
 import org.apache.geode.internal.cache.PartitionedRegion;
