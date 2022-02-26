@@ -24,8 +24,6 @@ if (project.name.endsWith("geode-all-bom")) {
 }
 apply plugin: 'java-library'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 compileJava.options.encoding = 'UTF-8'
 
 dependencies {
@@ -43,8 +41,6 @@ if (javaVersion.startsWith("1.8.0") && javaVersion.split("-")[0].split("_")[1].t
 gradle.taskGraph.whenReady({ graph ->
   tasks.withType(JavaCompile).each { javac ->
     javac.configure {
-      sourceCompatibility '1.8'
-      targetCompatibility '1.8'
       options.encoding = 'UTF-8'
     }
     javac.options.incremental = true
@@ -194,3 +190,16 @@ javadoc {
 }
 
 
+ext.java8Toolchain = {
+  languageVersion = JavaLanguageVersion.of(8)
+  vendor = JvmVendorSpec.BELLSOFT
+}
+
+ext.java17Toolchain = {
+  languageVersion = JavaLanguageVersion.of(17)
+  vendor = JvmVendorSpec.BELLSOFT
+}
+
+java {
+  toolchain(java8Toolchain)
+}
