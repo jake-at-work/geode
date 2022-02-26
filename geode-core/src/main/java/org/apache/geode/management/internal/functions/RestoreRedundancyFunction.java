@@ -21,7 +21,7 @@ import org.apache.geode.cache.control.RestoreRedundancyOperation;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.internal.cache.control.SerializableRestoreRedundancyResultsImpl;
 import org.apache.geode.internal.cache.execute.InternalFunction;
-import org.apache.geode.management.internal.operation.RestoreRedundancyResultsImpl;
+import org.apache.geode.management.operation.internal.RestoreRedundancyResultsImpl;
 import org.apache.geode.management.operation.RestoreRedundancyRequest;
 
 

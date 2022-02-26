@@ -13,13 +13,15 @@
  * the License.
  */
 
-package org.apache.geode.management.internal.operation;
+package org.apache.geode.management.operation.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import org.apache.geode.management.operation.internal.RegionRedundancyStatusImpl;
+import org.apache.geode.management.operation.internal.RestoreRedundancyResultsImpl;
 import org.apache.geode.management.runtime.RegionRedundancyStatus;
 import org.apache.geode.management.runtime.RestoreRedundancyResults;
 

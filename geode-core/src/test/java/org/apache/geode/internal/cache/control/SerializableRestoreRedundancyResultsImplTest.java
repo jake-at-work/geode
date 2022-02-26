@@ -39,8 +39,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.geode.cache.partition.PartitionRebalanceInfo;
-import org.apache.geode.management.internal.operation.RegionRedundancyStatusImpl;
-import org.apache.geode.management.internal.operation.RestoreRedundancyResultsImpl;
+import org.apache.geode.management.operation.internal.RegionRedundancyStatusImpl;
+import org.apache.geode.management.operation.internal.RestoreRedundancyResultsImpl;
 import org.apache.geode.management.runtime.RegionRedundancyStatus;
 import org.apache.geode.management.runtime.RestoreRedundancyResults;
 import org.apache.geode.util.internal.GeodeJsonMapper;

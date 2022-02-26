@@ -18,7 +18,7 @@ import java.util.Optional;
 
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.management.internal.ManagementSanctionedSerializablesService;
+import org.apache.geode.management.internal.serializable.ManagementSanctionedSerializablesService;
 import org.apache.geode.test.junit.categories.SerializationTest;
 
 @Category(SerializationTest.class)

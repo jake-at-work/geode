@@ -46,6 +46,8 @@ import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.internal.BaseManagementService;
 import org.apache.geode.management.internal.functions.RestoreRedundancyFunction;
 import org.apache.geode.management.operation.RestoreRedundancyRequest;
+import org.apache.geode.management.operation.internal.RegionRedundancyStatusImpl;
+import org.apache.geode.management.operation.internal.RestoreRedundancyResultsImpl;
 import org.apache.geode.management.runtime.RegionRedundancyStatus;
 import org.apache.geode.management.runtime.RestoreRedundancyResults;
 

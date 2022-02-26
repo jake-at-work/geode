@@ -49,6 +49,8 @@ import org.apache.geode.management.internal.functions.RebalanceFunction;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.util.ManagementUtils;
 import org.apache.geode.management.operation.RebalanceOperation;
+import org.apache.geode.management.operation.internal.RebalanceRegionResultImpl;
+import org.apache.geode.management.operation.internal.RebalanceResultImpl;
 import org.apache.geode.management.runtime.RebalanceRegionResult;
 import org.apache.geode.management.runtime.RebalanceResult;
 

@@ -13,7 +13,7 @@
  * the License.
  */
 
-package org.apache.geode.management.internal.operation;
+package org.apache.geode.management.operation.internal;
 
 import java.util.ArrayList;
 import java.util.List;

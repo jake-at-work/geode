@@ -36,6 +36,7 @@ import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.internal.functions.RestoreRedundancyFunction;
 import org.apache.geode.management.internal.util.ManagementUtils;
 import org.apache.geode.management.operation.RestoreRedundancyRequest;
+import org.apache.geode.management.operation.internal.RestoreRedundancyResultsImpl;
 import org.apache.geode.management.runtime.RestoreRedundancyResults;
 
 public class RestoreRedundancyPerformer
