@@ -45,7 +45,6 @@ import org.apache.geode.internal.SystemDescription;
 import org.apache.geode.internal.VersionDescription;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.util.ArgumentRedactor;
-import org.apache.geode.logging.internal.ConfigurationInfo;
 import org.apache.geode.logging.internal.OSProcess;
 import org.apache.geode.util.internal.GeodeGlossary;
 

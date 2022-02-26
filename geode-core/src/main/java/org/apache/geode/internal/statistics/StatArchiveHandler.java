@@ -28,9 +28,9 @@ import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.io.RollingFileHandler;
 import org.apache.geode.internal.logging.InternalLogWriter;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.logging.internal.log4j.LogWriterLogger;
+import org.apache.geode.internal.logging.log4j.LogWriterLogger;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogFile;
+import org.apache.geode.internal.logging.spi.LogFile;
 
 /**
  * Extracted from {@link HostStatSampler} and {@link GemFireStatSampler}.

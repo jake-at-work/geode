@@ -15,10 +15,10 @@
 package org.apache.geode.logging.log4j.internal.impl;
 
 import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
-import static org.apache.geode.logging.internal.Configuration.LOG_LEVEL_UPDATE_OCCURS_PROPERTY;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.CONFIG;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.FINE;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.WARNING;
+import static org.apache.geode.internal.logging.Configuration.LOG_LEVEL_UPDATE_OCCURS_PROPERTY;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.CONFIG;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.FINE;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.WARNING;
 import static org.apache.geode.test.util.ResourceUtils.createFileFromResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +47,7 @@ import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogLevelUpdateOccurs;
+import org.apache.geode.internal.logging.spi.LogLevelUpdateOccurs;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
 /**

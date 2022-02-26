@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.alerting.internal.spi.AlertLevel;
-import org.apache.geode.logging.internal.spi.LogWriterLevel;
+import org.apache.geode.internal.logging.spi.LogWriterLevel;
 import org.apache.geode.test.junit.categories.AlertingTest;
 
 /**

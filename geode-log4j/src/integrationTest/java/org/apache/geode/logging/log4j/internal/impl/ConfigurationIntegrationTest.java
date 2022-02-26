@@ -14,15 +14,15 @@
  */
 package org.apache.geode.logging.log4j.internal.impl;
 
-import static org.apache.geode.logging.internal.spi.LogLevelUpdateOccurs.ALWAYS;
-import static org.apache.geode.logging.internal.spi.LogLevelUpdateScope.ALL_LOGGERS;
-import static org.apache.geode.logging.internal.spi.LogLevelUpdateScope.GEODE_AND_APPLICATION_LOGGERS;
-import static org.apache.geode.logging.internal.spi.LogLevelUpdateScope.GEODE_AND_SECURITY_LOGGERS;
-import static org.apache.geode.logging.internal.spi.LogLevelUpdateScope.GEODE_LOGGERS;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.INFO;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.WARNING;
-import static org.apache.geode.logging.internal.spi.LoggingProvider.MAIN_LOGGER_NAME;
-import static org.apache.geode.logging.internal.spi.LoggingProvider.SECURITY_LOGGER_NAME;
+import static org.apache.geode.internal.logging.spi.LogLevelUpdateOccurs.ALWAYS;
+import static org.apache.geode.internal.logging.spi.LogLevelUpdateScope.ALL_LOGGERS;
+import static org.apache.geode.internal.logging.spi.LogLevelUpdateScope.GEODE_AND_APPLICATION_LOGGERS;
+import static org.apache.geode.internal.logging.spi.LogLevelUpdateScope.GEODE_AND_SECURITY_LOGGERS;
+import static org.apache.geode.internal.logging.spi.LogLevelUpdateScope.GEODE_LOGGERS;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.INFO;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.WARNING;
+import static org.apache.geode.internal.logging.spi.LoggingProvider.MAIN_LOGGER_NAME;
+import static org.apache.geode.internal.logging.spi.LoggingProvider.SECURITY_LOGGER_NAME;
 import static org.apache.geode.logging.log4j.internal.impl.Log4jLoggingProvider.getLoggerConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -39,9 +39,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.logging.internal.Configuration;
-import org.apache.geode.logging.internal.spi.LogConfig;
-import org.apache.geode.logging.internal.spi.LogConfigSupplier;
+import org.apache.geode.internal.logging.Configuration;
+import org.apache.geode.internal.logging.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogConfigSupplier;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
 /**

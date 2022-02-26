@@ -18,7 +18,7 @@ import static java.lang.System.lineSeparator;
 import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.LOG_FILE;
 import static org.apache.geode.distributed.ConfigurationProperties.NAME;
-import static org.apache.geode.logging.internal.Configuration.STARTUP_CONFIGURATION;
+import static org.apache.geode.internal.logging.Configuration.STARTUP_CONFIGURATION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
@@ -42,6 +42,7 @@ import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.logging.Banner;
+import org.apache.geode.internal.logging.Configuration;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.assertj.LogFileAssert;
 import org.apache.geode.test.junit.categories.LoggingTest;

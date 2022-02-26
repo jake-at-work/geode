@@ -62,3 +62,14 @@ distributedTest {
   // Some tests have inner tests that should be ignored
   exclude "**/*\$*.class"
 }
+
+ext.moduleName = group + '.logging'
+
+jar {
+  inputs.property("moduleName", moduleName)
+  manifest {
+    attributes(
+        'Automatic-Module-Name': moduleName,
+    )
+  }
+}

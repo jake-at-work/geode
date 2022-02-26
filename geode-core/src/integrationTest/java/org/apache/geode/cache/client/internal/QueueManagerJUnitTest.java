@@ -17,7 +17,7 @@ package org.apache.geode.cache.client.internal;
 import static java.util.Collections.emptyList;
 import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.FINEST;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.FINEST;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.apache.geode.test.dunit.IgnoredException.addIgnoredException;
 import static org.assertj.core.api.Assertions.assertThat;

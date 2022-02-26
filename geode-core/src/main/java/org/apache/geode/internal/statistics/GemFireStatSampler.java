@@ -38,7 +38,7 @@ import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.statistics.platform.OsStatisticsFactory;
 import org.apache.geode.internal.statistics.platform.ProcessStats;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogFile;
+import org.apache.geode.internal.logging.spi.LogFile;
 
 /**
  * GemFireStatSampler adds listeners and rolling archives to HostStatSampler.

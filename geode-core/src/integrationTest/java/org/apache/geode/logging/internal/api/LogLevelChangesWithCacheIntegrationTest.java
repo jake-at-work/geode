@@ -17,8 +17,8 @@ package org.apache.geode.logging.internal.api;
 import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.LOG_LEVEL;
 import static org.apache.geode.distributed.ConfigurationProperties.SECURITY_LOG_LEVEL;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.INFO;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.WARNING;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.INFO;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.WARNING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Properties;
@@ -38,7 +38,7 @@ import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.logging.InternalLogWriter;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogConfig;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
 /**

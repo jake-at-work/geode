@@ -20,8 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.logging.internal.spi.LogConfig;
-import org.apache.geode.logging.internal.spi.LogWriterLevel;
+import org.apache.geode.internal.logging.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogWriterLevel;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
 /**

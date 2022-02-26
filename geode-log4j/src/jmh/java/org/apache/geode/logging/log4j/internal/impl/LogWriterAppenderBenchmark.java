@@ -44,9 +44,9 @@ import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogConfig;
-import org.apache.geode.logging.internal.spi.LogConfigSupplier;
-import org.apache.geode.logging.internal.spi.SessionContext;
+import org.apache.geode.internal.logging.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogConfigSupplier;
+import org.apache.geode.internal.logging.spi.SessionContext;
 import org.apache.geode.test.assertj.LogFileAssert;
 import org.apache.geode.test.junit.rules.accessible.AccessibleTemporaryFolder;
 

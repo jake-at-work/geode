@@ -14,12 +14,13 @@
  */
 package org.apache.geode.logging.internal;
 
-import static org.apache.geode.logging.internal.ConfigurationInfo.getConfigurationInfo;
+import static org.apache.geode.internal.logging.ConfigurationInfo.getConfigurationInfo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import org.apache.geode.internal.logging.ConfigurationInfo;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
 /**

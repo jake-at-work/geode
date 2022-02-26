@@ -15,7 +15,7 @@
 
 package org.apache.geode.cache.client.internal;
 
-import static org.apache.geode.logging.internal.spi.LoggingProvider.SECURITY_LOGGER_NAME;
+import static org.apache.geode.internal.logging.spi.LoggingProvider.SECURITY_LOGGER_NAME;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;

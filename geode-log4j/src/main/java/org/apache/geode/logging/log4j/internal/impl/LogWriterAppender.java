@@ -39,14 +39,14 @@ import org.apache.geode.internal.logging.ManagerLogWriter;
 import org.apache.geode.internal.logging.ManagerLogWriterFactory;
 import org.apache.geode.internal.logging.ManagerLogWriterFactory.LogFileRolloverDetails;
 import org.apache.geode.internal.statistics.StatisticsConfig;
-import org.apache.geode.logging.internal.LoggingSessionRegistryProvider;
-import org.apache.geode.logging.internal.spi.LogConfig;
-import org.apache.geode.logging.internal.spi.LogConfigListener;
-import org.apache.geode.logging.internal.spi.LogConfigSupplier;
-import org.apache.geode.logging.internal.spi.LogFile;
-import org.apache.geode.logging.internal.spi.LoggingSessionListener;
-import org.apache.geode.logging.internal.spi.LoggingSessionRegistry;
-import org.apache.geode.logging.internal.spi.SessionContext;
+import org.apache.geode.internal.logging.LoggingSessionRegistryProvider;
+import org.apache.geode.internal.logging.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogConfigListener;
+import org.apache.geode.internal.logging.spi.LogConfigSupplier;
+import org.apache.geode.internal.logging.spi.LogFile;
+import org.apache.geode.internal.logging.spi.LoggingSessionListener;
+import org.apache.geode.internal.logging.spi.LoggingSessionRegistry;
+import org.apache.geode.internal.logging.spi.SessionContext;
 
 @Plugin(name = LogWriterAppender.PLUGIN_NAME, category = Core.CATEGORY_NAME,
     elementType = Appender.ELEMENT_TYPE, printObject = true)

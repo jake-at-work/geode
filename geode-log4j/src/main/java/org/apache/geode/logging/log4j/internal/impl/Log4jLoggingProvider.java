@@ -14,7 +14,7 @@
  */
 package org.apache.geode.logging.log4j.internal.impl;
 
-import static org.apache.geode.logging.internal.log4j.LogWriterLevelConverter.toLevel;
+import static org.apache.geode.internal.logging.log4j.LogWriterLevelConverter.toLevel;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -34,11 +34,11 @@ import org.apache.logging.log4j.core.lookup.StrSubstitutor;
 
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.logging.internal.log4j.api.FastLogger;
-import org.apache.geode.logging.internal.spi.LogConfig;
-import org.apache.geode.logging.internal.spi.LogLevelUpdateOccurs;
-import org.apache.geode.logging.internal.spi.LogLevelUpdateScope;
-import org.apache.geode.logging.internal.spi.LogWriterLevel;
-import org.apache.geode.logging.internal.spi.LoggingProvider;
+import org.apache.geode.internal.logging.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogLevelUpdateOccurs;
+import org.apache.geode.internal.logging.spi.LogLevelUpdateScope;
+import org.apache.geode.internal.logging.spi.LogWriterLevel;
+import org.apache.geode.internal.logging.spi.LoggingProvider;
 
 /**
  * Log4J 2 implementation of {@link LoggingProvider}.

@@ -14,10 +14,10 @@
  */
 package org.apache.geode.logging.log4j.internal.impl;
 
-import static org.apache.geode.logging.internal.Configuration.create;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.CONFIG;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.FINE;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.WARNING;
+import static org.apache.geode.internal.logging.Configuration.create;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.CONFIG;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.FINE;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.WARNING;
 import static org.apache.geode.test.util.ResourceUtils.createFileFromResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,12 +40,12 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
-import org.apache.geode.logging.internal.Configuration;
+import org.apache.geode.internal.logging.Configuration;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogConfig;
-import org.apache.geode.logging.internal.spi.LogConfigSupplier;
-import org.apache.geode.logging.internal.spi.LogLevelUpdateOccurs;
-import org.apache.geode.logging.internal.spi.LogLevelUpdateScope;
+import org.apache.geode.internal.logging.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogConfigSupplier;
+import org.apache.geode.internal.logging.spi.LogLevelUpdateOccurs;
+import org.apache.geode.internal.logging.spi.LogLevelUpdateScope;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
 /**

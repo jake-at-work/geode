@@ -18,7 +18,7 @@ import static java.lang.String.format;
 import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.internal.logging.LogWriterFactory.toSecurityLogWriter;
 import static org.apache.geode.internal.statistics.StatisticsClockFactory.disabledClock;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.ALL;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.ALL;
 
 import java.io.File;
 import java.io.IOException;

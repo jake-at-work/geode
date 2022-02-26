@@ -14,7 +14,7 @@
  */
 package org.apache.geode.logging.log4j.internal.impl;
 
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.CONFIG;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.CONFIG;
 import static org.apache.geode.test.util.ResourceUtils.createFileFromResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,9 +37,9 @@ import org.junit.rules.TestName;
 
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.statistics.StatisticsConfig;
-import org.apache.geode.logging.internal.spi.LogConfig;
-import org.apache.geode.logging.internal.spi.LogConfigSupplier;
-import org.apache.geode.logging.internal.spi.SessionContext;
+import org.apache.geode.internal.logging.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogConfigSupplier;
+import org.apache.geode.internal.logging.spi.SessionContext;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
 /**

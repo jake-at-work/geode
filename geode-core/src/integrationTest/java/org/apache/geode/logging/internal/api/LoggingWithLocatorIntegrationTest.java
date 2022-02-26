@@ -19,8 +19,8 @@ import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.LOG_FILE;
 import static org.apache.geode.distributed.ConfigurationProperties.NAME;
 import static org.apache.geode.internal.AvailablePortHelper.getRandomAvailableTCPPort;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.CONFIG;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.INFO;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.CONFIG;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.INFO;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,9 +41,9 @@ import org.apache.geode.distributed.Locator;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.InternalLocator;
-import org.apache.geode.logging.internal.log4j.LogWriterLogger;
+import org.apache.geode.internal.logging.log4j.LogWriterLogger;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogConfig;
 import org.apache.geode.test.assertj.LogFileAssert;
 import org.apache.geode.test.junit.categories.LoggingTest;
 

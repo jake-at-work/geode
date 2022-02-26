@@ -35,7 +35,7 @@ import org.apache.geode.internal.statistics.platform.OsStatisticsFactory;
 import org.apache.geode.internal.util.concurrent.StoppableCountDownLatch;
 import org.apache.geode.logging.internal.executors.LoggingThread;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogFile;
+import org.apache.geode.internal.logging.spi.LogFile;
 import org.apache.geode.util.internal.GeodeGlossary;
 
 /**

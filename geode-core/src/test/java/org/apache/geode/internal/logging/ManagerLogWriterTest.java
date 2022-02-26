@@ -14,7 +14,7 @@
  */
 package org.apache.geode.internal.logging;
 
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.CONFIG;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.CONFIG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 

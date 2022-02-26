@@ -14,7 +14,7 @@
  */
 package org.apache.geode.logging.log4j.internal.impl;
 
-import static org.apache.geode.logging.internal.LoggingProviderLoader.LOGGING_PROVIDER_NAME_PROPERTY;
+import static org.apache.geode.internal.logging.LoggingProviderLoader.LOGGING_PROVIDER_NAME_PROPERTY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.logging.internal.LoggingProviderLoader;
+import org.apache.geode.internal.logging.LoggingProviderLoader;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
 /**

@@ -16,7 +16,7 @@ package org.apache.geode.internal.logging;
 
 import java.io.File;
 
-import org.apache.geode.logging.internal.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogConfig;
 
 /**
  * Wraps a {@link LogConfig} and overrides configuration for Security.

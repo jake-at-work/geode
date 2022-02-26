@@ -15,7 +15,7 @@
 package org.apache.geode.internal.cache.tier.sockets;
 
 import static org.apache.geode.cache.client.internal.AuthenticateUserOp.NOT_A_USER_ID;
-import static org.apache.geode.logging.internal.spi.LoggingProvider.SECURITY_LOGGER_NAME;
+import static org.apache.geode.internal.logging.spi.LoggingProvider.SECURITY_LOGGER_NAME;
 
 import java.util.ArrayList;
 import java.util.Collection;

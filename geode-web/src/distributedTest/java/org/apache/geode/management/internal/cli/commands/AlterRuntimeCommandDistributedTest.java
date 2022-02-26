@@ -45,7 +45,7 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.logging.internal.spi.LogWriterLevel;
+import org.apache.geode.internal.logging.spi.LogWriterLevel;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;

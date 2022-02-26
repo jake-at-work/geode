@@ -30,7 +30,7 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogFile;
+import org.apache.geode.internal.logging.spi.LogFile;
 
 public class TailLogResponse extends AdminResponse {
   private static final Logger logger = LogService.getLogger();

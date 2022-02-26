@@ -27,7 +27,7 @@ import org.apache.geode.CancelCriterion;
 import org.apache.geode.internal.NanoTimer;
 import org.apache.geode.internal.process.PidUnavailableException;
 import org.apache.geode.internal.process.UncheckedPidUnavailableException;
-import org.apache.geode.logging.internal.spi.LogFile;
+import org.apache.geode.internal.logging.spi.LogFile;
 
 /**
  * Unit tests for {@link HostStatSampler}.

@@ -14,11 +14,11 @@
  */
 package org.apache.geode.internal.logging;
 
-import static org.apache.geode.logging.internal.spi.LoggingProvider.MAIN_LOGGER_NAME;
-import static org.apache.geode.logging.internal.spi.LoggingProvider.SECURITY_LOGGER_NAME;
+import static org.apache.geode.internal.logging.spi.LoggingProvider.MAIN_LOGGER_NAME;
+import static org.apache.geode.internal.logging.spi.LoggingProvider.SECURITY_LOGGER_NAME;
 
-import org.apache.geode.logging.internal.log4j.LogWriterLogger;
-import org.apache.geode.logging.internal.spi.LogConfig;
+import org.apache.geode.internal.logging.log4j.LogWriterLogger;
+import org.apache.geode.internal.logging.spi.LogConfig;
 
 /**
  * Factory for creating {@link LogWriterLogger}s.

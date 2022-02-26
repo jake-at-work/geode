@@ -23,7 +23,7 @@ import static org.apache.geode.distributed.ConfigurationProperties.MAX_WAIT_TIME
 import static org.apache.geode.distributed.ConfigurationProperties.MEMBER_TIMEOUT;
 import static org.apache.geode.distributed.internal.membership.api.MembershipManagerHelper.getDistribution;
 import static org.apache.geode.internal.logging.Banner.BannerHeader.displayValues;
-import static org.apache.geode.logging.internal.Configuration.STARTUP_CONFIGURATION;
+import static org.apache.geode.internal.logging.Configuration.STARTUP_CONFIGURATION;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.getTimeout;
 import static org.apache.geode.test.dunit.IgnoredException.addIgnoredException;

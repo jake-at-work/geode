@@ -20,7 +20,7 @@ import static org.apache.geode.cache30.ClientServerTestCase.TEST_POOL_NAME;
 import static org.apache.geode.cache30.ClientServerTestCase.configureConnectionPool;
 import static org.apache.geode.cache30.ClientServerTestCase.configureConnectionPoolWithNameAndFactory;
 import static org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier.getInstance;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.ALL;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.ALL;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;

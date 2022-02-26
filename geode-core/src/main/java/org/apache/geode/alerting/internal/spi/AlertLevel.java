@@ -14,7 +14,7 @@
  */
 package org.apache.geode.alerting.internal.spi;
 
-import org.apache.geode.logging.internal.spi.LogWriterLevel;
+import org.apache.geode.internal.logging.spi.LogWriterLevel;
 
 /**
  * Defines the {@code LogWriterLevel}s that are available for use as a threshold for generating and

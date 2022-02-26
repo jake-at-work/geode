@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import org.apache.geode.LogWriter;
-import org.apache.geode.logging.internal.log4j.LogWriterLogger;
+import org.apache.geode.internal.logging.log4j.LogWriterLogger;
 
 public class LogWriterFactoryTest {
 

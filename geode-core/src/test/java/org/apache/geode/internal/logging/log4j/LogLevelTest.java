@@ -21,8 +21,7 @@ import org.apache.logging.log4j.Level;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.logging.internal.log4j.LogLevel;
-import org.apache.geode.logging.internal.spi.LogWriterLevel;
+import org.apache.geode.internal.logging.spi.LogWriterLevel;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
 /**

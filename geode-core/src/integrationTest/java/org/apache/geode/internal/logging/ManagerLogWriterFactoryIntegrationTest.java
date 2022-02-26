@@ -14,8 +14,8 @@
  */
 package org.apache.geode.internal.logging;
 
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.FINE;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.WARNING;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.FINE;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.WARNING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -29,7 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
 import org.apache.geode.internal.statistics.StatisticsConfig;
-import org.apache.geode.logging.internal.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogConfig;
 
 /**
  * Integration tests for {@link ManagerLogWriterFactory}.

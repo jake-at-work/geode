@@ -19,7 +19,7 @@ import static org.apache.commons.io.output.NullOutputStream.NULL_OUTPUT_STREAM;
 import java.io.PrintStream;
 
 import org.apache.geode.internal.logging.ManagerLogWriter;
-import org.apache.geode.logging.internal.spi.LogWriterLevel;
+import org.apache.geode.internal.logging.spi.LogWriterLevel;
 
 /**
  * {@link ManagerLogWriter} that does nothing.

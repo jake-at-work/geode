@@ -18,8 +18,8 @@ import static java.lang.System.lineSeparator;
 import static java.nio.charset.Charset.defaultCharset;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.apache.commons.io.FileUtils.readLines;
-import static org.apache.geode.logging.internal.LogMessageRegex.Group;
-import static org.apache.geode.logging.internal.LogMessageRegex.getPattern;
+import static org.apache.geode.internal.logging.LogMessageRegex.Group;
+import static org.apache.geode.internal.logging.LogMessageRegex.getPattern;
 import static org.apache.geode.logging.log4j.internal.impl.NonBlankStrings.nonBlankStrings;
 import static org.apache.geode.test.util.ResourceUtils.createFileFromResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
@@ -46,9 +46,9 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogConfig;
-import org.apache.geode.logging.internal.spi.LogConfigSupplier;
-import org.apache.geode.logging.internal.spi.SessionContext;
+import org.apache.geode.internal.logging.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogConfigSupplier;
+import org.apache.geode.internal.logging.spi.SessionContext;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
 /**

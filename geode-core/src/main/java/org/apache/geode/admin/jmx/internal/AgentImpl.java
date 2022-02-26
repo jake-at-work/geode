@@ -64,12 +64,12 @@ import org.apache.geode.internal.logging.InternalLogWriter;
 import org.apache.geode.internal.logging.LogWriterFactory;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.statistics.StatisticsConfig;
-import org.apache.geode.logging.internal.LoggingSession;
+import org.apache.geode.internal.logging.LoggingSession;
 import org.apache.geode.logging.internal.executors.LoggingThread;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogConfig;
-import org.apache.geode.logging.internal.spi.LogConfigListener;
-import org.apache.geode.logging.internal.spi.LogConfigSupplier;
+import org.apache.geode.internal.logging.spi.LogConfig;
+import org.apache.geode.internal.logging.spi.LogConfigListener;
+import org.apache.geode.internal.logging.spi.LogConfigSupplier;
 
 /**
  * The GemFire JMX Agent provides the ability to administrate one GemFire distributed system via

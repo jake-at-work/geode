@@ -97,8 +97,8 @@ import org.apache.geode.internal.logging.LogWriterFactory;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.net.SSLConfig;
 import org.apache.geode.internal.util.concurrent.FutureResult;
-import org.apache.geode.logging.internal.LoggingSession;
-import org.apache.geode.logging.internal.NullLoggingSession;
+import org.apache.geode.internal.logging.LoggingSession;
+import org.apache.geode.internal.logging.NullLoggingSession;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**

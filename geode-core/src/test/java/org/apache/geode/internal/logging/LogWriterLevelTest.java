@@ -14,17 +14,17 @@
  */
 package org.apache.geode.internal.logging;
 
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.ALL;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.CONFIG;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.ERROR;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.FINE;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.FINER;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.FINEST;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.INFO;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.NONE;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.SEVERE;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.WARNING;
-import static org.apache.geode.logging.internal.spi.LogWriterLevel.find;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.ALL;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.CONFIG;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.ERROR;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.FINE;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.FINER;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.FINEST;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.INFO;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.NONE;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.SEVERE;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.WARNING;
+import static org.apache.geode.internal.logging.spi.LogWriterLevel.find;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
@@ -33,7 +33,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.logging.internal.spi.LogWriterLevel;
+import org.apache.geode.internal.logging.spi.LogWriterLevel;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
 /**
