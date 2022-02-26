@@ -18,7 +18,7 @@ import static java.lang.Integer.getInteger;
 import static java.lang.Long.getLong;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.geode.distributed.internal.OperationExecutors.FUNCTION_EXECUTION_PROCESSOR_THREAD_PREFIX;
-import static org.apache.geode.util.internal.GeodeGlossary.GEMFIRE_PREFIX;
+import static org.apache.geode.common.internal.utils.GeodeGlossary.GEMFIRE_PREFIX;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;

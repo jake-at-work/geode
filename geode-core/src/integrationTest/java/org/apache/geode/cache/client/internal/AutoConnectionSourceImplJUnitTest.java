@@ -81,7 +81,7 @@ import org.apache.geode.internal.security.SecurableCommunicationChannel;
 import org.apache.geode.management.membership.ClientMembershipEvent;
 import org.apache.geode.management.membership.ClientMembershipListener;
 import org.apache.geode.test.junit.categories.ClientServerTest;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 @Category(ClientServerTest.class)
 public class AutoConnectionSourceImplJUnitTest {

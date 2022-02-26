@@ -16,7 +16,7 @@
 package org.apache.geode.cache.client.internal;
 
 import static java.util.Collections.emptySet;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.util.Collection;
 import java.util.List;

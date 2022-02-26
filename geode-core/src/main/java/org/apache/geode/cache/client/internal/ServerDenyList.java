@@ -30,7 +30,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.cache.client.internal.PoolImpl.PoolTask;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * This class is designed to prevent the client from spinning and reconnected to the same failed

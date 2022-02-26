@@ -22,7 +22,7 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.modules.session.filter.SessionCachingFilter;
 import org.apache.geode.test.junit.categories.SessionTest;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * This runs all tests with a local cache enabled

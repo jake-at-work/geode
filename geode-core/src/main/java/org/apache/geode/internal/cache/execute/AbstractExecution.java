@@ -45,7 +45,7 @@ import org.apache.geode.internal.cache.execute.metrics.FunctionStats;
 import org.apache.geode.internal.cache.execute.metrics.FunctionStatsManager;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Abstract implementation of InternalExecution interface.

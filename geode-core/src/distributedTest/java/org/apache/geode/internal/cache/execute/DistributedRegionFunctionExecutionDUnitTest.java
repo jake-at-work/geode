@@ -27,8 +27,8 @@ import static org.apache.geode.test.dunit.IgnoredException.addIgnoredException;
 import static org.apache.geode.test.dunit.VM.getController;
 import static org.apache.geode.test.dunit.VM.getVM;
 import static org.apache.geode.test.dunit.VM.toArray;
-import static org.apache.geode.util.internal.GeodeGlossary.GEMFIRE_PREFIX;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.GeodeGlossary.GEMFIRE_PREFIX;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 

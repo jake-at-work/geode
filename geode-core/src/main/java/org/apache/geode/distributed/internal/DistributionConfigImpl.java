@@ -90,12 +90,12 @@ import org.apache.geode.GemFireIOException;
 import org.apache.geode.InternalGemFireException;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.ConfigSource;
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.logging.LogWriterImpl;
 import org.apache.geode.internal.process.ProcessLauncherContext;
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
 import org.apache.geode.security.AuthTokenEnabledComponents;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Provides an implementation of <code>DistributionConfig</code> that knows how to read the

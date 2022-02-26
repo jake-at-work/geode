@@ -43,7 +43,7 @@ import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.internal.logging.spi.LogConfig;
 import org.apache.geode.test.junit.categories.LoggingTest;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Integration tests for {@link

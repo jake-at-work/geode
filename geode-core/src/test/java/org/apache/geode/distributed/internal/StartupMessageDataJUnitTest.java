@@ -33,7 +33,7 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.internal.ByteArrayData;
 import org.apache.geode.internal.admin.remote.DistributionLocatorId;
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 import org.apache.geode.test.junit.categories.MembershipTest;
 
 /**

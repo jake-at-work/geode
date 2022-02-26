@@ -48,7 +48,7 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.persistence.DiskStoreID;
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
 

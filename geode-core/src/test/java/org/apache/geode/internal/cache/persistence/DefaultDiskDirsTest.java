@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 
-import org.apache.geode.internal.lang.SystemProperty;
+import org.apache.geode.common.internal.lang.SystemProperty;
 
 
 public class DefaultDiskDirsTest {

@@ -36,7 +36,7 @@ import org.apache.geode.internal.SystemTimer;
 import org.apache.geode.internal.logging.CoreLoggingExecutors;
 import org.apache.geode.internal.tcp.ConnectionTable;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * ExpiryTask represents a timeout event for expiration

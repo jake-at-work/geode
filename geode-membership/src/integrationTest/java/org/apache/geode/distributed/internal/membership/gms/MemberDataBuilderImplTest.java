@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import org.apache.geode.distributed.internal.membership.api.MemberData;
 import org.apache.geode.distributed.internal.membership.api.MemberDataBuilder;
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.serialization.KnownVersion;
 
 public class MemberDataBuilderImplTest {

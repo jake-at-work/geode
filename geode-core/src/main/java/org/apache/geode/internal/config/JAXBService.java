@@ -16,7 +16,7 @@
  */
 package org.apache.geode.internal.config;
 
-import static org.apache.geode.internal.lang.SystemProperty.getProperty;
+import static org.apache.geode.common.internal.lang.SystemProperty.getProperty;
 import static org.apache.geode.internal.lang.SystemPropertyHelper.PACKAGES_TO_SCAN;
 
 import java.io.StringReader;

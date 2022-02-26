@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import org.apache.geode.management.configuration.AbstractConfiguration;
 import org.apache.geode.management.configuration.Pdx;
-import org.apache.geode.util.internal.GeodeJsonMapper;
+import org.apache.geode.common.internal.utils.GeodeJsonMapper;
 
 public class AbstractConfigurationTest {
 

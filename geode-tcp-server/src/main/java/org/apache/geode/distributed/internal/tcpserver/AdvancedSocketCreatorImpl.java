@@ -26,7 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * AdvancedSocketCreatorImpl is constructed and held by a TcpSocketCreator. It is

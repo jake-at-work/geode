@@ -40,7 +40,7 @@ import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.modules.util.Banner;
 import org.apache.geode.modules.util.RegionHelper;
 import org.apache.geode.modules.util.ResourceManagerValidator;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 public abstract class AbstractCache {
 

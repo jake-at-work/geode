@@ -22,7 +22,7 @@ import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.SystemTimer;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * ExpirationScheduler uses a single instance of java.util.Timer (and therefore a single thread) per

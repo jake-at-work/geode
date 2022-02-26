@@ -16,7 +16,7 @@
 package org.apache.geode.cache.execute;
 
 import static org.apache.geode.test.util.ResourceUtils.createTempFileFromResource;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

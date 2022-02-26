@@ -47,7 +47,7 @@ import org.apache.geode.cache.query.data.Numbers;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 @Category({OQLQueryTest.class})
 public class NumericQueryJUnitTest {

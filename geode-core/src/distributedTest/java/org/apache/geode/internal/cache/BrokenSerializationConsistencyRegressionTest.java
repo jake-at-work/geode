@@ -34,7 +34,7 @@ import org.apache.geode.DataSerializable;
 import org.apache.geode.ToDataException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
-import org.apache.geode.internal.lang.SystemProperty;
+import org.apache.geode.common.internal.lang.SystemProperty;
 import org.apache.geode.pdx.PdxReader;
 import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;

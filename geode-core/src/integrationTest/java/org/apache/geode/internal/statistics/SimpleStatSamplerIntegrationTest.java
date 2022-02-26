@@ -35,7 +35,7 @@ import org.junit.rules.TestName;
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.stats50.VMStats50;
 import org.apache.geode.test.junit.categories.StatisticsTest;
 

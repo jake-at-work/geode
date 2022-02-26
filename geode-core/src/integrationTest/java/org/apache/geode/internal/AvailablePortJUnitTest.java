@@ -26,9 +26,9 @@ import java.net.UnknownHostException;
 import org.junit.After;
 import org.junit.Test;
 
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.membership.utils.AvailablePort;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * multicast availability is tested in JGroupsMessengerJUnitTest

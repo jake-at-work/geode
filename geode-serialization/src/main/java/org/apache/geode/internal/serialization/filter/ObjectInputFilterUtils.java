@@ -17,7 +17,7 @@ package org.apache.geode.internal.serialization.filter;
 import java.util.function.Function;
 
 import org.apache.geode.annotations.VisibleForTesting;
-import org.apache.geode.internal.lang.utils.ClassUtils;
+import org.apache.geode.common.internal.lang.utils.ClassUtils;
 
 /**
  * Utility methods for {@code ObjectInputFilter}.

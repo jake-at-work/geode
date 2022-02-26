@@ -41,7 +41,7 @@ import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.IndexTrackingQueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
-import org.apache.geode.util.internal.UncheckedUtils;
+import org.apache.geode.common.internal.utils.UncheckedUtils;
 
 @Category({OQLIndexTest.class})
 public class MapRangeIndexMaintenanceJUnitTest {

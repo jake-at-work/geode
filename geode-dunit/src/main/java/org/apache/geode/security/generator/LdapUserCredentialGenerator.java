@@ -28,7 +28,7 @@ import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.security.templates.LdapUserAuthenticator;
 import org.apache.geode.security.templates.UserPasswordAuthInit;
 import org.apache.geode.test.dunit.Assert;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 public class LdapUserCredentialGenerator extends CredentialGenerator {
 

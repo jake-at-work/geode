@@ -43,7 +43,7 @@ import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.ServerLauncher;
 import org.apache.geode.internal.lang.SystemUtils;
 import org.apache.geode.pdx.PdxSerializer;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 public class StartServerCommandTest {
   private StartServerCommand serverCommands;

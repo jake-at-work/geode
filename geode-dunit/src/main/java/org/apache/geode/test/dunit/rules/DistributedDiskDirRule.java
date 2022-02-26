@@ -16,7 +16,7 @@
  */
 package org.apache.geode.test.dunit.rules;
 
-import static org.apache.geode.internal.lang.SystemProperty.getProductStringProperty;
+import static org.apache.geode.common.internal.lang.SystemProperty.getProductStringProperty;
 import static org.apache.geode.internal.lang.SystemPropertyHelper.DEFAULT_DISK_DIRS_PROPERTY;
 import static org.apache.geode.test.dunit.VM.DEFAULT_VM_COUNT;
 import static org.apache.geode.test.dunit.VM.getCurrentVMNum;
@@ -31,7 +31,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 import org.junit.runner.Description;
 
-import org.apache.geode.internal.lang.SystemProperty;
+import org.apache.geode.common.internal.lang.SystemProperty;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.VMEventListener;
 import org.apache.geode.test.dunit.internal.DUnitLauncher;

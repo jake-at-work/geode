@@ -25,7 +25,7 @@ import org.apache.geode.internal.NullDataOutputStream;
 import org.apache.geode.internal.serialization.DSCODE;
 import org.apache.geode.internal.size.Sizeable;
 import org.apache.geode.pdx.PdxInstance;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Produces instances that implement CachedDeserializable.

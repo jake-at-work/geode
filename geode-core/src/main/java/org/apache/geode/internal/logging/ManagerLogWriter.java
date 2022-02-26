@@ -28,7 +28,7 @@ import org.apache.geode.internal.util.LogFileUtils;
 import org.apache.geode.logging.internal.OSProcess;
 import org.apache.geode.internal.logging.spi.LogConfig;
 import org.apache.geode.internal.logging.spi.LogFileDetails;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Implementation of {@link LogWriter} for distributed system members. It's just like {@link

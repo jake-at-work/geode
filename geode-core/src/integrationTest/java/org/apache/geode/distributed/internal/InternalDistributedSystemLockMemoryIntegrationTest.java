@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 
 import org.apache.geode.metrics.internal.MetricsService;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 public class InternalDistributedSystemLockMemoryIntegrationTest {
 

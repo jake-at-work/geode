@@ -37,7 +37,7 @@ import org.apache.geode.internal.process.ProcessLauncherContext;
 import org.apache.geode.internal.util.IOUtils;
 import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.internal.cli.util.ThreePhraseGenerator;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Encapsulates methods used by StartServerCommand and StartLocatorCommand and their associated

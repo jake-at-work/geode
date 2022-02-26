@@ -17,7 +17,7 @@ package org.apache.geode.test.dunit.internal;
 import static java.util.stream.Collectors.joining;
 import static org.apache.geode.distributed.ConfigurationProperties.ENABLE_NETWORK_PARTITION_DETECTION;
 import static org.apache.geode.distributed.internal.DistributionConfig.MEMBERSHIP_PORT_RANGE_NAME;
-import static org.apache.geode.util.internal.GeodeGlossary.GEMFIRE_PREFIX;
+import static org.apache.geode.common.internal.utils.GeodeGlossary.GEMFIRE_PREFIX;
 
 import java.io.BufferedReader;
 import java.io.File;

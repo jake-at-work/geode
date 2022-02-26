@@ -24,7 +24,7 @@ import java.net.UnknownHostException;
 import org.apache.geode.admin.ManagedEntityConfig;
 import org.apache.geode.internal.GemFireVersion;
 import org.apache.geode.internal.admin.GemFireVM;
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 
 /**
  * The abstract superclass of objects that configure a managed entity such as a GemFire cache server

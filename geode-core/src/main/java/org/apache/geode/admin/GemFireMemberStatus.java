@@ -44,7 +44,7 @@ import org.apache.geode.internal.cache.PartitionedRegionStatus;
 import org.apache.geode.internal.cache.RegionStatus;
 import org.apache.geode.internal.cache.tier.InternalClientMembership;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 
 /**
  * Class <code>GemFireMemberStatus</code> provides the status of a specific GemFire member VM. This

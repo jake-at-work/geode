@@ -20,7 +20,7 @@ import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.geode.internal.cache.ColocationHelper.checkMembersColocation;
 import static org.apache.geode.internal.cache.PartitionedRegionHelper.printCollection;
-import static org.apache.geode.util.internal.GeodeGlossary.GEMFIRE_PREFIX;
+import static org.apache.geode.common.internal.utils.GeodeGlossary.GEMFIRE_PREFIX;
 
 import java.util.ArrayList;
 import java.util.Collection;

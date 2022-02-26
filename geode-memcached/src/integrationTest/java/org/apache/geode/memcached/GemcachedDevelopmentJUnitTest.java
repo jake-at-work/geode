@@ -40,7 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.geode.memcached.GemFireMemcachedServer.Protocol;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 public class GemcachedDevelopmentJUnitTest {
 

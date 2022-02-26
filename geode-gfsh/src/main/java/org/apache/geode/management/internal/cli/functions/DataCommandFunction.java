@@ -60,7 +60,7 @@ import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.util.JsonUtil;
 import org.apache.geode.pdx.JSONFormatter;
 import org.apache.geode.pdx.PdxInstance;
-import org.apache.geode.util.internal.GeodeJsonMapper;
+import org.apache.geode.common.internal.utils.GeodeJsonMapper;
 
 /**
  * @since GemFire 7.0

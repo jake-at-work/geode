@@ -16,7 +16,7 @@ package org.apache.geode.wan.management.internal.cli.functions;
 
 import static org.apache.geode.wan.management.internal.cli.functions.WanCopyRegionFunctionDelegate.EventCreatorImpl;
 import static org.apache.geode.wan.management.internal.cli.functions.WanCopyRegionFunctionDelegate.ThreadSleeper;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -67,7 +67,6 @@ import org.apache.geode.internal.cache.wan.BatchException70;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventDispatcher;
 import org.apache.geode.internal.cache.wan.InternalGatewaySender;
 import org.apache.geode.internal.serialization.KnownVersion;
-import org.apache.geode.wan.management.internal.cli.functions.WanCopyRegionFunctionDelegate;
 import org.apache.geode.wan.management.internal.cli.functions.WanCopyRegionFunctionDelegate.EventCreator;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 

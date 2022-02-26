@@ -14,7 +14,7 @@
  */
 package org.apache.geode.internal.lang;
 
-import static org.apache.geode.internal.lang.SystemProperty.getProductBooleanProperty;
+import static org.apache.geode.common.internal.lang.SystemProperty.getProductBooleanProperty;
 
 import org.apache.geode.internal.cache.eviction.LRUListWithAsyncSorting;
 

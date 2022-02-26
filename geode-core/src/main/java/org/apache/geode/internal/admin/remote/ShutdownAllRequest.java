@@ -43,7 +43,7 @@ import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.internal.tcp.ConnectionTable;
 import org.apache.geode.logging.internal.executors.LoggingThread;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * An instruction to all members with cache that their PR should gracefully close and disconnect DS

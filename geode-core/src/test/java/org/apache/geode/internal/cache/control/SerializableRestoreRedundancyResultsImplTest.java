@@ -43,7 +43,7 @@ import org.apache.geode.management.operation.internal.RegionRedundancyStatusImpl
 import org.apache.geode.management.operation.internal.RestoreRedundancyResultsImpl;
 import org.apache.geode.management.runtime.RegionRedundancyStatus;
 import org.apache.geode.management.runtime.RestoreRedundancyResults;
-import org.apache.geode.util.internal.GeodeJsonMapper;
+import org.apache.geode.common.internal.utils.GeodeJsonMapper;
 
 public class SerializableRestoreRedundancyResultsImplTest {
   public static final String TEST_STRING = "Test";

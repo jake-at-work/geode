@@ -17,7 +17,7 @@ package org.apache.geode.test.dunit.rules;
 import static java.lang.System.identityHashCode;
 import static org.apache.geode.test.dunit.VM.DEFAULT_VM_COUNT;
 import static org.apache.geode.test.dunit.VM.getController;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.util.Collection;
 import java.util.HashMap;

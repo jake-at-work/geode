@@ -38,7 +38,7 @@ import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 @Category({OQLQueryTest.class})
 public class DistinctResultsWithDupValuesInRegionJUnitTest {

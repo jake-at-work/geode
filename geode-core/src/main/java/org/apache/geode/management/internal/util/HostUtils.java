@@ -20,7 +20,7 @@ import java.net.UnknownHostException;
 
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.DistributionLocator;
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.lang.StringUtils;
 
 public class HostUtils {

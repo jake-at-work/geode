@@ -15,7 +15,7 @@
 package org.apache.geode.cache.query.cq.internal.command;
 
 import static java.util.Collections.emptyMap;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.io.IOException;
 import java.util.Set;

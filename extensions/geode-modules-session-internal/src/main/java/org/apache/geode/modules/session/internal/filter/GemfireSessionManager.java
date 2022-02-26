@@ -47,7 +47,7 @@ import org.apache.geode.modules.session.internal.filter.attributes.DeltaSessionA
 import org.apache.geode.modules.session.internal.filter.util.TypeAwareMap;
 import org.apache.geode.modules.session.internal.jmx.SessionStatistics;
 import org.apache.geode.modules.util.RegionHelper;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * This class implements the session management using a Gemfire distributedCache as a persistent

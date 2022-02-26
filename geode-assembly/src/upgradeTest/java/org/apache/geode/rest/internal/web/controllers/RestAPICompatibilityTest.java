@@ -54,7 +54,7 @@ import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.MemberStarterRule;
 import org.apache.geode.test.version.TestVersion;
 import org.apache.geode.test.version.VersionManager;
-import org.apache.geode.util.internal.GeodeJsonMapper;
+import org.apache.geode.common.internal.utils.GeodeJsonMapper;
 
 @Category({BackwardCompatibilityTest.class})
 @RunWith(Parameterized.class)

@@ -31,7 +31,7 @@ import org.apache.geode.internal.admin.GemFireVM;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Responds to {@link RootRegionResponse}.

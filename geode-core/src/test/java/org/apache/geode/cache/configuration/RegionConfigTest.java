@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.geode.internal.config.JAXBService;
-import org.apache.geode.util.internal.GeodeJsonMapper;
+import org.apache.geode.common.internal.utils.GeodeJsonMapper;
 
 public class RegionConfigTest {
 

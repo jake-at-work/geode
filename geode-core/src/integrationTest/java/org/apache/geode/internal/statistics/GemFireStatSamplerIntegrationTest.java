@@ -33,7 +33,7 @@ import static org.apache.geode.internal.GemFireVersion.getGemFireVersion;
 import static org.apache.geode.internal.GemFireVersion.getSourceDate;
 import static org.apache.geode.internal.cache.control.HeapMemoryMonitor.getTenuredMemoryPoolMXBean;
 import static org.apache.geode.internal.cache.control.HeapMemoryMonitor.getTenuredPoolStatistics;
-import static org.apache.geode.internal.inet.LocalHostUtil.getLocalHost;
+import static org.apache.geode.common.internal.inet.LocalHostUtil.getLocalHost;
 import static org.apache.geode.internal.statistics.HostStatSampler.TEST_FILE_SIZE_LIMIT_IN_KB_PROPERTY;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -56,7 +56,7 @@ import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.web.domain.QueryParameterSource;
-import org.apache.geode.util.internal.GeodeConverter;
+import org.apache.geode.common.internal.utils.GeodeConverter;
 
 /**
  * The ShellCommandsController class implements GemFire REST API calls for Gfsh Shell Commands.

@@ -29,7 +29,7 @@ import org.springframework.shell.core.ExitShellRequest;
 
 import org.apache.geode.internal.ExitCode;
 import org.apache.geode.internal.util.ArgumentRedactor;
-import org.apache.geode.internal.version.DistributionVersion;
+import org.apache.geode.common.internal.version.DistributionVersion;
 import org.apache.geode.management.internal.cli.shell.Gfsh;
 import org.apache.geode.management.internal.cli.shell.GfshConfig;
 import org.apache.geode.management.internal.i18n.CliStrings;

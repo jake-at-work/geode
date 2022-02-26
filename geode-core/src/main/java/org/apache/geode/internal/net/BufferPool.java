@@ -29,7 +29,7 @@ import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.tcp.Connection;
 import org.apache.geode.unsafe.internal.sun.nio.ch.DirectBuffer;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 public class BufferPool {
   private final DMStats stats;

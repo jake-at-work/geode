@@ -57,7 +57,7 @@ import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
 import org.apache.geode.test.version.VersionManager;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 @Category({OQLQueryTest.class})
 public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {

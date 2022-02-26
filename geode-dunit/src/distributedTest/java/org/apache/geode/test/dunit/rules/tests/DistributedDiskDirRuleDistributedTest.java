@@ -29,7 +29,7 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.internal.lang.SystemProperty;
+import org.apache.geode.common.internal.lang.SystemProperty;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedDiskDirRule;
 import org.apache.geode.test.dunit.rules.DistributedRule;

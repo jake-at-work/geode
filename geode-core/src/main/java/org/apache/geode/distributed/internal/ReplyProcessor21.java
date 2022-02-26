@@ -39,7 +39,7 @@ import org.apache.geode.internal.serialization.Versioning;
 import org.apache.geode.internal.util.Breadcrumbs;
 import org.apache.geode.internal.util.concurrent.StoppableCountDownLatch;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * This class processes responses to {@link DistributionMessage}s. It handles a the generic case of

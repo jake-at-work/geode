@@ -15,7 +15,7 @@
 package org.apache.geode.internal.cache.eviction;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.geode.util.internal.GeodeGlossary.GEMFIRE_PREFIX;
+import static org.apache.geode.common.internal.utils.GeodeGlossary.GEMFIRE_PREFIX;
 
 import java.util.ArrayList;
 import java.util.Collections;

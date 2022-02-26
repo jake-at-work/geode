@@ -35,7 +35,7 @@ import org.mockito.ArgumentCaptor;
 
 import org.apache.geode.SerializationException;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.internal.lang.SystemProperty;
+import org.apache.geode.common.internal.lang.SystemProperty;
 import org.apache.geode.pdx.internal.PdxInstanceImpl;
 
 public class EntryEventSerializationTest {

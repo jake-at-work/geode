@@ -15,7 +15,7 @@
 package org.apache.geode.internal.cache.tier.sockets;
 
 import static java.lang.Math.min;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -84,7 +84,7 @@ import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.sequencelog.EntryLogger;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.security.GemFireSecurityException;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 public abstract class BaseCommand implements Command {
   protected static final Logger logger = LogService.getLogger();

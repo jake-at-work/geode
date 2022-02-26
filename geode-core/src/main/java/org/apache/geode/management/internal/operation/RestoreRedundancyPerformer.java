@@ -16,7 +16,7 @@
 package org.apache.geode.management.internal.operation;
 
 import static org.apache.geode.cache.Region.SEPARATOR;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -15,11 +15,11 @@
 
 package org.apache.geode.internal.util.concurrent;
 
-import static org.apache.geode.internal.lang.utils.JavaWorkarounds.computeIfAbsent;
+import static org.apache.geode.common.internal.lang.utils.JavaWorkarounds.computeIfAbsent;
 import static org.apache.geode.internal.util.concurrent.CustomEntryConcurrentHashMap.DEFAULT_CONCURRENCY_LEVEL;
 import static org.apache.geode.internal.util.concurrent.CustomEntryConcurrentHashMap.DEFAULT_INITIAL_CAPACITY;
 import static org.apache.geode.internal.util.concurrent.CustomEntryConcurrentHashMap.DEFAULT_LOAD_FACTOR;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 import static org.openjdk.jmh.infra.Blackhole.consumeCPU;
 
 import java.util.Collection;

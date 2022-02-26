@@ -53,7 +53,7 @@ import org.apache.geode.internal.net.SocketCreatorFactory;
 import org.apache.geode.internal.process.ProcessStreamReader.InputListener;
 import org.apache.geode.internal.process.ProcessType;
 import org.apache.geode.internal.process.lang.AvailablePid;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Abstract base class for integration tests of both {@link LocatorLauncher} and

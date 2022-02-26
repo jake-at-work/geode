@@ -42,7 +42,7 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import org.apache.geode.internal.version.DistributionVersion;
+import org.apache.geode.common.internal.version.DistributionVersion;
 import org.apache.geode.management.internal.web.http.converter.SerializableObjectHttpMessageConverter;
 import org.apache.geode.security.AuthenticationFailedException;
 import org.apache.geode.security.NotAuthorizedException;

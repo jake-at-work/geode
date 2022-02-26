@@ -34,8 +34,8 @@ import java.util.Enumeration;
 import java.util.Random;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.internal.inet.LocalHostUtil;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * This class determines whether or not a given port is available and can also provide a randomly

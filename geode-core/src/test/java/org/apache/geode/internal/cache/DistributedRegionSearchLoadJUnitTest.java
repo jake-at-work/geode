@@ -15,7 +15,7 @@
 package org.apache.geode.internal.cache;
 
 import static org.apache.geode.internal.statistics.StatisticsClockFactory.disabledClock;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;

@@ -23,7 +23,7 @@ import java.net.UnknownHostException;
 
 import org.jetbrains.annotations.NotNull;
 
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 
 /**
  * Provides information about the system this JVM is running on.

@@ -17,7 +17,7 @@ package org.apache.geode.internal.offheap;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.test.junit.categories.OffHeapTest;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 @Category({OffHeapTest.class})
 public class FreeListOffHeapRegionJUnitTest extends OffHeapRegionBase {

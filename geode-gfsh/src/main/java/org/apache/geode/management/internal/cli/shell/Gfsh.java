@@ -49,7 +49,7 @@ import org.springframework.shell.event.ShellStatus.Status;
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.internal.SystemDescription;
-import org.apache.geode.internal.lang.utils.ClassUtils;
+import org.apache.geode.common.internal.lang.utils.ClassUtils;
 import org.apache.geode.internal.logging.Banner;
 import org.apache.geode.internal.process.signal.AbstractSignalNotificationHandler;
 import org.apache.geode.internal.serialization.KnownVersion;

@@ -59,7 +59,7 @@ import org.apache.geode.redis.internal.services.cluster.RedisMemberInfo;
 import org.apache.geode.redis.internal.services.cluster.SlotAdvisor;
 import org.apache.geode.redis.internal.services.locking.StripedCoordinator;
 import org.apache.geode.redis.internal.statistics.RedisStats;
-import org.apache.geode.util.internal.UncheckedUtils;
+import org.apache.geode.common.internal.utils.UncheckedUtils;
 
 public class RegionProvider {
   /**

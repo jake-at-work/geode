@@ -14,7 +14,7 @@
  */
 package org.apache.geode.internal.cache.persistence;
 
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;

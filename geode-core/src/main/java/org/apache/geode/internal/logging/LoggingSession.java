@@ -18,7 +18,7 @@ import static org.apache.geode.internal.logging.Configuration.STARTUP_CONFIGURAT
 import static org.apache.geode.internal.logging.InternalSessionContext.State.CREATED;
 import static org.apache.geode.internal.logging.InternalSessionContext.State.STARTED;
 import static org.apache.geode.internal.logging.InternalSessionContext.State.STOPPED;
-import static org.apache.geode.util.internal.GeodeGlossary.GEMFIRE_PREFIX;
+import static org.apache.geode.common.internal.utils.GeodeGlossary.GEMFIRE_PREFIX;
 
 import java.util.Optional;
 

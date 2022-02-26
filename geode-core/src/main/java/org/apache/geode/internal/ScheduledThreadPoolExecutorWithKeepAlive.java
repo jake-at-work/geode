@@ -15,7 +15,7 @@
 package org.apache.geode.internal;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.util.List;
 import java.util.concurrent.Callable;

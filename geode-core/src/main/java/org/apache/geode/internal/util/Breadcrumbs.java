@@ -17,7 +17,7 @@ package org.apache.geode.internal.util;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.internal.cache.EventID;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Breadcrumbs establishes traces in thread names that are useful in figuring out what is going on

@@ -68,7 +68,7 @@ import org.apache.geode.cache.SubscriptionAttributes;
 import org.apache.geode.internal.GemFireVersion;
 import org.apache.geode.internal.admin.remote.ClientHealthStats;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * This class uses the JMX Attributes/Operations that use (return/throw) GemFire types. This is the

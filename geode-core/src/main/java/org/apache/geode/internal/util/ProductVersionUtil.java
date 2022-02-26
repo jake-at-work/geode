@@ -25,8 +25,8 @@ import java.util.ServiceLoader;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.internal.GeodeVersion;
-import org.apache.geode.internal.version.ComponentVersion;
-import org.apache.geode.internal.version.DistributionVersion;
+import org.apache.geode.common.internal.version.ComponentVersion;
+import org.apache.geode.common.internal.version.DistributionVersion;
 
 public class ProductVersionUtil {
 

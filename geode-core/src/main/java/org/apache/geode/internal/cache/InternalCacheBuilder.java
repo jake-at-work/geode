@@ -16,7 +16,7 @@ package org.apache.geode.internal.cache;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.geode.distributed.internal.InternalDistributedSystem.ALLOW_MULTIPLE_SYSTEMS_PROPERTY;
-import static org.apache.geode.util.internal.GeodeGlossary.GEMFIRE_PREFIX;
+import static org.apache.geode.common.internal.utils.GeodeGlossary.GEMFIRE_PREFIX;
 
 import java.util.Optional;
 import java.util.Properties;

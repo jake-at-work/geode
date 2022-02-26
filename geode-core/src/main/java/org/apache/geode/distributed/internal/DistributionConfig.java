@@ -217,7 +217,7 @@ import org.apache.geode.internal.statistics.StatisticsConfig;
 import org.apache.geode.internal.tcp.Connection;
 import org.apache.geode.internal.logging.spi.LogConfig;
 import org.apache.geode.internal.logging.spi.LogWriterLevel;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Provides accessor (and in some cases mutator) methods for the various GemFire distribution

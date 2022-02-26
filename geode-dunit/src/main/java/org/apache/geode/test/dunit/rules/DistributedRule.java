@@ -44,7 +44,7 @@ import org.apache.geode.test.dunit.DUnitEnv;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.internal.DUnitLauncher;
 import org.apache.geode.test.junit.rules.serializable.SerializableExternalResource;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * JUnit Rule that launches DistributedTest VMs and scans all log output for suspect strings without

@@ -65,7 +65,7 @@ import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.security.AuthenticationExpiredException;
 import org.apache.geode.security.AuthenticationRequiredException;
 import org.apache.geode.security.GemFireSecurityException;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Called from the client and execute client to server requests against servers. Handles retrying to

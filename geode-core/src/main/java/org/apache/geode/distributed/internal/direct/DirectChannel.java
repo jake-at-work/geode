@@ -46,7 +46,7 @@ import org.apache.geode.distributed.internal.membership.api.MemberShunnedExcepti
 import org.apache.geode.distributed.internal.membership.api.Membership;
 import org.apache.geode.distributed.internal.membership.api.MessageListener;
 import org.apache.geode.internal.cache.DirectReplyMessage;
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.net.BufferPool;
 import org.apache.geode.internal.tcp.BaseMsgStreamer;

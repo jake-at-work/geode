@@ -14,9 +14,9 @@
  */
 package org.apache.geode.internal.lang;
 
-import static org.apache.geode.internal.lang.SystemProperty.DEFAULT_PREFIX;
-import static org.apache.geode.internal.lang.SystemProperty.GEMFIRE_PREFIX;
-import static org.apache.geode.internal.lang.SystemProperty.getProductBooleanProperty;
+import static org.apache.geode.common.internal.lang.SystemProperty.DEFAULT_PREFIX;
+import static org.apache.geode.common.internal.lang.SystemProperty.GEMFIRE_PREFIX;
+import static org.apache.geode.common.internal.lang.SystemProperty.getProductBooleanProperty;
 import static org.apache.geode.internal.lang.SystemPropertyHelper.PARALLEL_DISK_STORE_RECOVERY;
 import static org.apache.geode.internal.lang.SystemPropertyHelper.restoreSetOperationTransactionBehavior;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -43,7 +43,7 @@ import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.internal.tcp.ConnectionTable;
 import org.apache.geode.internal.util.IOUtils;
 import org.apache.geode.metrics.internal.InternalDistributedSystemMetricsService;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * A "connection" to a GemFire distributed system. A <code>DistributedSystem</code> is created by

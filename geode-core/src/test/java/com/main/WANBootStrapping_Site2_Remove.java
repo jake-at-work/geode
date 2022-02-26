@@ -24,7 +24,7 @@ import java.util.Properties;
 
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.internal.ExitCode;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * This is a stand alone locator with a distributed-system-id = -2

@@ -93,7 +93,7 @@ import org.apache.geode.pdx.PdxSerializationException;
 import org.apache.geode.security.AuthenticationFailedException;
 import org.apache.geode.security.AuthenticationRequiredException;
 import org.apache.geode.security.GemFireSecurityException;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * {@code CacheClientUpdater} is a thread that processes update messages from a cache server and

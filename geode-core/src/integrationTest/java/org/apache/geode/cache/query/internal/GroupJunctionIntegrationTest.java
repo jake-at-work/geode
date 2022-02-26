@@ -42,7 +42,7 @@ import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
 import org.apache.geode.test.junit.runners.GeodeParamsRunner;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 @Category(OQLQueryTest.class)
 @RunWith(GeodeParamsRunner.class)

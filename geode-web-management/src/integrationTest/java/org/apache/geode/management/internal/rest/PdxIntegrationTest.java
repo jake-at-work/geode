@@ -36,7 +36,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.apache.geode.management.configuration.AutoSerializer;
 import org.apache.geode.management.configuration.ClassName;
 import org.apache.geode.management.configuration.Pdx;
-import org.apache.geode.util.internal.GeodeJsonMapper;
+import org.apache.geode.common.internal.utils.GeodeJsonMapper;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(locations = {"classpath*:WEB-INF/management-servlet.xml"},

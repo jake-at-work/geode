@@ -54,7 +54,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.modules.session.filter.SessionCachingFilter;
 import org.apache.geode.modules.session.junit.PerTestClassLoaderRunner;
 import org.apache.geode.test.junit.categories.SessionTest;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * In-container testing using Jetty. This allows us to test context listener events as well as

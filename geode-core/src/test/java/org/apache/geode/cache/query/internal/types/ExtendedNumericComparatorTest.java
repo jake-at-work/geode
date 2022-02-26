@@ -14,7 +14,7 @@
  */
 package org.apache.geode.cache.query.internal.types;
 
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Comparator;

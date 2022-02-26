@@ -16,7 +16,7 @@
  */
 package org.apache.geode.internal.cache;
 
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.io.File;
 import java.io.IOException;

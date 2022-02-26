@@ -14,7 +14,7 @@
  */
 package org.apache.geode.internal.cache;
 
-import static org.apache.geode.internal.inet.LocalHostUtil.getLocalHost;
+import static org.apache.geode.common.internal.inet.LocalHostUtil.getLocalHost;
 import static org.apache.geode.test.concurrency.Utilities.availableProcessors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

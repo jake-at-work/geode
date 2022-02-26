@@ -19,7 +19,7 @@ import static org.apache.geode.cache.client.ClientRegionShortcut.PROXY;
 import static org.apache.geode.distributed.internal.OperationExecutors.MAX_FE_THREADS;
 import static org.apache.geode.test.dunit.VM.getHostName;
 import static org.apache.geode.test.dunit.VM.getVM;
-import static org.apache.geode.util.internal.GeodeGlossary.GEMFIRE_PREFIX;
+import static org.apache.geode.common.internal.utils.GeodeGlossary.GEMFIRE_PREFIX;
 
 import java.io.IOException;
 import java.io.Serializable;

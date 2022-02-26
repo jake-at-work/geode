@@ -28,7 +28,7 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
-import org.apache.geode.internal.lang.utils.JavaWorkarounds;
+import org.apache.geode.common.internal.lang.utils.JavaWorkarounds;
 
 
 /**

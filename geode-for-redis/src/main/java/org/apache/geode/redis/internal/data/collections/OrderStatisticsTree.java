@@ -27,7 +27,7 @@ package org.apache.geode.redis.internal.data.collections;
 
 
 import static org.apache.geode.internal.JvmSizeUtils.memoryOverhead;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.util.Arrays;
 import java.util.Collection;

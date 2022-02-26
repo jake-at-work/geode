@@ -48,3 +48,14 @@ dependencies {
   jmhTestRuntimeOnly('org.junit.vintage:junit-vintage-engine')
   jmhTestImplementation('org.assertj:assertj-core')
 }
+
+ext.moduleName = group + '.common'
+
+jar {
+  inputs.property("moduleName", moduleName)
+  manifest {
+    attributes(
+        'Automatic-Module-Name': moduleName,
+    )
+  }
+}

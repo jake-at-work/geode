@@ -14,7 +14,7 @@
  */
 package org.apache.geode.wan.management.internal.cli.functions;
 
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -36,7 +36,6 @@ import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.InternalGatewaySender;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
-import org.apache.geode.wan.management.internal.cli.functions.WanCopyRegionFunction;
 
 public class WanCopyRegionFunctionTest {
 

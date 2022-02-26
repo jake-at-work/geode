@@ -50,7 +50,7 @@ import org.apache.geode.internal.net.SocketCreatorFailHandshake;
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.junit.categories.MembershipTest;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 @Category({MembershipTest.class})
 public class TCPServerSSLJUnitTest {

@@ -41,7 +41,7 @@ import org.apache.geode.cache.query.internal.IndexTrackingQueryObserver.IndexInf
 import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 @Category({OQLIndexTest.class})
 public class IndexTrackingQueryObserverJUnitTest {

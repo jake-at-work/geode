@@ -17,7 +17,7 @@ package org.apache.geode.cache.query.internal.index;
 import static java.lang.System.getProperties;
 import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.cache.query.IndexType.FUNCTIONAL;
-import static org.apache.geode.util.internal.GeodeGlossary.GEMFIRE_PREFIX;
+import static org.apache.geode.common.internal.utils.GeodeGlossary.GEMFIRE_PREFIX;
 import static org.junit.Assert.assertFalse;
 
 import java.util.HashSet;
@@ -40,7 +40,7 @@ import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.ThreadUtils;
 import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 @Category({OQLIndexTest.class})
 public class AsynchIndexMaintenanceJUnitTest {

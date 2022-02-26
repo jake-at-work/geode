@@ -29,7 +29,7 @@ import org.junit.rules.TestName;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.lang.SystemProperty;
+import org.apache.geode.common.internal.lang.SystemProperty;
 
 /**
  * Integration tests for {@link DiskDirRule}.

@@ -52,7 +52,7 @@ import org.apache.geode.management.configuration.Region.Expiration;
 import org.apache.geode.management.configuration.Region.ExpirationAction;
 import org.apache.geode.management.configuration.Region.ExpirationType;
 import org.apache.geode.management.configuration.RegionType;
-import org.apache.geode.util.internal.GeodeJsonMapper;
+import org.apache.geode.common.internal.utils.GeodeJsonMapper;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(locations = {"classpath*:WEB-INF/management-servlet.xml"},

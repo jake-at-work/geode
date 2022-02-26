@@ -48,7 +48,7 @@ import org.apache.geode.internal.cache.xmlcache.Declarable2;
 import org.apache.geode.internal.cache.xmlcache.RegionAttributesCreation;
 import org.apache.geode.internal.cache.xmlcache.ResourceManagerCreation;
 import org.apache.geode.test.dunit.IgnoredException;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 
 public class CacheXmlGeode10DUnitTest extends CacheXml81DUnitTest {

@@ -26,7 +26,7 @@ import org.apache.geode.management.configuration.GroupableConfiguration;
 import org.apache.geode.management.configuration.Links;
 import org.apache.geode.management.configuration.Region;
 import org.apache.geode.management.runtime.RuntimeInfo;
-import org.apache.geode.util.internal.GeodeJsonMapper;
+import org.apache.geode.common.internal.utils.GeodeJsonMapper;
 
 public class GroupableConfigurationTest {
 

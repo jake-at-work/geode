@@ -34,7 +34,7 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 import org.apache.geode.redis.internal.GeodeRedisServer;
 import org.apache.geode.redis.internal.GeodeRedisService;
 import org.apache.geode.redis.internal.services.RegionProvider;

@@ -26,7 +26,7 @@ import org.junit.After;
 import org.junit.Before;
 
 import org.apache.geode.test.process.ProcessWrapper;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Test framework for launching processes and comparing output to expected golden output.

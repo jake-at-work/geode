@@ -17,7 +17,7 @@ package org.apache.geode.internal.statistics;
 import java.net.UnknownHostException;
 
 import org.apache.geode.Statistics;
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.lang.SystemUtils;
 import org.apache.geode.internal.statistics.platform.LinuxProcFsStatistics;
 import org.apache.geode.internal.statistics.platform.LinuxProcessStats;

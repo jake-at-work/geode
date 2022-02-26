@@ -101,7 +101,7 @@ import org.apache.geode.internal.util.ArrayUtils;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.logging.internal.log4j.api.LogWithToString;
 import org.apache.geode.pdx.internal.PeerTypeRegistration;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Takes care of RegionAttributes, AttributesMutator, and some no-brainer method implementations.

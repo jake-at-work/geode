@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.StringUtils.lowerCase;
 import static org.apache.geode.distributed.ConfigurationProperties.NAME;
 import static org.apache.geode.internal.lang.StringUtils.defaultString;
 import static org.apache.geode.internal.lang.SystemUtils.CURRENT_DIRECTORY;
-import static org.apache.geode.internal.lang.utils.ClassUtils.forName;
+import static org.apache.geode.common.internal.lang.utils.ClassUtils.forName;
 
 import java.io.File;
 import java.io.FileReader;
@@ -54,7 +54,7 @@ import org.apache.geode.internal.process.ProcessUtils;
 import org.apache.geode.internal.util.ArgumentRedactor;
 import org.apache.geode.internal.util.SunAPINotFoundException;
 import org.apache.geode.logging.internal.OSProcess;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * The AbstractLauncher class is a base class for implementing various launchers to construct and

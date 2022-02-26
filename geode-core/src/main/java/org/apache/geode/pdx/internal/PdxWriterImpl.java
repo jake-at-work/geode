@@ -34,7 +34,7 @@ import org.apache.geode.pdx.PdxSerializationException;
 import org.apache.geode.pdx.PdxUnreadFields;
 import org.apache.geode.pdx.PdxWriter;
 import org.apache.geode.pdx.internal.AutoSerializableManager.AutoClassInfo;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * A new instance of this class is created for each (nested) instance of {@link PdxSerializable}.

@@ -18,7 +18,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.function.BooleanSupplier;
 
-import org.apache.geode.internal.lang.SystemProperty;
+import org.apache.geode.common.internal.lang.SystemProperty;
 
 /**
  * Creates an instance of {@code GlobalSerialFilterConfiguration} that is enabled only if certain

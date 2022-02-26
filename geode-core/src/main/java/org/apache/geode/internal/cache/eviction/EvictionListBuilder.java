@@ -16,7 +16,7 @@ package org.apache.geode.internal.cache.eviction;
 
 import java.util.Optional;
 
-import org.apache.geode.internal.lang.SystemProperty;
+import org.apache.geode.common.internal.lang.SystemProperty;
 import org.apache.geode.internal.lang.SystemPropertyHelper;
 
 public class EvictionListBuilder {

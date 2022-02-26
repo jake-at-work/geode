@@ -14,7 +14,7 @@
  */
 package org.apache.geode.internal.cache.tier.sockets.command;
 
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

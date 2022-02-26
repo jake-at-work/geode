@@ -25,7 +25,7 @@ import static org.apache.geode.internal.offheap.OffHeapRegionEntryHelperInstance
 import static org.apache.geode.internal.offheap.OffHeapRegionEntryHelperInstance.REMOVED_PHASE2_ADDRESS;
 import static org.apache.geode.internal.offheap.OffHeapRegionEntryHelperInstance.SERIALIZED_BIT;
 import static org.apache.geode.internal.offheap.OffHeapRegionEntryHelperInstance.TOMBSTONE_ADDRESS;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyLong;

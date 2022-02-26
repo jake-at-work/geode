@@ -28,7 +28,7 @@ import org.apache.geode.management.operation.internal.RebalanceRegionResultImpl;
 import org.apache.geode.management.operation.internal.RebalanceResultImpl;
 import org.apache.geode.management.runtime.RebalanceRegionResult;
 import org.apache.geode.management.runtime.RebalanceResult;
-import org.apache.geode.util.internal.GeodeJsonMapper;
+import org.apache.geode.common.internal.utils.GeodeJsonMapper;
 
 public class RebalanceResultTest {
   private ObjectMapper mapper;

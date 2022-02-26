@@ -18,7 +18,7 @@ import static org.apache.geode.internal.logging.spi.LogLevelUpdateOccurs.ONLY_WH
 import static org.apache.geode.internal.logging.spi.LogLevelUpdateScope.GEODE_LOGGERS;
 
 import org.apache.geode.annotations.VisibleForTesting;
-import org.apache.geode.internal.lang.SystemProperty;
+import org.apache.geode.common.internal.lang.SystemProperty;
 import org.apache.geode.internal.logging.spi.LogConfig;
 import org.apache.geode.internal.logging.spi.LogConfigListener;
 import org.apache.geode.internal.logging.spi.LogConfigSupplier;

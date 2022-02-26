@@ -54,7 +54,7 @@ import org.apache.geode.management.configuration.HasFile;
 import org.apache.geode.management.rest.internal.exception.RestTemplateResponseErrorHandler;
 import org.apache.geode.management.runtime.OperationResult;
 import org.apache.geode.management.runtime.RuntimeInfo;
-import org.apache.geode.util.internal.GeodeJsonMapper;
+import org.apache.geode.common.internal.utils.GeodeJsonMapper;
 
 /**
  * Concrete implementation of {@link ClusterManagementServiceTransport} which uses Spring's

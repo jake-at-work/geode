@@ -57,7 +57,7 @@ import org.apache.geode.internal.statistics.StatisticsConfig;
 import org.apache.geode.internal.logging.log4j.LogLevel;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.internal.logging.spi.LogConfig;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * An implementation of the configuration object for an <code>AdminDistributedSystem</code>. After a

@@ -16,7 +16,7 @@ package org.apache.geode.test.dunit.internal;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.io.Serializable;
 import java.net.MalformedURLException;

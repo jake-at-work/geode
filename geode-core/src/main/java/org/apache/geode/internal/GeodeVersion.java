@@ -18,8 +18,8 @@ import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
 
-import org.apache.geode.internal.version.ComponentVersion;
-import org.apache.geode.internal.version.DistributionVersion;
+import org.apache.geode.common.internal.version.ComponentVersion;
+import org.apache.geode.common.internal.version.DistributionVersion;
 
 public class GeodeVersion implements ComponentVersion, DistributionVersion {
 

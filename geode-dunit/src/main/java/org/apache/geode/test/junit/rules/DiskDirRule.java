@@ -16,7 +16,7 @@
  */
 package org.apache.geode.test.junit.rules;
 
-import static org.apache.geode.internal.lang.SystemProperty.getProductStringProperty;
+import static org.apache.geode.common.internal.lang.SystemProperty.getProductStringProperty;
 import static org.apache.geode.internal.lang.SystemPropertyHelper.DEFAULT_DISK_DIRS_PROPERTY;
 
 import java.io.File;
@@ -27,7 +27,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 import org.junit.runner.Description;
 
-import org.apache.geode.internal.lang.SystemProperty;
+import org.apache.geode.common.internal.lang.SystemProperty;
 
 /**
  * JUnit Rule that overrides the default DiskDirs directory. Internally, TemporaryFolder and

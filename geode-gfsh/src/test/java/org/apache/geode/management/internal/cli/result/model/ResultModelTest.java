@@ -28,7 +28,7 @@ import org.junit.Test;
 
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
-import org.apache.geode.util.internal.GeodeJsonMapper;
+import org.apache.geode.common.internal.utils.GeodeJsonMapper;
 
 public class ResultModelTest {
 

@@ -19,7 +19,7 @@ import java.net.UnknownHostException;
 
 import org.apache.commons.validator.routines.InetAddressValidator;
 
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 
 /**
  * Provides static utilities for manipulating, validating, and converting InetAddresses and host

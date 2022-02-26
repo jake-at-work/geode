@@ -51,7 +51,7 @@ import org.apache.geode.pdx.PdxSerializationException;
 import org.apache.geode.pdx.PdxWriter;
 import org.apache.geode.pdx.ReflectionBasedAutoSerializer;
 import org.apache.geode.unsafe.internal.sun.misc.Unsafe;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * The core of auto serialization which is used in both aspect and reflection-based

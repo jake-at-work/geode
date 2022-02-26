@@ -38,7 +38,7 @@ import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.dunit.Wait;
 import org.apache.geode.test.junit.categories.WanTest;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 @Category({WanTest.class})
 public class SerialWANPropagationDUnitTest extends WANTestBase {

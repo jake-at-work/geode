@@ -14,7 +14,7 @@
  */
 package org.apache.geode.internal.tcp;
 
-import static org.apache.geode.internal.inet.LocalHostUtil.getLocalHost;
+import static org.apache.geode.common.internal.inet.LocalHostUtil.getLocalHost;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;

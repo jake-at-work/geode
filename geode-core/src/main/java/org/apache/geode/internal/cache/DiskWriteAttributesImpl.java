@@ -23,7 +23,7 @@ import org.apache.geode.cache.DiskWriteAttributes;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.internal.cache.xmlcache.CacheXml;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Implementation of DiskWriteAttributes

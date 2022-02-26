@@ -17,9 +17,9 @@ package org.apache.geode.cache.wan;
 import java.util.List;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.internal.lang.SystemProperty;
+import org.apache.geode.common.internal.lang.SystemProperty;
 import org.apache.geode.internal.lang.SystemPropertyHelper;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  *

@@ -14,7 +14,7 @@
  */
 package org.apache.geode.test.junit.rules;
 
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

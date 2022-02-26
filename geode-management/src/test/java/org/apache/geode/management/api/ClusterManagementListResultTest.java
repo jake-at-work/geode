@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.apache.geode.management.configuration.Region;
 import org.apache.geode.management.configuration.RegionType;
 import org.apache.geode.management.runtime.RuntimeRegionInfo;
-import org.apache.geode.util.internal.GeodeJsonMapper;
+import org.apache.geode.common.internal.utils.GeodeJsonMapper;
 
 public class ClusterManagementListResultTest {
 

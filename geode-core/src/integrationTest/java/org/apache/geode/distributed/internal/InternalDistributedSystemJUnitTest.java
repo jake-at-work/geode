@@ -77,7 +77,7 @@ import org.apache.geode.internal.ConfigSource;
 import org.apache.geode.internal.logging.InternalLogWriter;
 import org.apache.geode.metrics.internal.MetricsService;
 import org.apache.geode.test.junit.categories.MembershipTest;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 /**
  * Tests the functionality of the {@link InternalDistributedSystem} class. Mostly checks

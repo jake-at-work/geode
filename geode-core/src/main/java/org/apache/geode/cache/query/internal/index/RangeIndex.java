@@ -16,7 +16,7 @@ package org.apache.geode.cache.query.internal.index;
 
 import static java.lang.Integer.MAX_VALUE;
 import static org.apache.geode.cache.query.internal.CompiledValue.indexThresholdSize;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 
 import java.util.ArrayList;
 import java.util.Collection;

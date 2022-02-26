@@ -29,7 +29,7 @@ import org.apache.geode.Instantiator;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.InternalInstantiator;
 import org.apache.geode.internal.serialization.KnownVersion;
-import org.apache.geode.util.internal.GeodeGlossary;
+import org.apache.geode.common.internal.utils.GeodeGlossary;
 
 public class SocketMessageWriter {
   private static final int CLIENT_PING_TASK_PERIOD =

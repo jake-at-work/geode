@@ -22,7 +22,7 @@ import static org.apache.geode.redis.internal.data.NullRedisDataStructures.NULL_
 import static org.apache.geode.redis.internal.data.RedisDataType.REDIS_SET;
 import static org.apache.geode.redis.internal.data.RedisSet.setOpStoreResult;
 import static org.apache.geode.redis.internal.netty.Coder.stringToBytes;
-import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
+import static org.apache.geode.common.internal.utils.UncheckedUtils.uncheckedCast;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;

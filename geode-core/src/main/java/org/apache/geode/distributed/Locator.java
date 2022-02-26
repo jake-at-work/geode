@@ -23,7 +23,7 @@ import java.util.Properties;
 
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.distributed.internal.tcpserver.HostAddress;
-import org.apache.geode.internal.inet.LocalHostUtil;
+import org.apache.geode.common.internal.inet.LocalHostUtil;
 
 /**
  * Represents a distribution locator server that provides discovery information to members and
