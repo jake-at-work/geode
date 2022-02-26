@@ -12,56 +12,76 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.apache.geode.cache.client.internal.locator.wan;
+package org.apache.geode.wan.cache.client.internal.locator;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.apache.geode.internal.admin.remote.DistributionLocatorId;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.SerializationContext;
 
-public class RemoteLocatorRequest implements DataSerializableFixedID {
-  private int distributedSystemId;
+/**
+ * Requests remote locators of a remote WAN site
+ *
+ *
+ * @since GemFire 6.6
+ *
+ */
+public class RemoteLocatorJoinRequest implements DataSerializableFixedID {
 
-  public RemoteLocatorRequest() {
+  private DistributionLocatorId locator = null;
+
+  private int distributedSystemId = -1;
+
+  public RemoteLocatorJoinRequest() {
     super();
   }
 
-  public RemoteLocatorRequest(int dsId, String serverGroup) {
-    distributedSystemId = dsId;
+  public RemoteLocatorJoinRequest(int distributedSystemId, DistributionLocatorId locator,
+      String serverGroup) {
+    this.distributedSystemId = distributedSystemId;
+    this.locator = locator;
   }
 
   @Override
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
+    locator = context.getDeserializer().readObject(in);
     distributedSystemId = in.readInt();
   }
 
   @Override
   public void toData(DataOutput out,
       SerializationContext context) throws IOException {
+    context.getSerializer().writeObject(locator, out);
     out.writeInt(distributedSystemId);
   }
 
-  public int getDsId() {
+  public DistributionLocatorId getLocator() {
+    return locator;
+  }
+
+  public int getDistributedSystemId() {
     return distributedSystemId;
   }
 
   @Override
   public int getDSFID() {
-    return DataSerializableFixedID.REMOTE_LOCATOR_REQUEST;
+    return DataSerializableFixedID.REMOTE_LOCATOR_JOIN_REQUEST;
   }
 
   @Override
   public String toString() {
-    return "RemoteLocatorRequest{dsName=" + distributedSystemId + "}";
+    return "RemoteLocatorJoinRequest{locator=" + locator + "}";
   }
 
   @Override
   public KnownVersion[] getSerializationVersions() {
     return null;
   }
+
 }

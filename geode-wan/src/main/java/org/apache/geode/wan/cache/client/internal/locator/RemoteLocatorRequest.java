@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.apache.geode.cache.client.internal.locator.wan;
+package org.apache.geode.wan.cache.client.internal.locator;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -23,30 +23,45 @@ import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.SerializationContext;
 
-public class RemoteLocatorPingRequest implements DataSerializableFixedID {
+public class RemoteLocatorRequest implements DataSerializableFixedID {
+  private int distributedSystemId;
 
-  public RemoteLocatorPingRequest() {
+  public RemoteLocatorRequest() {
     super();
   }
 
-  public RemoteLocatorPingRequest(String serverGroup) {}
+  public RemoteLocatorRequest(int dsId, String serverGroup) {
+    distributedSystemId = dsId;
+  }
 
   @Override
   public void fromData(DataInput in,
-      DeserializationContext context) throws IOException, ClassNotFoundException {}
+      DeserializationContext context) throws IOException, ClassNotFoundException {
+    distributedSystemId = in.readInt();
+  }
 
   @Override
   public void toData(DataOutput out,
-      SerializationContext context) throws IOException {}
+      SerializationContext context) throws IOException {
+    out.writeInt(distributedSystemId);
+  }
+
+  public int getDsId() {
+    return distributedSystemId;
+  }
 
   @Override
   public int getDSFID() {
-    return DataSerializableFixedID.REMOTE_LOCATOR_PING_REQUEST;
+    return DataSerializableFixedID.REMOTE_LOCATOR_REQUEST;
+  }
+
+  @Override
+  public String toString() {
+    return "RemoteLocatorRequest{dsName=" + distributedSystemId + "}";
   }
 
   @Override
   public KnownVersion[] getSerializationVersions() {
     return null;
   }
-
 }

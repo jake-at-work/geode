@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutorService;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.client.internal.locator.wan.LocatorMembershipListener;
-import org.apache.geode.cache.client.internal.locator.wan.RemoteLocatorJoinRequest;
+import org.apache.geode.wan.cache.client.internal.locator.RemoteLocatorJoinRequest;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.DistributionConfigImpl;
 import org.apache.geode.distributed.internal.WanLocatorDiscoverer;

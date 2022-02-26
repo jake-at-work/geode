@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.apache.geode.cache.client.internal.locator.wan;
+package org.apache.geode.wan.cache.client.internal.locator;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -23,13 +23,13 @@ import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.SerializationContext;
 
-public class RemoteLocatorPingResponse implements DataSerializableFixedID {
+public class RemoteLocatorPingRequest implements DataSerializableFixedID {
 
-
-  /** Used by DataSerializer */
-  public RemoteLocatorPingResponse() {
+  public RemoteLocatorPingRequest() {
     super();
   }
+
+  public RemoteLocatorPingRequest(String serverGroup) {}
 
   @Override
   public void fromData(DataInput in,
@@ -39,11 +39,9 @@ public class RemoteLocatorPingResponse implements DataSerializableFixedID {
   public void toData(DataOutput out,
       SerializationContext context) throws IOException {}
 
-
-
   @Override
   public int getDSFID() {
-    return DataSerializableFixedID.REMOTE_LOCATOR_PING_RESPONSE;
+    return DataSerializableFixedID.REMOTE_LOCATOR_PING_REQUEST;
   }
 
   @Override

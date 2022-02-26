@@ -12,55 +12,38 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.apache.geode.cache.client.internal.locator.wan;
+package org.apache.geode.wan.cache.client.internal.locator;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Set;
 
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.SerializationContext;
 
-public class RemoteLocatorResponse implements DataSerializableFixedID {
+public class RemoteLocatorPingResponse implements DataSerializableFixedID {
 
-  private Set<String> locators;
 
   /** Used by DataSerializer */
-  public RemoteLocatorResponse() {
+  public RemoteLocatorPingResponse() {
     super();
-  }
-
-  public RemoteLocatorResponse(Set<String> locators) {
-    this.locators = locators;
   }
 
   @Override
   public void fromData(DataInput in,
-      DeserializationContext context) throws IOException, ClassNotFoundException {
-    locators = context.getDeserializer().readObject(in);
-  }
+      DeserializationContext context) throws IOException, ClassNotFoundException {}
 
   @Override
   public void toData(DataOutput out,
-      SerializationContext context) throws IOException {
-    context.getSerializer().writeObject(locators, out);
-  }
+      SerializationContext context) throws IOException {}
 
-  public Set<String> getLocators() {
-    return locators;
-  }
 
-  @Override
-  public String toString() {
-    return "RemoteLocatorResponse{locators=" + locators + "}";
-  }
 
   @Override
   public int getDSFID() {
-    return DataSerializableFixedID.REMOTE_LOCATOR_RESPONSE;
+    return DataSerializableFixedID.REMOTE_LOCATOR_PING_RESPONSE;
   }
 
   @Override

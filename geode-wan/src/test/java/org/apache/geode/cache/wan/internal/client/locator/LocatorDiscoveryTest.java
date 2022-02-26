@@ -35,10 +35,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import org.apache.geode.cache.client.internal.locator.wan.LocatorMembershipListener;
-import org.apache.geode.cache.client.internal.locator.wan.RemoteLocatorJoinRequest;
-import org.apache.geode.cache.client.internal.locator.wan.RemoteLocatorJoinResponse;
-import org.apache.geode.cache.client.internal.locator.wan.RemoteLocatorPingRequest;
-import org.apache.geode.cache.client.internal.locator.wan.RemoteLocatorPingResponse;
+import org.apache.geode.wan.cache.client.internal.locator.RemoteLocatorJoinRequest;
+import org.apache.geode.wan.cache.client.internal.locator.RemoteLocatorJoinResponse;
+import org.apache.geode.wan.cache.client.internal.locator.RemoteLocatorPingRequest;
+import org.apache.geode.wan.cache.client.internal.locator.RemoteLocatorPingResponse;
 import org.apache.geode.distributed.internal.WanLocatorDiscoverer;
 import org.apache.geode.distributed.internal.tcpserver.TcpClient;
 import org.apache.geode.internal.admin.remote.DistributionLocatorId;

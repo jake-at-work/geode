@@ -23,8 +23,8 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.client.internal.locator.wan.RemoteLocatorRequest;
-import org.apache.geode.cache.client.internal.locator.wan.RemoteLocatorResponse;
+import org.apache.geode.wan.cache.client.internal.locator.RemoteLocatorRequest;
+import org.apache.geode.wan.cache.client.internal.locator.RemoteLocatorResponse;
 import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.distributed.internal.WanLocatorDiscoverer;
 import org.apache.geode.distributed.internal.tcpserver.TcpClient;
