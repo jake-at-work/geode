@@ -37,12 +37,10 @@ dependencies {
   testImplementation('org.awaitility:awaitility')
 }
 
-tasks.withType(AbstractCompile) {
-  options.with {
-    fork = true
-    forkOptions.javaHome = file(System.getProperty('java.home'))
-    compilerArgs << '-XDignore.symbol.file'
-  }
+tasks.withType(JavaCompile).configureEach {
+  javaCompiler.set(provider { null } as Provider<? extends JavaCompiler>)
+  options.forkOptions.executable = javaToolchains.compilerFor(java8Toolchain).get().executablePath.asFile.absolutePath
+  options.compilerArgs << '-XDignore.symbol.file'
 }
 
 ext.moduleName = group + '.unsafe'
