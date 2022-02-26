@@ -134,3 +134,14 @@ tasks.register("redisAPITest") {
     }
   }
 }
+
+ext.moduleName = group + '.redis'
+
+jar {
+  inputs.property("moduleName", moduleName)
+  manifest {
+    attributes(
+        'Automatic-Module-Name': moduleName,
+    )
+  }
+}

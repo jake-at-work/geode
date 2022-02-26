@@ -111,7 +111,9 @@ jar {
 
   inputs.property("moduleName", moduleName)
   manifest {
-    attributes('Automatic-Module-Name': moduleName)
+    attributes(
+        'Automatic-Module-Name': moduleName,
+    )
   }
 
 }
