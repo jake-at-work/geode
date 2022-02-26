@@ -101,3 +101,14 @@ configure([
   environment 'GEODE_HOME', "$buildDir/../../geode-assembly/build/install/apache-geode"
   dependsOn(':geode-assembly:installDist')
 }
+
+ext.moduleName = group + '.gfsh'
+
+jar {
+  inputs.property("moduleName", moduleName)
+  manifest {
+    attributes(
+        'Automatic-Module-Name': moduleName,
+    )
+  }
+}

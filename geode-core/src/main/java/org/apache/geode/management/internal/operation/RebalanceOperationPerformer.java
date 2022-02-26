@@ -456,7 +456,7 @@ public class RebalanceOperationPerformer
     if (dsMember.getVersion()
         .isOlderThan(KnownVersion.GEODE_1_12_0)) {
       rebalanceFunction =
-          new org.apache.geode.management.internal.cli.functions.RebalanceFunction();
+          new org.apache.geode.core.management.internal.cli.functions.RebalanceFunction();
     } else {
       rebalanceFunction = new RebalanceFunction();
     }

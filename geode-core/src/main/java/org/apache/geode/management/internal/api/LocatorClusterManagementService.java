@@ -620,7 +620,7 @@ public class LocatorClusterManagementService implements ClusterManagementService
       List<?> functionResults = new ArrayList<>();
       if (targetMemberPRE1_12_0.size() > 0) {
         Function function =
-            new org.apache.geode.management.internal.cli.functions.CacheRealizationFunction();
+            new org.apache.geode.core.management.internal.cli.functions.CacheRealizationFunction();
         Execution execution = FunctionService.onMembers(targetMemberPRE1_12_0)
             .setArguments(Arrays.asList(configuration, operation, null));
         ((AbstractExecution) execution).setIgnoreDepartedMembers(true);
@@ -660,7 +660,7 @@ public class LocatorClusterManagementService implements ClusterManagementService
         if (((InternalDistributedMember) member).getVersion()
             .isOlderThan(KnownVersion.GEODE_1_12_0)) {
           Function function =
-              new org.apache.geode.management.internal.cli.functions.CacheRealizationFunction();
+              new org.apache.geode.core.management.internal.cli.functions.CacheRealizationFunction();
           functionResults = cleanResults((List<?>) execution.execute(function).getResult());
         } else {
           Function function = new CacheRealizationFunction();
