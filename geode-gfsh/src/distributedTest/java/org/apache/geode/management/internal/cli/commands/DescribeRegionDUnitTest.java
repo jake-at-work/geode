@@ -95,7 +95,6 @@ public class DescribeRegionDUnitTest {
       EvictionAttributes ea =
           EvictionAttributes.createLIFOEntryAttributes(100, EvictionAction.LOCAL_DESTROY);
       dataRegionFactory.setEvictionAttributes(ea);
-      dataRegionFactory.setEnableAsyncConflation(true);
 
       FixedPartitionAttributes fpa =
           FixedPartitionAttributes.createFixedPartition(PART1_NAME, true);
@@ -123,7 +122,6 @@ public class DescribeRegionDUnitTest {
       EvictionAttributes ea =
           EvictionAttributes.createLIFOEntryAttributes(100, EvictionAction.LOCAL_DESTROY);
       dataRegionFactory.setEvictionAttributes(ea);
-      dataRegionFactory.setEnableAsyncConflation(true);
 
       FixedPartitionAttributes fpa = FixedPartitionAttributes.createFixedPartition(PART2_NAME, 4);
       @SuppressWarnings("deprecation")

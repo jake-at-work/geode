@@ -166,13 +166,6 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
   private boolean enableSubscriptionConflation;
 
   /**
-   * Whether to enable a async conflation for this region
-   *
-   * @since GemFire 4.2.3
-   */
-  private boolean enableAsyncConflation;
-
-  /**
    * The client to server Connection Pool
    *
    * @since GemFire 5.7
@@ -268,7 +261,6 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
     refid = null;
     enableSubscriptionConflation = attrs.getEnableSubscriptionConflation();
     publisher = attrs.getPublisher();
-    enableAsyncConflation = attrs.getEnableAsyncConflation();
     poolName = attrs.getPoolName();
     multicastEnabled = attrs.getMulticastEnabled();
     cloningEnabled = attrs.getCloningEnabled();
@@ -452,10 +444,6 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
     if (enableSubscriptionConflation != other.getEnableSubscriptionConflation()) {
       throw new RuntimeException(
           "Enable Subscription Conflation is not the same");
-    }
-    if (enableAsyncConflation != other.getEnableAsyncConflation()) {
-      throw new RuntimeException(
-          "Enable Async Conflation is not the same");
     }
     if (initialCapacity != other.getInitialCapacity()) {
       throw new RuntimeException(
@@ -919,16 +907,6 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
   public void setEnableSubscriptionConflation(boolean v) {
     enableSubscriptionConflation = v;
     setHasEnableSubscriptionConflation(true);
-  }
-
-  @Override
-  public boolean getEnableAsyncConflation() {
-    return enableAsyncConflation;
-  }
-
-  public void setEnableAsyncConflation(boolean enableAsyncConflation) {
-    this.enableAsyncConflation = enableAsyncConflation;
-    setHasEnableAsyncConflation(true);
   }
 
   public void setIndexMaintenanceSynchronous(boolean isSynchronous) {
@@ -1396,16 +1374,6 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
         }
       } else {
         setPublisher(parent.getPublisher());
-      }
-    }
-
-    if (!hasEnableAsyncConflation()) {
-      if (parentIsUserSpecified) {
-        if (parentWithHas.hasEnableAsyncConflation()) {
-          setEnableAsyncConflation(parent.getEnableAsyncConflation());
-        }
-      } else {
-        setEnableAsyncConflation(parent.getEnableAsyncConflation());
       }
     }
 

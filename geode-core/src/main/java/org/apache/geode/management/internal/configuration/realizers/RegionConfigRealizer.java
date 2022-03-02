@@ -209,10 +209,6 @@ public class RegionConfigRealizer
       factory.setStatisticsEnabled(regionAttributes.isStatisticsEnabled());
     }
 
-    if (regionAttributes.isEnableAsyncConflation() != null) {
-      factory.setEnableAsyncConflation(regionAttributes.isEnableAsyncConflation());
-    }
-
     if (regionAttributes.isEnableSubscriptionConflation() != null) {
       factory.setEnableSubscriptionConflation(regionAttributes.isEnableSubscriptionConflation());
     }

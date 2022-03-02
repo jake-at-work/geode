@@ -119,13 +119,6 @@ import org.apache.geode.internal.cache.xmlcache.RegionAttributesCreation;
  * <br>
  * {@link #setSubscriptionAttributes} {@link RegionAttributes#getSubscriptionAttributes}</dd>
  *
- * <dt>EnableAsyncConflation [<em>default:</em> {@code false}]</dt>
- * <dd>Whether or not conflation is enabled for sending messages to async peers. Async peers are
- * those whose {@code async-distribution-timeout} gemfire.property is greater than zero.
- * AsyncConflation is ignored if the scope is {@code DISTRIBUTED_ACK} or {@code GLOBAL}. Conflation
- * is only done on entry update operations. It is done by dropping the earlier update from the
- * message queue. {@link #setEnableAsyncConflation}
- * {@link RegionAttributes#getEnableAsyncConflation}</dd>
  * <dt>poolName [<em>default:</em> {@code null}, meaning no pool]</dt>
  * <dd>Whether or not this region is a client that is to use connections from the named pool to
  * communicate with servers. If {@code null}, then it is not a client. If {@code non-null}, then the
@@ -402,7 +395,6 @@ public class AttributesFactory<K, V> {
         (EvictionAttributesImpl) regionAttributes.getEvictionAttributes();
 
     this.regionAttributes.publisher = regionAttributes.getPublisher();
-    this.regionAttributes.enableAsyncConflation = regionAttributes.getEnableAsyncConflation();
     this.regionAttributes.enableSubscriptionConflation =
         regionAttributes.getEnableSubscriptionConflation();
     this.regionAttributes.poolName = regionAttributes.getPoolName();
@@ -850,18 +842,6 @@ public class AttributesFactory<K, V> {
    */
   @Deprecated
   public void setPublisher(boolean v) {}
-
-  /**
-   * Sets whether or not conflation is enabled for sending messages to async peers. Default value is
-   * false.
-   *
-   * @since GemFire 4.2.3
-   */
-  public void setEnableAsyncConflation(boolean enableAsyncConflation) {
-    regionAttributes.enableAsyncConflation = enableAsyncConflation;
-    regionAttributes.setHasEnableAsyncConflation(true);
-  }
-
 
   /**
    * Sets whether or not conflation is enabled for sending messages from a cache server to its
@@ -1526,7 +1506,6 @@ public class AttributesFactory<K, V> {
     boolean concurrencyChecksEnabled = true;
     boolean earlyAck = false;
     boolean publisher = false;
-    boolean enableAsyncConflation = false;
     boolean enableSubscriptionConflation = false;
     DiskWriteAttributes diskWriteAttributes = DiskWriteAttributesImpl.getDefaultSyncInstance();
     File[] diskDirs = DefaultDiskDirs.getDefaultDiskDirs();
@@ -1575,7 +1554,7 @@ public class AttributesFactory<K, V> {
           .append("; loadFactor=").append(loadFactor).append("; concurrencyLevel=")
           .append(concurrencyLevel).append("; concurrencyChecksEnabled=")
           .append(concurrencyChecksEnabled).append("; enableAsyncConflation=")
-          .append(enableAsyncConflation).append("; enableSubscriptionConflation=")
+          .append("; enableSubscriptionConflation=")
           .append(enableSubscriptionConflation).append("; isBucketRegion=").append(isBucketRegion)
           .append("; poolName=").append(poolName).append("; diskSynchronous=")
           .append(diskSynchronous).append("; multicastEnabled=").append(multicastEnabled)
@@ -1848,11 +1827,6 @@ public class AttributesFactory<K, V> {
     @Override
     public boolean getEnableConflation() { // deprecated in 5.0
       return getEnableSubscriptionConflation();
-    }
-
-    @Override
-    public boolean getEnableAsyncConflation() {
-      return enableAsyncConflation;
     }
 
     @Override

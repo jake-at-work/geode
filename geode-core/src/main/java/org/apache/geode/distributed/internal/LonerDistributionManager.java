@@ -541,12 +541,12 @@ public class LonerDistributionManager implements DistributionManager {
     }
 
     @Override
-    public long startSocketWrite(boolean sync) {
+    public long startSocketWrite() {
       return 0L;
     }
 
     @Override
-    public void endSocketWrite(boolean sync, long start, long bytesWritten, long retries) {}
+    public void endSocketWrite(long start, long bytesWritten, long retries) {}
 
     @Override
     public long startSerialization() {
@@ -627,165 +627,6 @@ public class LonerDistributionManager implements DistributionManager {
 
     @Override
     public void incMcastReadBytes(long amount) {}
-
-    @Override
-    public long getAsyncSocketWritesInProgress() {
-      return 0L;
-    }
-
-    @Override
-    public long getAsyncSocketWrites() {
-      return 0L;
-    }
-
-    @Override
-    public long getAsyncSocketWriteRetries() {
-      return 0L;
-    }
-
-    @Override
-    public long getAsyncSocketWriteBytes() {
-      return 0L;
-    }
-
-    @Override
-    public long getAsyncSocketWriteTime() {
-      return 0L;
-    }
-
-    @Override
-    public long getAsyncQueues() {
-      return 0L;
-    }
-
-    @Override
-    public void incAsyncQueues(long inc) {}
-
-    @Override
-    public long getAsyncQueueFlushesInProgress() {
-      return 0L;
-    }
-
-    @Override
-    public long getAsyncQueueFlushesCompleted() {
-      return 0L;
-    }
-
-    @Override
-    public long getAsyncQueueFlushTime() {
-      return 0L;
-    }
-
-    @Override
-    public long startAsyncQueueFlush() {
-      return 0L;
-    }
-
-    @Override
-    public void endAsyncQueueFlush(long start) {}
-
-    @Override
-    public long getAsyncQueueTimeouts() {
-      return 0L;
-    }
-
-    @Override
-    public void incAsyncQueueTimeouts(long inc) {}
-
-    @Override
-    public long getAsyncQueueSizeExceeded() {
-      return 0L;
-    }
-
-    @Override
-    public void incAsyncQueueSizeExceeded(long inc) {}
-
-    @Override
-    public long getAsyncDistributionTimeoutExceeded() {
-      return 0L;
-    }
-
-    @Override
-    public void incAsyncDistributionTimeoutExceeded() {}
-
-    @Override
-    public long getAsyncQueueSize() {
-      return 0L;
-    }
-
-    @Override
-    public void incAsyncQueueSize(long inc) {}
-
-    @Override
-    public long getAsyncQueuedMsgs() {
-      return 0L;
-    }
-
-    @Override
-    public void incAsyncQueuedMsgs() {}
-
-    @Override
-    public long getAsyncDequeuedMsgs() {
-      return 0L;
-    }
-
-    @Override
-    public void incAsyncDequeuedMsgs() {}
-
-    @Override
-    public long getAsyncConflatedMsgs() {
-      return 0L;
-    }
-
-    @Override
-    public void incAsyncConflatedMsgs() {}
-
-    @Override
-    public long getAsyncThreads() {
-      return 0L;
-    }
-
-    @Override
-    public void incAsyncThreads(long inc) {}
-
-    @Override
-    public long getAsyncThreadInProgress() {
-      return 0L;
-    }
-
-    @Override
-    public long getAsyncThreadCompleted() {
-      return 0L;
-    }
-
-    @Override
-    public long getAsyncThreadTime() {
-      return 0L;
-    }
-
-    @Override
-    public long startAsyncThread() {
-      return 0L;
-    }
-
-    @Override
-    public void endAsyncThread(long start) {}
-
-    @Override
-    public long getAsyncQueueAddTime() {
-      return 0L;
-    }
-
-    @Override
-    public void incAsyncQueueAddTime(long inc) {}
-
-    @Override
-    public long getAsyncQueueRemoveTime() {
-      return 0L;
-    }
-
-    @Override
-    public void incAsyncQueueRemoveTime(long inc) {}
 
     @Override
     public void incReceiverBufferSize(long inc, boolean direct) {}

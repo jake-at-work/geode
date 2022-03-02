@@ -282,30 +282,6 @@ public class GemFireProperties {
    **/
   private int maxNumReconnectTries;
   /**
-   * The number of milliseconds before a publishing process should attempt to distribute a cache
-   * operation before switching over to asynchronous messaging for this process. To enable
-   * asynchronous messaging, the value must be set above zero. If a thread that is publishing to the
-   * cache exceeds this value when attempting to distribute to this process, it will switch to
-   * asynchronous messaging until this process catches up, departs, or some specified limit is
-   * reached, such as async-queue-timeout or async-max-queue-size. Default: "0"
-   *
-   * @deprecated this feature is scheduled to be removed
-   **/
-  private int asyncDistributionTimeout;
-  /**
-   * The number of milliseconds a queuing publisher may enqueue asynchronous messages without any
-   * distribution to this process before that publisher requests this process to depart. If a
-   * queuing publisher has not been able to send this process any cache operations prior to the
-   * timeout, this process will attempt to close its cache and disconnect from the distributed
-   * system. Default: "60000"
-   **/
-  private int asyncQueueTimeout;
-  /**
-   * The maximum size in megabytes that a publishing process should be allowed to asynchronously
-   * enqueue for this process before asking this process to depart from the distributed system.
-   **/
-  private int asyncMaxQueueSize;
-  /**
    * This is a client-side property that is passed to the server. Allowable values are "server",
    * "true", and "false". With the "server" setting, this client's servers use their own client
    * queue conflation settings. With a "true" setting, the servers disregard their own configuration
@@ -774,18 +750,6 @@ public class GemFireProperties {
     return maxNumReconnectTries;
   }
 
-  public int getAsyncDistributionTimeout() {
-    return asyncDistributionTimeout;
-  }
-
-  public int getAsyncQueueTimeout() {
-    return asyncQueueTimeout;
-  }
-
-  public int getAsyncMaxQueueSize() {
-    return asyncMaxQueueSize;
-  }
-
   public String getClientConflation() {
     return clientConflation;
   }
@@ -1070,21 +1034,6 @@ public class GemFireProperties {
 
   public void setMaxNumReconnectTries(int maxNumReconnectTries) {
     this.maxNumReconnectTries = maxNumReconnectTries;
-
-  }
-
-  public void setAsyncDistributionTimeout(int asyncDistributionTimeout) {
-    this.asyncDistributionTimeout = asyncDistributionTimeout;
-
-  }
-
-  public void setAsyncQueueTimeout(int asyncQueueTimeout) {
-    this.asyncQueueTimeout = asyncQueueTimeout;
-
-  }
-
-  public void setAsyncMaxQueueSize(int asyncMaxQueueSize) {
-    this.asyncMaxQueueSize = asyncMaxQueueSize;
 
   }
 

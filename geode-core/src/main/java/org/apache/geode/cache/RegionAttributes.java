@@ -373,17 +373,6 @@ public interface RegionAttributes<K, V> {
   boolean getEnableSubscriptionConflation();
 
   /**
-   * Returns whether or not async conflation is enabled for sending messages to async peers.
-   *
-   * Default is false.
-   *
-   * @return True if async conflation is enabled; false async conflation is not enabled (default).
-   *
-   * @since GemFire 4.2.3
-   */
-  boolean getEnableAsyncConflation();
-
-  /**
    * Returns the sizes of the disk directories in megabytes
    *
    * @return int[] sizes of the disk directories

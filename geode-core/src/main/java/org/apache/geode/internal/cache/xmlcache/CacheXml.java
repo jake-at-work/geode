@@ -717,8 +717,6 @@ public abstract class CacheXml implements EntityResolver2, ErrorHandler {
 
   /** The name of the <code>alert-threshold</code> attribute */
   protected static final String ALERT_THRESHOLD = "alert-threshold";
-  /** The name of the <code>enable-async-conflation</code> attribute */
-  protected static final String ENABLE_ASYNC_CONFLATION = "enable-async-conflation";
   /** The name of the <code>maximum-time-between-pings</code> attribute */
   protected static final String MAXIMUM_TIME_BETWEEN_PINGS = "maximum-time-between-pings";
   /** The name of the <code>maximum-message-count</code> attribute */

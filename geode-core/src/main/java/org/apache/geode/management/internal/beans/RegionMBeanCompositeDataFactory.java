@@ -196,7 +196,6 @@ public class RegionMBeanCompositeDataFactory {
     boolean statisticsEnabled = regAttrs.getStatisticsEnabled();
 
     boolean subsciptionConflationEnabled = regAttrs.getEnableSubscriptionConflation();
-    boolean asyncConflationEnabled = regAttrs.getEnableAsyncConflation();
     String poolName = regAttrs.getPoolName();
     boolean isCloningEnabled = regAttrs.getCloningEnabled();
     String diskStoreName = regAttrs.getDiskStoreName();
@@ -221,7 +220,7 @@ public class RegionMBeanCompositeDataFactory {
         regionIdleTimeout, entryTimeToLive, entryIdleTimeout, customEntryTimeToLive,
         customEntryIdleTimeout, ignoreJTA, dataPolicy, scope, initialCapacity, loadFactor,
         lockGrantor, multicastEnabled, concurrencyLevel, indexMaintenanceSynchronous,
-        statisticsEnabled, subsciptionConflationEnabled, asyncConflationEnabled, poolName,
+        statisticsEnabled, subsciptionConflationEnabled, poolName,
         isCloningEnabled, diskStoreName, interestPolicy, diskSynchronus, cacheListeners,
         compressorClassName, offheap, eventQueueIds, gatewaySenderIds);
 

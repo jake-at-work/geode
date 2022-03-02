@@ -645,16 +645,6 @@ public abstract class DistributionMessage
   }
 
   /**
-   *
-   * @return null if message is not conflatable. Otherwise return a key that can be used to identify
-   *         the entry to conflate.
-   * @since GemFire 4.2.2
-   */
-  public ConflationKey getConflationKey() {
-    return null; // by default conflate nothing; override in subclasses
-  }
-
-  /**
    * @return the ID of the reply processor for this message, or zero if none
    * @since GemFire 5.7
    */

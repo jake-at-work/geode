@@ -1293,19 +1293,6 @@ Configure the most common options using the region shortcuts, <code class="ph co
 <td>normal</td>
 </tr>
 <tr>
-<td>enable-async-conflation</td>
-<td><p>For TCP/IP distributions between peers, specifies whether to allow aggregation of asynchronous messages sent by the producer member for the region. This is a special-purpose voolean attribute that applies only when asynchronous queues are used for slow consumers. A false value disables conflation so that all asynchronous messages are sent individually. This special-purpose attribute gives you extra control over peer-to-peer communication between distributed regions using TCP/IP. This attribute does not apply to client/server communication or to communication using the UDP unicast or IP multicast protocols.</p>
-<p>
-<b>Note:</b>
-To use this attribute, the <code class="ph codeph">multicast-enabled</code> region attribute <code class="ph codeph">disable-tcp</code> in <code class="ph codeph">gemfire.properties</code> must be false (the default for both). In addition, asynchronous queues must be enabled for slow consumers, specified with the <code class="ph codeph">async</code>* gemfire properties.</p>
-<p><strong>API:</strong> <code class="ph codeph">setEnableAsyncConflation</code></p>
-<p><strong>Example:</strong></p>
-<pre class="pre codeblock language-xml"><code>&lt;region-attributes 
-  enable-async-conflation=&quot;false&quot;&gt;
-&lt;/region-attributes&gt;</code></pre></td>
-<td>true</td>
-</tr>
-<tr>
 <td>enable-subscription-conflation</td>
 <td><p>Boolean for server regions that specifies whether the server can conflate its messages to the client. A true value enables conflation.</p>
 <p>

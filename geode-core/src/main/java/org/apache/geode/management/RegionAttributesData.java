@@ -49,7 +49,6 @@ public class RegionAttributesData {
   private final boolean indexMaintenanceSynchronous;
   private final boolean statisticsEnabled;
   private final boolean subscriptionConflationEnabled;
-  private final boolean asyncConflationEnabled;
   private final String poolName;
   private final boolean cloningEnabled;
   private final String diskStoreName;
@@ -82,7 +81,7 @@ public class RegionAttributesData {
       String dataPolicy, String scope, int initialCapacity, float loadFactor, boolean lockGrantor,
       boolean multicastEnabled, int concurrencyLevel, boolean indexMaintenanceSynchronous,
       boolean statisticsEnabled, boolean subscriptionConflationEnabled,
-      boolean asyncConflationEnabled, String poolName, boolean cloningEnabled, String diskStoreName,
+      String poolName, boolean cloningEnabled, String diskStoreName,
       String interestPolicy, boolean diskSynchronous, String[] cacheListeners,
       String compressorClassName, boolean offHeap, Set<String> asyncEventQueueIds,
       Set<String> gatewaySenderIds) {
@@ -108,7 +107,6 @@ public class RegionAttributesData {
     this.indexMaintenanceSynchronous = indexMaintenanceSynchronous;
     this.statisticsEnabled = statisticsEnabled;
     this.subscriptionConflationEnabled = subscriptionConflationEnabled;
-    this.asyncConflationEnabled = asyncConflationEnabled;
     this.poolName = poolName;
     this.cloningEnabled = cloningEnabled;
     this.diskStoreName = diskStoreName;
@@ -287,15 +285,6 @@ public class RegionAttributesData {
   }
 
   /**
-   * Returns whether asynchronous conflation is enabled for sending messages to peers.
-   *
-   * @return True if asynchronous conflation is enabled, false otherwise.
-   */
-  public boolean isAsyncConflationEnabled() {
-    return asyncConflationEnabled;
-  }
-
-  /**
    * Returns the name of the Pool that this Region will use to communicate with servers, if any.
    *
    * @return The name of the Pool used to communicate with servers or null if the host member
@@ -385,8 +374,7 @@ public class RegionAttributesData {
    */
   @Override
   public String toString() {
-    return "RegionAttributesData [asyncConflationEnabled=" + asyncConflationEnabled
-        + ", asyncEventQueueIds=" + asyncEventQueueIds + ", cacheListeners="
+    return "RegionAttributesData [asyncEventQueueIds=" + asyncEventQueueIds + ", cacheListeners="
         + Arrays.toString(cacheListeners) + ", cacheLoaderClassName=" + cacheLoaderClassName
         + ", cacheWriterClassName=" + cacheWriterClassName + ", cloningEnabled=" + cloningEnabled
         + ", compressorClassName=" + compressorClassName + ", concurrencyLevel=" + concurrencyLevel

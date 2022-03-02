@@ -85,7 +85,6 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
   private String gatewayHubId;
   private boolean enableSubscriptionConflation;
   private boolean publisher;
-  private boolean enableAsyncConflation;
   private DiskWriteAttributes diskWriteAttributes;
   private File[] diskDirs;
   private int[] diskSizes;
@@ -133,7 +132,6 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
     // this.gatewayHubId = attr.getGatewayHubId();
     enableSubscriptionConflation = attr.getEnableSubscriptionConflation();
     publisher = attr.getPublisher();
-    enableAsyncConflation = attr.getEnableAsyncConflation();
     diskStoreName = attr.getDiskStoreName();
     if (diskStoreName == null) {
       diskWriteAttributes = attr.getDiskWriteAttributes();
@@ -339,11 +337,6 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
   }
 
   @Override
-  public boolean getEnableAsyncConflation() {
-    return enableAsyncConflation;
-  }
-
-  @Override
   public DiskWriteAttributes getDiskWriteAttributes() {
     return diskWriteAttributes;
   }
@@ -429,7 +422,7 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
     out.writeBoolean(multicastEnabled);
     out.writeBoolean(enableSubscriptionConflation);
     out.writeBoolean(publisher);
-    out.writeBoolean(enableAsyncConflation);
+    out.writeBoolean(false);
 
     DataSerializer.writeObject(diskWriteAttributes, out);
     DataSerializer.writeObject(diskDirs, out);
@@ -476,7 +469,7 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
     multicastEnabled = in.readBoolean();
     enableSubscriptionConflation = in.readBoolean();
     publisher = in.readBoolean();
-    enableAsyncConflation = in.readBoolean();
+    in.readBoolean();
 
     diskWriteAttributes = DataSerializer.readObject(in);
     diskDirs = DataSerializer.readObject(in);

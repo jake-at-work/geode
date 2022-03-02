@@ -18,9 +18,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.ACK_SEVERE_AL
 import static org.apache.geode.distributed.ConfigurationProperties.ACK_WAIT_THRESHOLD;
 import static org.apache.geode.distributed.ConfigurationProperties.ARCHIVE_DISK_SPACE_LIMIT;
 import static org.apache.geode.distributed.ConfigurationProperties.ARCHIVE_FILE_SIZE_LIMIT;
-import static org.apache.geode.distributed.ConfigurationProperties.ASYNC_DISTRIBUTION_TIMEOUT;
-import static org.apache.geode.distributed.ConfigurationProperties.ASYNC_MAX_QUEUE_SIZE;
-import static org.apache.geode.distributed.ConfigurationProperties.ASYNC_QUEUE_TIMEOUT;
 import static org.apache.geode.distributed.ConfigurationProperties.BIND_ADDRESS;
 import static org.apache.geode.distributed.ConfigurationProperties.CACHE_XML_FILE;
 import static org.apache.geode.distributed.ConfigurationProperties.CLUSTER_CONFIGURATION_DIR;
@@ -1129,27 +1126,6 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
 
     m.put(MAX_NUM_RECONNECT_TRIES,
         "Maximum number of tries before shutting the member down in the case of required role loss.");
-
-    m.put(ASYNC_DISTRIBUTION_TIMEOUT,
-        String.format(
-            "The number of milliseconds before a publishing process should attempt to distribute a cache operation before switching over to asynchronous messaging for this process. Defaults to %s. Legal values are in the range [%s..%s].",
-            DEFAULT_ASYNC_DISTRIBUTION_TIMEOUT,
-            MIN_ASYNC_DISTRIBUTION_TIMEOUT,
-            MAX_ASYNC_DISTRIBUTION_TIMEOUT));
-
-    m.put(ASYNC_QUEUE_TIMEOUT,
-        String.format(
-            "The number of milliseconds a queuing may enqueue asynchronous messages without any distribution to this process before that publisher requests this process to depart. Defaults to %s Legal values are in the range [%s..%s].",
-            DEFAULT_ASYNC_QUEUE_TIMEOUT,
-            MIN_ASYNC_QUEUE_TIMEOUT,
-            MAX_ASYNC_QUEUE_TIMEOUT));
-
-    m.put(ASYNC_MAX_QUEUE_SIZE,
-        String.format(
-            "The maximum size in megabytes that a publishing process should be allowed to asynchronously enqueue for this process before asking this process to depart from the distributed system. Defaults to %s. Legal values are in the range [%s..%s].",
-            DEFAULT_ASYNC_MAX_QUEUE_SIZE,
-            MIN_ASYNC_MAX_QUEUE_SIZE,
-            MAX_ASYNC_MAX_QUEUE_SIZE));
 
     m.put(START_LOCATOR,
         "The host|bindAddress[port] of a Locator to start in this VM along with the DistributedSystem. The default is to not start a Locator.");

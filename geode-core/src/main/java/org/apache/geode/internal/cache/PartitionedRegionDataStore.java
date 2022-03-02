@@ -702,7 +702,6 @@ public class PartitionedRegionDataStore implements HasCachePerfStats {
     if (loader != null) {
       factory.setCacheLoader(loader);
     }
-    factory.setEnableAsyncConflation(true);
 
     if (Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "PRDebug")) {
       factory.addCacheListener(createDebugBucketListener());

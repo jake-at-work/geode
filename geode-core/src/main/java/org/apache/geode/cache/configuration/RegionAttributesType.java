@@ -304,7 +304,6 @@ import org.apache.geode.management.configuration.ClassName;
  *       &lt;attribute name="concurrency-level" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="data-policy" type="{http://geode.apache.org/schema/cache}region-attributesData-policy" />
  *       &lt;attribute name="early-ack" type="{http://www.w3.org/2001/XMLSchema}boolean" />
- *       &lt;attribute name="enable-async-conflation" type="{http://www.w3.org/2001/XMLSchema}boolean" />
  *       &lt;attribute name="enable-gateway" type="{http://www.w3.org/2001/XMLSchema}boolean" />
  *       &lt;attribute name="enable-subscription-conflation" type="{http://www.w3.org/2001/XMLSchema}boolean" />
  *       &lt;attribute name="gateway-sender-ids" type="{http://www.w3.org/2001/XMLSchema}string" />
@@ -383,8 +382,6 @@ public class RegionAttributesType implements Serializable {
   protected RegionAttributesDataPolicy dataPolicy;
   @XmlAttribute(name = "early-ack")
   protected Boolean earlyAck;
-  @XmlAttribute(name = "enable-async-conflation")
-  protected Boolean enableAsyncConflation;
   @XmlAttribute(name = "enable-gateway")
   protected Boolean enableGateway;
   @XmlAttribute(name = "enable-subscription-conflation")
@@ -915,28 +912,6 @@ public class RegionAttributesType implements Serializable {
    */
   public void setEarlyAck(Boolean value) {
     earlyAck = value;
-  }
-
-  /**
-   * Gets the value of the enableAsyncConflation property.
-   *
-   * possible object is
-   * {@link Boolean }
-   *
-   */
-  public Boolean isEnableAsyncConflation() {
-    return enableAsyncConflation;
-  }
-
-  /**
-   * Sets the value of the enableAsyncConflation property.
-   *
-   * allowed object is
-   * {@link Boolean }
-   *
-   */
-  public void setEnableAsyncConflation(Boolean value) {
-    enableAsyncConflation = value;
   }
 
   /**

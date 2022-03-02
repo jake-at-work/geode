@@ -28,7 +28,6 @@ import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.ConflationKey;
 import org.apache.geode.distributed.internal.DirectReplyProcessor;
 import org.apache.geode.internal.cache.DistributedCacheOperation;
 import org.apache.geode.internal.cache.DistributedRegion;
@@ -230,17 +229,5 @@ public class BatchDestroyOperation extends DistributedCacheOperation {
       DataSerializer.writeLong(event.getTailKey(), out);
     }
 
-    @Override
-    public ConflationKey getConflationKey() {
-      if (!super.regionAllowsConflation || getProcessorId() != 0) {
-        // if the publisher's region attributes do not support conflation
-        // or if it is an ack region
-        // then don't even bother with a conflation key
-        return null;
-      } else {
-        // don't conflate destroys
-        return new ConflationKey(key, super.regionPath, false);
-      }
-    }
   }
 }

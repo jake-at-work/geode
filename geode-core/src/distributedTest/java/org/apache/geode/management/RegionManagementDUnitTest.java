@@ -1000,9 +1000,6 @@ public class RegionManagementDUnitTest implements Serializable {
     assertThat(regionAttributesData.isSubscriptionConflationEnabled())
         .isEqualTo(regionAttributes.getEnableSubscriptionConflation());
 
-    assertThat(regionAttributesData.isAsyncConflationEnabled())
-        .isEqualTo(regionAttributes.getEnableAsyncConflation());
-
     assertThat(regionAttributesData.getPoolName()).isEqualTo(regionAttributes.getPoolName());
 
     assertThat(regionAttributesData.isCloningEnabled())

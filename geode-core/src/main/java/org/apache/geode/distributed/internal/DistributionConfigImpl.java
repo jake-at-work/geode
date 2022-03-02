@@ -307,10 +307,6 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
    */
   private int maxNumReconnectTries = DEFAULT_MAX_NUM_RECONNECT_TRIES;
 
-  private int asyncDistributionTimeout = DEFAULT_ASYNC_DISTRIBUTION_TIMEOUT;
-  private int asyncQueueTimeout = DEFAULT_ASYNC_QUEUE_TIMEOUT;
-  private int asyncMaxQueueSize = DEFAULT_ASYNC_MAX_QUEUE_SIZE;
-
   /**
    * @since GemFire 5.7
    */
@@ -720,9 +716,6 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
     clusterSSLKeyStorePassword = other.getClusterSSLKeyStorePassword();
     clusterSSLTrustStore = other.getClusterSSLTrustStore();
     clusterSSLTrustStorePassword = other.getClusterSSLTrustStorePassword();
-    asyncDistributionTimeout = other.getAsyncDistributionTimeout();
-    asyncQueueTimeout = other.getAsyncQueueTimeout();
-    asyncMaxQueueSize = other.getAsyncMaxQueueSize();
     modifiable = true;
     // the following were added after version 4.1.2
     mcastSendBufferSize = other.getMcastSendBufferSize();
@@ -1033,20 +1026,6 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
     modifiable = false;
   }
 
-  /*
-   * When ssl-enabled-components specified CLUSTER or ALL, the slower receiver is not allowed.
-   * In legacy code, if cluster-ssl-enabled is true, the slower receiver is not allowed.
-   */
-  void validateSlowReceiversIncompatibleWithSSL(
-      SecurableCommunicationChannel[] sslEnabledComponents) {
-    if (getAsyncDistributionTimeout() > 0
-        && (getClusterSSLEnabled() || Arrays.stream(sslEnabledComponents)
-            .anyMatch(component -> component == ALL || component == CLUSTER))) {
-      throw new IllegalArgumentException(
-          "async-distribution-timeout greater than 0 is not allowed with cluster TLS/SSL.");
-    }
-  }
-
   private void validateSSLEnabledComponentsConfiguration() {
     Object value = null;
     try {
@@ -1066,8 +1045,6 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
       }
     }
     SecurableCommunicationChannel[] sslEnabledComponents = (SecurableCommunicationChannel[]) value;
-
-    validateSlowReceiversIncompatibleWithSSL(sslEnabledComponents);
 
     for (SecurableCommunicationChannel securableCommunicationChannel : sslEnabledComponents) {
       if (!isAliasCorrectlyConfiguredForComponents(securableCommunicationChannel)) {
@@ -1922,21 +1899,6 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
   }
 
   @Override
-  public int getAsyncDistributionTimeout() {
-    return asyncDistributionTimeout;
-  }
-
-  @Override
-  public int getAsyncQueueTimeout() {
-    return asyncQueueTimeout;
-  }
-
-  @Override
-  public int getAsyncMaxQueueSize() {
-    return asyncMaxQueueSize;
-  }
-
-  @Override
   public String getUserCommandPackages() {
     return userCommandPackages;
   }
@@ -2282,21 +2244,6 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
   @Override
   public void setMcastRecvBufferSize(int value) {
     mcastRecvBufferSize = value;
-  }
-
-  @Override
-  public void setAsyncDistributionTimeout(int newValue) {
-    asyncDistributionTimeout = newValue;
-  }
-
-  @Override
-  public void setAsyncQueueTimeout(int newValue) {
-    asyncQueueTimeout = newValue;
-  }
-
-  @Override
-  public void setAsyncMaxQueueSize(int newValue) {
-    asyncMaxQueueSize = newValue;
   }
 
   @Override
@@ -3234,9 +3181,6 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
         .append(memberTimeout, that.memberTimeout)
         .append(maxWaitTimeForReconnect, that.maxWaitTimeForReconnect)
         .append(maxNumReconnectTries, that.maxNumReconnectTries)
-        .append(asyncDistributionTimeout, that.asyncDistributionTimeout)
-        .append(asyncQueueTimeout, that.asyncQueueTimeout)
-        .append(asyncMaxQueueSize, that.asyncMaxQueueSize)
         .append(durableClientTimeout, that.durableClientTimeout)
         .append(securityLogLevel, that.securityLogLevel)
         .append(enableNetworkPartitionDetection, that.enableNetworkPartitionDetection)
@@ -3386,7 +3330,6 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
         .append(udpRecvBufferSize).append(udpFragmentSize).append(disableTcp).append(disableJmx)
         .append(enableTimeStatistics).append(memberTimeout).append(membershipPortRange)
         .append(maxWaitTimeForReconnect).append(maxNumReconnectTries)
-        .append(asyncDistributionTimeout).append(asyncQueueTimeout).append(asyncMaxQueueSize)
         .append(clientConflation).append(durableClientId).append(durableClientTimeout)
         .append(securityClientAuthInit).append(securityClientAuthenticator).append(securityManager)
         .append(postProcessor).append(securityClientDHAlgo).append(securityPeerAuthInit)

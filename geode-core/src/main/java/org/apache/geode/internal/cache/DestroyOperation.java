@@ -24,7 +24,6 @@ import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.ConflationKey;
 import org.apache.geode.distributed.internal.DirectReplyProcessor;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.versions.ConcurrentCacheModificationException;
@@ -194,19 +193,6 @@ public class DestroyOperation extends DistributedCacheOperation {
     @Override
     public EventID getEventID() {
       return eventId;
-    }
-
-    @Override
-    public ConflationKey getConflationKey() {
-      if (!super.regionAllowsConflation || getProcessorId() != 0) {
-        // if the publisher's region attributes do not support conflation
-        // or if it is an ack region
-        // then don't even bother with a conflation key
-        return null;
-      } else {
-        // don't conflate destroys
-        return new ConflationKey(key, super.regionPath, false);
-      }
     }
 
     @Override

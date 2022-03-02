@@ -163,12 +163,6 @@ public class DistributionStats implements DMStats {
   private static final int threadOwnedReceiversId;
   private static final int threadOwnedReceiversId2;
 
-  private static final int asyncSocketWritesInProgressId;
-  private static final int asyncSocketWritesId;
-  private static final int asyncSocketWriteRetriesId;
-  private static final int asyncSocketWriteTimeId;
-  private static final int asyncSocketWriteBytesId;
-
   private static final int socketLocksInProgressId;
   private static final int socketLocksId;
   private static final int socketLockTimeId;
@@ -176,26 +170,6 @@ public class DistributionStats implements DMStats {
   private static final int bufferAcquiresInProgressId;
   private static final int bufferAcquiresId;
   private static final int bufferAcquireTimeId;
-
-  private static final int asyncQueueAddTimeId;
-  private static final int asyncQueueRemoveTimeId;
-
-  private static final int asyncQueuesId;
-  private static final int asyncQueueFlushesInProgressId;
-  private static final int asyncQueueFlushesCompletedId;
-  private static final int asyncQueueFlushTimeId;
-  private static final int asyncQueueTimeoutExceededId;
-  private static final int asyncQueueSizeExceededId;
-  private static final int asyncDistributionTimeoutExceededId;
-  private static final int asyncQueueSizeId;
-  private static final int asyncQueuedMsgsId;
-  private static final int asyncDequeuedMsgsId;
-  private static final int asyncConflatedMsgsId;
-
-  private static final int asyncThreadsId;
-  private static final int asyncThreadInProgressId;
-  private static final int asyncThreadCompletedId;
-  private static final int asyncThreadTimeId;
 
   private static final int receiverDirectBufferSizeId;
   private static final int receiverHeapBufferSizeId;
@@ -345,33 +319,6 @@ public class DistributionStats implements DMStats {
     final String threadUnorderedSenderConnectionsDesc =
         "Current number of thread sockets dedicated to sending unordered messages.";
 
-    final String asyncQueuesDesc = "The current number of queues for asynchronous messaging.";
-    final String asyncQueueFlushesInProgressDesc =
-        "Current number of asynchronous queues being flushed.";
-    final String asyncQueueFlushesCompletedDesc =
-        "Total number of asynchronous queue flushes completed.";
-    final String asyncQueueFlushTimeDesc = "Total time spent flushing asynchronous queues.";
-    final String asyncQueueTimeoutExceededDesc =
-        "Total number of asynchronous queues that have timed out by being blocked for more than async-queue-timeout milliseconds.";
-    final String asyncQueueSizeExceededDesc =
-        "Total number of asynchronous queues that have exceeded max size.";
-    final String asyncDistributionTimeoutExceededDesc =
-        "Total number of times the async-distribution-timeout has been exceeded during a socket write.";
-    final String asyncQueueSizeDesc = "The current size in bytes used for asynchronous queues.";
-    final String asyncQueuedMsgsDesc =
-        "The total number of queued messages used for asynchronous queues.";
-    final String asyncDequeuedMsgsDesc =
-        "The total number of queued messages that have been removed from the queue and successfully sent.";
-    final String asyncConflatedMsgsDesc =
-        "The total number of queued conflated messages used for asynchronous queues.";
-
-    final String asyncThreadsDesc = "Total number of asynchronous message queue threads.";
-    final String asyncThreadInProgressDesc =
-        "Current iterations of work performed by asynchronous message queue threads.";
-    final String asyncThreadCompletedDesc =
-        "Total number of iterations of work performed by asynchronous message queue threads.";
-    final String asyncThreadTimeDesc =
-        "Total time spent by asynchronous message queue threads performing iterations.";
     final String receiverDirectBufferSizeDesc =
         "Current number of bytes allocated from direct memory as buffers for incoming messages.";
     final String receiverHeapBufferSizeDesc =
@@ -610,47 +557,6 @@ public class DistributionStats implements DMStats {
             "Total amount of time, in nanoseconds, spent flushing batched messages to the network",
             "nanoseconds"),
 
-        f.createLongGauge("asyncSocketWritesInProgress",
-            "Current number of non-blocking socket write calls in progress.", "writes"),
-        f.createLongCounter("asyncSocketWrites",
-            "Total number of non-blocking socket write calls completed.", "writes"),
-        f.createLongCounter("asyncSocketWriteRetries",
-            "Total number of retries needed to write a single block of data using non-blocking socket write calls.",
-            "writes"),
-        f.createLongCounter("asyncSocketWriteTime",
-            "Total amount of time, in nanoseconds, spent in non-blocking socket write calls.",
-            "nanoseconds"),
-        f.createLongCounter("asyncSocketWriteBytes",
-            "Total number of bytes sent out on non-blocking sockets.", "bytes"),
-
-        f.createLongCounter("asyncQueueAddTime",
-            "Total amount of time, in nanoseconds, spent in adding messages to async queue.",
-            "nanoseconds"),
-        f.createLongCounter("asyncQueueRemoveTime",
-            "Total amount of time, in nanoseconds, spent in removing messages from async queue.",
-            "nanoseconds"),
-
-        f.createLongGauge("asyncQueues", asyncQueuesDesc, "queues"),
-        f.createLongGauge("asyncQueueFlushesInProgress", asyncQueueFlushesInProgressDesc,
-            "operations"),
-        f.createLongCounter("asyncQueueFlushesCompleted", asyncQueueFlushesCompletedDesc,
-            "operations"),
-        f.createLongCounter("asyncQueueFlushTime", asyncQueueFlushTimeDesc, "nanoseconds", false),
-        f.createLongCounter("asyncQueueTimeoutExceeded", asyncQueueTimeoutExceededDesc, "timeouts"),
-        f.createLongCounter("asyncQueueSizeExceeded", asyncQueueSizeExceededDesc, "operations"),
-        f.createLongCounter("asyncDistributionTimeoutExceeded",
-            asyncDistributionTimeoutExceededDesc,
-            "operations"),
-        f.createLongGauge("asyncQueueSize", asyncQueueSizeDesc, "bytes"),
-        f.createLongCounter("asyncQueuedMsgs", asyncQueuedMsgsDesc, "msgs"),
-        f.createLongCounter("asyncDequeuedMsgs", asyncDequeuedMsgsDesc, "msgs"),
-        f.createLongCounter("asyncConflatedMsgs", asyncConflatedMsgsDesc, "msgs"),
-
-        f.createLongGauge("asyncThreads", asyncThreadsDesc, "threads"),
-        f.createLongGauge("asyncThreadInProgress", asyncThreadInProgressDesc, "operations"),
-        f.createLongCounter("asyncThreadCompleted", asyncThreadCompletedDesc, "operations"),
-        f.createLongCounter("asyncThreadTime", asyncThreadTimeDesc, "nanoseconds", false),
-
         f.createLongGauge("receiversTO",
             "Number of receiver threads owned by non-receiver threads in other members.",
             "threads"),
@@ -852,32 +758,6 @@ public class DistributionStats implements DMStats {
     batchCopyTimeId = type.nameToId("batchCopyTime");
     batchWaitTimeId = type.nameToId("batchWaitTime");
     batchFlushTimeId = type.nameToId("batchFlushTime");
-
-    asyncSocketWritesInProgressId = type.nameToId("asyncSocketWritesInProgress");
-    asyncSocketWritesId = type.nameToId("asyncSocketWrites");
-    asyncSocketWriteRetriesId = type.nameToId("asyncSocketWriteRetries");
-    asyncSocketWriteTimeId = type.nameToId("asyncSocketWriteTime");
-    asyncSocketWriteBytesId = type.nameToId("asyncSocketWriteBytes");
-
-    asyncQueueAddTimeId = type.nameToId("asyncQueueAddTime");
-    asyncQueueRemoveTimeId = type.nameToId("asyncQueueRemoveTime");
-
-    asyncQueuesId = type.nameToId("asyncQueues");
-    asyncQueueFlushesInProgressId = type.nameToId("asyncQueueFlushesInProgress");
-    asyncQueueFlushesCompletedId = type.nameToId("asyncQueueFlushesCompleted");
-    asyncQueueFlushTimeId = type.nameToId("asyncQueueFlushTime");
-    asyncQueueTimeoutExceededId = type.nameToId("asyncQueueTimeoutExceeded");
-    asyncQueueSizeExceededId = type.nameToId("asyncQueueSizeExceeded");
-    asyncDistributionTimeoutExceededId = type.nameToId("asyncDistributionTimeoutExceeded");
-    asyncQueueSizeId = type.nameToId("asyncQueueSize");
-    asyncQueuedMsgsId = type.nameToId("asyncQueuedMsgs");
-    asyncDequeuedMsgsId = type.nameToId("asyncDequeuedMsgs");
-    asyncConflatedMsgsId = type.nameToId("asyncConflatedMsgs");
-
-    asyncThreadsId = type.nameToId("asyncThreads");
-    asyncThreadInProgressId = type.nameToId("asyncThreadInProgress");
-    asyncThreadCompletedId = type.nameToId("asyncThreadCompleted");
-    asyncThreadTimeId = type.nameToId("asyncThreadTime");
 
     threadOwnedReceiversId = type.nameToId("receiversTO");
     threadOwnedReceiversId2 = type.nameToId("receiversTO2");
@@ -1388,35 +1268,19 @@ public class DistributionStats implements DMStats {
   }
 
   @Override
-  public long startSocketWrite(boolean sync) {
-    if (sync) {
-      stats.incLong(syncSocketWritesInProgressId, 1);
-    } else {
-      stats.incLong(asyncSocketWritesInProgressId, 1);
-    }
+  public long startSocketWrite() {
+    stats.incLong(syncSocketWritesInProgressId, 1);
     return getTime();
   }
 
   @Override
-  public void endSocketWrite(boolean sync, long start, long bytesWritten, long retries) {
+  public void endSocketWrite(long start, long bytesWritten, long retries) {
     final long now = getTime();
-    if (sync) {
-      stats.incLong(syncSocketWritesInProgressId, -1);
-      stats.incLong(syncSocketWritesId, 1);
-      stats.incLong(syncSocketWriteBytesId, bytesWritten);
-      if (enableClockStats) {
-        stats.incLong(syncSocketWriteTimeId, now - start);
-      }
-    } else {
-      stats.incLong(asyncSocketWritesInProgressId, -1);
-      stats.incLong(asyncSocketWritesId, 1);
-      if (retries != 0) {
-        stats.incLong(asyncSocketWriteRetriesId, retries);
-      }
-      stats.incLong(asyncSocketWriteBytesId, bytesWritten);
-      if (enableClockStats) {
-        stats.incLong(asyncSocketWriteTimeId, now - start);
-      }
+    stats.incLong(syncSocketWritesInProgressId, -1);
+    stats.incLong(syncSocketWritesId, 1);
+    stats.incLong(syncSocketWriteBytesId, bytesWritten);
+    if (enableClockStats) {
+      stats.incLong(syncSocketWriteTimeId, now - start);
     }
   }
 
@@ -1716,205 +1580,6 @@ public class DistributionStats implements DMStats {
       } else {
         stats.incLong(threadUnorderedSenderConnectionsId, -1);
       }
-    }
-  }
-
-  @Override
-  public long getAsyncSocketWritesInProgress() {
-    return stats.getLong(asyncSocketWritesInProgressId);
-  }
-
-  @Override
-  public long getAsyncSocketWrites() {
-    return stats.getLong(asyncSocketWritesId);
-  }
-
-  @Override
-  public long getAsyncSocketWriteRetries() {
-    return stats.getLong(asyncSocketWriteRetriesId);
-  }
-
-  @Override
-  public long getAsyncSocketWriteBytes() {
-    return stats.getLong(asyncSocketWriteBytesId);
-  }
-
-  @Override
-  public long getAsyncSocketWriteTime() {
-    return stats.getLong(asyncSocketWriteTimeId);
-  }
-
-  @Override
-  public long getAsyncQueueAddTime() {
-    return stats.getLong(asyncQueueAddTimeId);
-  }
-
-  @Override
-  public void incAsyncQueueAddTime(long inc) {
-    if (enableClockStats) {
-      stats.incLong(asyncQueueAddTimeId, inc);
-    }
-  }
-
-  @Override
-  public long getAsyncQueueRemoveTime() {
-    return stats.getLong(asyncQueueRemoveTimeId);
-  }
-
-  @Override
-  public void incAsyncQueueRemoveTime(long inc) {
-    if (enableClockStats) {
-      stats.incLong(asyncQueueRemoveTimeId, inc);
-    }
-  }
-
-  @Override
-  public long getAsyncQueues() {
-    return stats.getLong(asyncQueuesId);
-  }
-
-  @Override
-  public void incAsyncQueues(long inc) {
-    stats.incLong(asyncQueuesId, inc);
-  }
-
-  @Override
-  public long getAsyncQueueFlushesInProgress() {
-    return stats.getLong(asyncQueueFlushesInProgressId);
-  }
-
-  @Override
-  public long getAsyncQueueFlushesCompleted() {
-    return stats.getLong(asyncQueueFlushesCompletedId);
-  }
-
-  @Override
-  public long getAsyncQueueFlushTime() {
-    return stats.getLong(asyncQueueFlushTimeId);
-  }
-
-  @Override
-  public long startAsyncQueueFlush() {
-    stats.incLong(asyncQueueFlushesInProgressId, 1);
-    return getTime();
-  }
-
-  @Override
-  public void endAsyncQueueFlush(long start) {
-    stats.incLong(asyncQueueFlushesInProgressId, -1);
-    stats.incLong(asyncQueueFlushesCompletedId, 1);
-    if (enableClockStats) {
-      stats.incLong(asyncQueueFlushTimeId, getTime() - start);
-    }
-  }
-
-  @Override
-  public long getAsyncQueueTimeouts() {
-    return stats.getLong(asyncQueueTimeoutExceededId);
-  }
-
-  @Override
-  public void incAsyncQueueTimeouts(long inc) {
-    stats.incLong(asyncQueueTimeoutExceededId, inc);
-  }
-
-  @Override
-  public long getAsyncQueueSizeExceeded() {
-    return stats.getLong(asyncQueueSizeExceededId);
-  }
-
-  @Override
-  public void incAsyncQueueSizeExceeded(long inc) {
-    stats.incLong(asyncQueueSizeExceededId, inc);
-  }
-
-  @Override
-  public long getAsyncDistributionTimeoutExceeded() {
-    return stats.getLong(asyncDistributionTimeoutExceededId);
-  }
-
-  @Override
-  public void incAsyncDistributionTimeoutExceeded() {
-    stats.incLong(asyncDistributionTimeoutExceededId, 1);
-  }
-
-  @Override
-  public long getAsyncQueueSize() {
-    return stats.getLong(asyncQueueSizeId);
-  }
-
-  @Override
-  public void incAsyncQueueSize(long inc) {
-    stats.incLong(asyncQueueSizeId, inc);
-  }
-
-  @Override
-  public long getAsyncQueuedMsgs() {
-    return stats.getLong(asyncQueuedMsgsId);
-  }
-
-  @Override
-  public void incAsyncQueuedMsgs() {
-    stats.incLong(asyncQueuedMsgsId, 1);
-  }
-
-  @Override
-  public long getAsyncDequeuedMsgs() {
-    return stats.getLong(asyncDequeuedMsgsId);
-  }
-
-  @Override
-  public void incAsyncDequeuedMsgs() {
-    stats.incLong(asyncDequeuedMsgsId, 1);
-  }
-
-  @Override
-  public long getAsyncConflatedMsgs() {
-    return stats.getLong(asyncConflatedMsgsId);
-  }
-
-  @Override
-  public void incAsyncConflatedMsgs() {
-    stats.incLong(asyncConflatedMsgsId, 1);
-  }
-
-  @Override
-  public long getAsyncThreads() {
-    return stats.getLong(asyncThreadsId);
-  }
-
-  @Override
-  public void incAsyncThreads(long inc) {
-    stats.incLong(asyncThreadsId, inc);
-  }
-
-  @Override
-  public long getAsyncThreadInProgress() {
-    return stats.getLong(asyncThreadInProgressId);
-  }
-
-  @Override
-  public long getAsyncThreadCompleted() {
-    return stats.getLong(asyncThreadCompletedId);
-  }
-
-  @Override
-  public long getAsyncThreadTime() {
-    return stats.getLong(asyncThreadTimeId);
-  }
-
-  @Override
-  public long startAsyncThread() {
-    stats.incLong(asyncThreadInProgressId, 1);
-    return getTime();
-  }
-
-  @Override
-  public void endAsyncThread(long start) {
-    stats.incLong(asyncThreadInProgressId, -1);
-    stats.incLong(asyncThreadCompletedId, 1);
-    if (enableClockStats) {
-      stats.incLong(asyncThreadTimeId, getTime() - start);
     }
   }
 
@@ -2555,7 +2220,6 @@ public class DistributionStats implements DMStats {
     stats.incLong(finalCheckResponsesReceivedId, 1L);
   }
 
-  ///
   @Override
   public long getTcpFinalCheckRequestsSent() {
     return stats.getLong(tcpFinalCheckRequestsSentId);
@@ -2596,7 +2260,6 @@ public class DistributionStats implements DMStats {
     stats.incLong(tcpFinalCheckResponsesReceivedId, 1L);
   }
 
-  ///
   @Override
   public long getUdpFinalCheckRequestsSent() {
     return stats.getLong(udpFinalCheckRequestsSentId);
@@ -2606,24 +2269,6 @@ public class DistributionStats implements DMStats {
   public void incUdpFinalCheckRequestsSent() {
     stats.incLong(udpFinalCheckRequestsSentId, 1L);
   }
-
-  // UDP final check is implemented using HeartbeatRequestMessage and HeartbeatMessage
-  // So the following code is commented out
-  // public long getUdpFinalCheckRequestsReceived() {
-  // return this.stats.getLong(udpFinalCheckRequestsReceivedId);
-  // }
-  //
-  // public void incUdpFinalCheckRequestsReceived() {
-  // this.stats.incLong(udpFinalCheckRequestsReceivedId, 1L);
-  // }
-  //
-  // public long getUdpFinalCheckResponsesSent() {
-  // return this.stats.getLong(udpFinalCheckResponsesSentId);
-  // }
-  //
-  // public void incUdpFinalCheckResponsesSent() {
-  // this.stats.incLong(udpFinalCheckResponsesSentId, 1L);
-  // }
 
   @Override
   public long getUdpFinalCheckResponsesReceived() {
