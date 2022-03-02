@@ -479,18 +479,6 @@ public class RegionFactory<K, V> {
   public void setPublisher(boolean v) {}
 
   /**
-   * Sets whether or not conflation is enabled for sending messages to async peers.
-   *
-   * @param value true to enable async conflation
-   * @return a reference to this RegionFactory object
-   * @see AttributesFactory#setEnableAsyncConflation(boolean)
-   */
-  public RegionFactory<K, V> setEnableAsyncConflation(boolean value) {
-    attrsFactory.setEnableAsyncConflation(value);
-    return this;
-  }
-
-  /**
    * Sets whether or not conflation is enabled for sending messages from a cache server to its
    * clients.
    *

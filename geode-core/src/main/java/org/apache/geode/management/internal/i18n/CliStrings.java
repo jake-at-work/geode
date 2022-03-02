@@ -938,9 +938,6 @@ public class CliStrings {
   public static final String CREATE_REGION__DISKSYNCHRONOUS = "enable-synchronous-disk";
   public static final String CREATE_REGION__DISKSYNCHRONOUS__HELP =
       "Whether writes are done synchronously for regions that persist data to disk.";
-  public static final String CREATE_REGION__ENABLEASYNCCONFLATION = "enable-async-conflation";
-  public static final String CREATE_REGION__ENABLEASYNCCONFLATION__HELP =
-      "Whether to allow aggregation of asynchronous TCP/IP messages sent by the producer member of the region. A false value causes all asynchronous messages to be sent individually.";
   public static final String CREATE_REGION__ENABLESUBSCRIPTIONCONFLATION =
       "enable-subscription-conflation";
   public static final String CREATE_REGION__ENABLESUBSCRIPTIONCONFLATION__HELP =

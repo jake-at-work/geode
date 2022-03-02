@@ -28,7 +28,6 @@ import org.apache.geode.InternalGemFireError;
 import org.apache.geode.InvalidDeltaException;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryNotFoundException;
-import org.apache.geode.distributed.internal.ConflationKey;
 import org.apache.geode.distributed.internal.DirectReplyProcessor;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.ReplyException;
@@ -151,7 +150,6 @@ public class UpdateOperation extends AbstractUpdateOperation {
       owner = upMsg.owner;
       possibleDuplicate = upMsg.possibleDuplicate;
       processorId = upMsg.processorId;
-      regionAllowsConflation = upMsg.regionAllowsConflation;
       regionPath = upMsg.regionPath;
       sendDelta = upMsg.sendDelta;
       sender = upMsg.sender;
@@ -159,20 +157,6 @@ public class UpdateOperation extends AbstractUpdateOperation {
       filterRouting = upMsg.filterRouting;
       needsRouting = upMsg.needsRouting;
       versionTag = upMsg.versionTag;
-    }
-
-    @Override
-    public ConflationKey getConflationKey() {
-      if (!super.regionAllowsConflation || directAck || getProcessorId() != 0) {
-        // if the publisher's region attributes do not support conflation
-        // or if it is an ack region
-        // then don't even bother with a conflation key
-        return null;
-      } else {
-        // only conflate if it is not a create
-        // and we don't want an ack
-        return new ConflationKey(key, super.regionPath, getOperation().isUpdate());
-      }
     }
 
     @Override

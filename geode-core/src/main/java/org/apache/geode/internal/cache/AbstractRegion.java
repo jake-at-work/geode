@@ -209,8 +209,6 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
 
   protected boolean publisher;
 
-  protected boolean enableAsyncConflation;
-
   /**
    * True if this region uses off-heap memory; otherwise false (default)
    *
@@ -357,7 +355,6 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
     setAllGatewaySenderIds();
     enableSubscriptionConflation = attrs.getEnableSubscriptionConflation();
     publisher = attrs.getPublisher();
-    enableAsyncConflation = attrs.getEnableAsyncConflation();
     indexMaintenanceSynchronous = attrs.getIndexMaintenanceSynchronous();
     mcastEnabled = attrs.getMulticastEnabled();
     partitionAttributes = attrs.getPartitionAttributes();
@@ -875,11 +872,6 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
   @Override
   public boolean getEnableSubscriptionConflation() {
     return enableSubscriptionConflation;
-  }
-
-  @Override
-  public boolean getEnableAsyncConflation() {
-    return enableAsyncConflation;
   }
 
   /*

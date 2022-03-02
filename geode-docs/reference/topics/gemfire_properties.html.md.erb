@@ -71,38 +71,6 @@ Valid values are in the range 0...2147483647</td>
 <td>0</td>
 </tr>
 <tr>
-<td>async-distribution-timeout</td>
-<td>The number of milliseconds a process that is publishing to this process should attempt to distribute a cache operation before switching over to asynchronous messaging for this process. The switch to asynchronous messaging lasts until this process catches up, departs, or some specified limit is reached, such as async-queue-timeout or async-max-queue-size.
-<p>To enable asynchronous messaging, the value must be set above zero. Valid values are in the range 0...60000.</p>
-<div class="note note">
-<strong>Note:</strong>
-<p>This setting controls only peer-to-peer communication and does not apply to client/server or multi-site communication.</p>
-</div></td>
-<td>S</td>
-<td>0</td>
-</tr>
-<tr>
-<td>async-max-queue-size</td>
-<td>Affects non-conflated asynchronous queues for members that publish to this member. This is the maximum size the queue can reach (in megabytes) before the publisher asks this member to leave the cluster.
-<p>Valid values are in the range 0..1024.</p>
-<div class="note note">
-<strong>Note:</strong>
-<p>This setting controls only peer-to-peer communication and does not apply to client/server or multi-site communication.</p>
-</div></td>
-<td>S</td>
-<td>8</td>
-</tr>
-<tr>
-<td>async-queue-timeout</td>
-<td>Affects asynchronous queues for members that publish to this member. This is the maximum milliseconds the publisher should wait with no distribution to this member before it asks this member to leave the cluster. Used for handling slow receivers.
-<div class="note note">
-<strong>Note:</strong>
-<p>This setting controls only peer-to-peer communication and does not apply to client/server or multi-site communication.</p>
-</div></td>
-<td>S, L</td>
-<td>60000</td>
-</tr>
-<tr>
 <td>bind-address</td>
 <td>Relevant only for multi-homed hosts - machines with multiple network interface cards. Specifies the adapter card the cache binds to for peer-to-peer communication. Also specifies the default location for <%=vars.product_name%> servers to listen on, which is used unless overridden by the <code class="ph codeph">server-bind-address</code>. An empty string causes the member to listen on the default card for the machine. This is a machine-wide attribute used for system member and client/server communication. It has no effect on locator location, unless the locator is embedded in a member process.
 <p>Specify the IP address, not the hostname, because each network card may not have a unique hostname. An empty string (the default) causes the member to listen on the default card for the machine.</p></td>

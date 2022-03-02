@@ -875,8 +875,6 @@ public abstract class DistributedCacheOperation {
     }
     msg.op = event.getOperation();
     msg.owner = this;
-    msg.regionAllowsConflation = getRegion().getEnableAsyncConflation();
-
   }
 
   @Override
@@ -1055,11 +1053,6 @@ public abstract class DistributedCacheOperation {
     public FilterRoutingInfo getFilterInfo() {
       return filterRouting;
     }
-
-    /**
-     * @since GemFire 4.2.3
-     */
-    protected transient boolean regionAllowsConflation;
 
     public boolean possibleDuplicate;
 

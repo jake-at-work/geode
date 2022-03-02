@@ -79,51 +79,7 @@ public interface ConfigurationProperties {
    * <U>Allowed values</U>: 0..1000000
    */
   String ARCHIVE_FILE_SIZE_LIMIT = "archive-file-size-limit";
-  /**
-   * The static String definition of the <i>"async-distribution-timeout"</i> property <a
-   * name="async-distribution-timeout"/a>
-   * </p>
-   * <U>Description</U>: The number of milliseconds before a publishing process should attempt to
-   * distribute a cache operation before switching over to asynchronous messaging for this process.
-   * To enable asynchronous messaging, the value must be set above zero. If a thread that is
-   * publishing to the cache exceeds this value when attempting to distribute to this process, it
-   * will switch to asynchronous messaging until this process catches up, departs, or some specified
-   * limit is reached, such as <a href="#async-queue-timeout"> async-queue-timeout</a> or
-   * <a href="#async-max-queue-size"> async-max-queue-size</a>.
-   * </p>
-   * <U>Default</U>: "0"
-   * </p>
-   * <U>Allowed values</U>: 0..60000
-   */
-  String ASYNC_DISTRIBUTION_TIMEOUT = "async-distribution-timeout";
-  /**
-   * The static String definition of the <i>"async-max-queue-size"</i> property <a
-   * name="async-max-queue-size"/a>
-   * </p>
-   * <U>Description</U>: The maximum size in megabytes that a publishing process should be allowed
-   * to asynchronously enqueue for this process before asking this process to depart from the
-   * distributed system.
-   * </p>
-   * <U>Default</U>: "8"
-   * </p>
-   * <U>Allowed values</U>: 0..1024
-   */
-  String ASYNC_MAX_QUEUE_SIZE = "async-max-queue-size";
-  /**
-   * The static String definition of the <i>"async-queue-timeout"</i> property <a
-   * name="async-queue-timeout"/a>
-   * </p>
-   * <U>Description</U>: The number of milliseconds a queuing publisher may enqueue asynchronous
-   * messages without any distribution to this process before that publisher requests this process
-   * to depart. If a queuing publisher has not been able to send this process any cache operations
-   * prior to the timeout, this process will attempt to close its cache and disconnect from the
-   * distributed system.
-   * </p>
-   * <U>Default</U>: "60000"
-   * </p>
-   * <U>Allowed values</U>: 0..86400000
-   */
-  String ASYNC_QUEUE_TIMEOUT = "async-queue-timeout";
+
   /**
    * The static String definition of the <i>"bind-address"</i> property <a name="bind-address"/a>
    * <p>

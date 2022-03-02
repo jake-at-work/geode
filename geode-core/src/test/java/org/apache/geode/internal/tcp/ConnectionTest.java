@@ -63,10 +63,9 @@ public class ConnectionTest {
     boolean forceAsync = true;
     DistributionMessage mockDistributionMessage = mock(DistributionMessage.class);
 
-    mockConnection.writeFully(channel, buffer, forceAsync, mockDistributionMessage);
+    mockConnection.writeFully(channel, buffer);
 
-    verify(mockConnection, times(1)).writeFully(channel, buffer, forceAsync,
-        mockDistributionMessage);
+    verify(mockConnection, times(1)).writeFully(channel, buffer);
   }
 
   /**

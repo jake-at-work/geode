@@ -87,13 +87,6 @@ public abstract class UserSpecifiedRegionAttributes<K, V> implements RegionAttri
    * @since GemFire 4.2
    */
   private boolean hasEnableSubscriptionConflation = false;
-  /**
-   * Whether this region has enable async conflation explicitly set
-   *
-   * @since GemFire 4.2.3
-   */
-  private boolean hasEnableAsyncConflation = false;
-
 
   private boolean hasIndexMaintenanceSynchronous = false;
 
@@ -245,10 +238,6 @@ public abstract class UserSpecifiedRegionAttributes<K, V> implements RegionAttri
     return hasEnableSubscriptionConflation;
   }
 
-  public boolean hasEnableAsyncConflation() {
-    return hasEnableAsyncConflation;
-  }
-
   public boolean hasIndexMaintenanceSynchronous() {
     return hasIndexMaintenanceSynchronous;
   }
@@ -339,10 +328,6 @@ public abstract class UserSpecifiedRegionAttributes<K, V> implements RegionAttri
 
   public void setHasEarlyAck(boolean hasEarlyAck) {
     this.hasEarlyAck = hasEarlyAck;
-  }
-
-  public void setHasEnableAsyncConflation(boolean hasEnableAsyncConflation) {
-    this.hasEnableAsyncConflation = hasEnableAsyncConflation;
   }
 
   public void setHasEnableSubscriptionConflation(boolean hasEnableSubscriptionConflation) {
@@ -521,7 +506,7 @@ public abstract class UserSpecifiedRegionAttributes<K, V> implements RegionAttri
     hasDiskSynchronous = val;
   }
 
-  private static final int HAS_COUNT = 41;
+  private static final int HAS_COUNT = 40;
 
   public void initHasFields(UserSpecifiedRegionAttributes<K, V> other) {
     Field[] thisFields = UserSpecifiedRegionAttributes.class.getDeclaredFields();

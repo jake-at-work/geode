@@ -18,9 +18,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.ACK_SEVERE_AL
 import static org.apache.geode.distributed.ConfigurationProperties.ACK_WAIT_THRESHOLD;
 import static org.apache.geode.distributed.ConfigurationProperties.ARCHIVE_DISK_SPACE_LIMIT;
 import static org.apache.geode.distributed.ConfigurationProperties.ARCHIVE_FILE_SIZE_LIMIT;
-import static org.apache.geode.distributed.ConfigurationProperties.ASYNC_DISTRIBUTION_TIMEOUT;
-import static org.apache.geode.distributed.ConfigurationProperties.ASYNC_MAX_QUEUE_SIZE;
-import static org.apache.geode.distributed.ConfigurationProperties.ASYNC_QUEUE_TIMEOUT;
 import static org.apache.geode.distributed.ConfigurationProperties.BIND_ADDRESS;
 import static org.apache.geode.distributed.ConfigurationProperties.CACHE_XML_FILE;
 import static org.apache.geode.distributed.ConfigurationProperties.CLUSTER_CONFIGURATION_DIR;
@@ -1984,75 +1981,6 @@ public interface DistributionConfig
   @ConfigAttributeGetter(name = MAX_NUM_RECONNECT_TRIES)
   int getMaxNumReconnectTries();
 
-  // ------------------- Asynchronous Messaging Properties -------------------
-
-  /**
-   * Returns the value of the {@link ConfigurationProperties#ASYNC_DISTRIBUTION_TIMEOUT} property.
-   */
-  @ConfigAttributeGetter(name = ASYNC_DISTRIBUTION_TIMEOUT)
-  int getAsyncDistributionTimeout();
-
-  /**
-   * Sets the value of the {@link ConfigurationProperties#ASYNC_DISTRIBUTION_TIMEOUT} property.
-   */
-  @ConfigAttributeSetter(name = ASYNC_DISTRIBUTION_TIMEOUT)
-  void setAsyncDistributionTimeout(int newValue);
-
-  /**
-   * The default value of {@link ConfigurationProperties#ASYNC_DISTRIBUTION_TIMEOUT} is
-   * <code>0</code>.
-   */
-  int DEFAULT_ASYNC_DISTRIBUTION_TIMEOUT = 0;
-  /**
-   * The minimum value of {@link ConfigurationProperties#ASYNC_DISTRIBUTION_TIMEOUT} is
-   * <code>0</code>.
-   */
-  int MIN_ASYNC_DISTRIBUTION_TIMEOUT = 0;
-  /**
-   * The maximum value of {@link ConfigurationProperties#ASYNC_DISTRIBUTION_TIMEOUT} is
-   * <code>60000</code>.
-   */
-  int MAX_ASYNC_DISTRIBUTION_TIMEOUT = 60000;
-
-  /**
-   * The name of the {@link ConfigurationProperties#ASYNC_DISTRIBUTION_TIMEOUT} property
-   */
-  @ConfigAttribute(type = Integer.class, min = MIN_ASYNC_DISTRIBUTION_TIMEOUT,
-      max = MAX_ASYNC_DISTRIBUTION_TIMEOUT)
-  String ASYNC_DISTRIBUTION_TIMEOUT_NAME = ASYNC_DISTRIBUTION_TIMEOUT;
-
-  /**
-   * Returns the value of the {@link ConfigurationProperties#ASYNC_QUEUE_TIMEOUT} property.
-   */
-  @ConfigAttributeGetter(name = ASYNC_QUEUE_TIMEOUT)
-  int getAsyncQueueTimeout();
-
-  /**
-   * Sets the value of the {@link ConfigurationProperties#ASYNC_QUEUE_TIMEOUT} property.
-   */
-  @ConfigAttributeSetter(name = ASYNC_QUEUE_TIMEOUT)
-  void setAsyncQueueTimeout(int newValue);
-
-  /**
-   * The default value of {@link ConfigurationProperties#ASYNC_QUEUE_TIMEOUT} is <code>60000</code>.
-   */
-  int DEFAULT_ASYNC_QUEUE_TIMEOUT = 60000;
-  /**
-   * The minimum value of {@link ConfigurationProperties#ASYNC_QUEUE_TIMEOUT} is <code>0</code>.
-   */
-  int MIN_ASYNC_QUEUE_TIMEOUT = 0;
-  /**
-   * The maximum value of {@link ConfigurationProperties#ASYNC_QUEUE_TIMEOUT} is
-   * <code>86400000</code>.
-   */
-  int MAX_ASYNC_QUEUE_TIMEOUT = 86400000;
-  /**
-   * The name of the {@link ConfigurationProperties#ASYNC_QUEUE_TIMEOUT} property
-   */
-  @ConfigAttribute(type = Integer.class, min = MIN_ASYNC_QUEUE_TIMEOUT,
-      max = MAX_ASYNC_QUEUE_TIMEOUT)
-  String ASYNC_QUEUE_TIMEOUT_NAME = ASYNC_QUEUE_TIMEOUT;
-
   /**
    * Returns the value of the {@link ConfigurationProperties#THREAD_MONITOR_INTERVAL} property.
    */
@@ -2120,37 +2048,6 @@ public interface DistributionConfig
       max = MAX_THREAD_MONITOR_TIME_LIMIT)
   String THREAD_MONITOR_TIME_LIMIT_NAME = THREAD_MONITOR_TIME_LIMIT;
 
-  /**
-   * Returns the value of the {@link ConfigurationProperties#ASYNC_MAX_QUEUE_SIZE} property.
-   */
-  @ConfigAttributeGetter(name = ASYNC_MAX_QUEUE_SIZE)
-  int getAsyncMaxQueueSize();
-
-  /**
-   * Sets the value of the {@link ConfigurationProperties#ASYNC_MAX_QUEUE_SIZE} property.
-   */
-  @ConfigAttributeSetter(name = ASYNC_MAX_QUEUE_SIZE)
-  void setAsyncMaxQueueSize(int newValue);
-
-  /**
-   * The default value of {@link ConfigurationProperties#ASYNC_MAX_QUEUE_SIZE} is <code>8</code>.
-   */
-  int DEFAULT_ASYNC_MAX_QUEUE_SIZE = 8;
-  /**
-   * The minimum value of {@link ConfigurationProperties#ASYNC_MAX_QUEUE_SIZE} is <code>0</code>.
-   */
-  int MIN_ASYNC_MAX_QUEUE_SIZE = 0;
-  /**
-   * The maximum value of {@link ConfigurationProperties#ASYNC_MAX_QUEUE_SIZE} is <code>1024</code>.
-   */
-  int MAX_ASYNC_MAX_QUEUE_SIZE = 1024;
-
-  /**
-   * The name of the {@link ConfigurationProperties#ASYNC_MAX_QUEUE_SIZE} property
-   */
-  @ConfigAttribute(type = Integer.class, min = MIN_ASYNC_MAX_QUEUE_SIZE,
-      max = MAX_ASYNC_MAX_QUEUE_SIZE)
-  String ASYNC_MAX_QUEUE_SIZE_NAME = ASYNC_MAX_QUEUE_SIZE;
   /**
    * @since GemFire 5.7
    */

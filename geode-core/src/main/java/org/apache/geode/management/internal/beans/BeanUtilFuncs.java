@@ -239,10 +239,6 @@ public class BeanUtilFuncs {
 
     gemFirePropertyData.setMaxNumReconnectTries(config.getMaxNumReconnectTries());
 
-    gemFirePropertyData.setAsyncDistributionTimeout(config.getAsyncDistributionTimeout());
-
-    gemFirePropertyData.setAsyncQueueTimeout(config.getAsyncQueueTimeout());
-    gemFirePropertyData.setAsyncMaxQueueSize(config.getAsyncMaxQueueSize());
     gemFirePropertyData.setClientConflation(config.getClientConflation());
 
     gemFirePropertyData.setDurableClientId(config.getDurableClientId());

@@ -1208,14 +1208,6 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
             Boolean.parseBoolean(enableBridgeConflation));
       }
     }
-    /*
-     * deprecated in prPersistSprint1 String publisherStr = atts.getValue(PUBLISHER); if
-     * (publisherStr != null) { attrs.setPublisher(Boolean.valueOf(publisherStr).booleanValue()); }
-     */
-    String enableAsyncConflation = atts.getValue(ENABLE_ASYNC_CONFLATION);
-    if (enableAsyncConflation != null) {
-      attrs.setEnableAsyncConflation(Boolean.parseBoolean(enableAsyncConflation));
-    }
     String cloningEnabledStr = atts.getValue(CLONING_ENABLED);
     if (cloningEnabledStr != null) {
       attrs.setCloningEnable(Boolean.parseBoolean(cloningEnabledStr));

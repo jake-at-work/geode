@@ -372,13 +372,12 @@ public class CreateRegionCommandIntegrationTest {
   @Test
   public void validateNonDefaultBinaryOptions() {
     gfsh.executeAndAssertThat("create region --name=" + SEPARATOR + "FOO --type=REPLICATE"
-        + " --enable-async-conflation" + " --enable-cloning" + " --enable-concurrency-checks=false"
+        + " --enable-cloning" + " --enable-concurrency-checks=false"
         + " --enable-multicast" + " --enable-statistics" + " --enable-subscription-conflation"
         + " --enable-synchronous-disk=false").statusIsSuccess();
 
     Region foo = server.getCache().getRegion(SEPARATOR + "FOO");
 
-    assertThat(foo.getAttributes().getEnableAsyncConflation()).isTrue();
     assertThat(foo.getAttributes().getCloningEnabled()).isTrue();
     assertThat(foo.getAttributes().getConcurrencyChecksEnabled()).isFalse();
     assertThat(foo.getAttributes().getMulticastEnabled()).isTrue();
@@ -500,7 +499,7 @@ public class CreateRegionCommandIntegrationTest {
   @Test
   public void validateTemplateRegionAttributesForReplicate() {
     gfsh.executeAndAssertThat("create region --name=" + SEPARATOR + "TEMPLATE --type=REPLICATE"
-        + " --enable-async-conflation" + " --enable-cloning" + " --enable-concurrency-checks=false"
+        + " --enable-cloning" + " --enable-concurrency-checks=false"
         + " --enable-multicast" + " --enable-statistics" + " --enable-subscription-conflation"
         + " --enable-synchronous-disk=false" + " --entry-idle-time-expiration=3"
         + " --entry-idle-time-expiration-action=DESTROY" + " --entry-time-to-live-expiration=5"
@@ -519,7 +518,6 @@ public class CreateRegionCommandIntegrationTest {
     Region<?, ?> copy = server.getCache().getRegion(SEPARATOR + "COPY");
 
     assertThat(copy.getAttributes().getStatisticsEnabled()).isTrue();
-    assertThat(copy.getAttributes().getEnableAsyncConflation()).isTrue();
     assertThat(copy.getAttributes().getCloningEnabled()).isTrue();
     assertThat(copy.getAttributes().getConcurrencyChecksEnabled()).isFalse();
     assertThat(copy.getAttributes().getMulticastEnabled()).isTrue();
@@ -561,7 +559,7 @@ public class CreateRegionCommandIntegrationTest {
   public void validateTemplateRegionAttributesForPartitionRedundant() {
     gfsh.executeAndAssertThat(
         "create region --name=" + SEPARATOR + "TEMPLATE --type=PARTITION_REDUNDANT"
-            + " --enable-async-conflation" + " --enable-cloning"
+            + " --enable-cloning"
             + " --enable-concurrency-checks=false"
             + " --enable-multicast" + " --enable-statistics" + " --enable-subscription-conflation"
             + " --enable-synchronous-disk=false" + " --cache-listener="
@@ -582,7 +580,6 @@ public class CreateRegionCommandIntegrationTest {
     Region<?, ?> copy = server.getCache().getRegion(SEPARATOR + "COPY");
 
     assertThat(copy.getAttributes().getStatisticsEnabled()).isTrue();
-    assertThat(copy.getAttributes().getEnableAsyncConflation()).isTrue();
     assertThat(copy.getAttributes().getCloningEnabled()).isTrue();
     assertThat(copy.getAttributes().getConcurrencyChecksEnabled()).isFalse();
     assertThat(copy.getAttributes().getMulticastEnabled()).isTrue();

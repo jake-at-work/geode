@@ -500,8 +500,6 @@ public class CacheManagementDUnitTest implements Serializable {
     assertThat(data.getRoles()).isEqualTo(config.getRoles());
     assertThat(data.getMaxWaitTimeForReconnect()).isEqualTo(config.getMaxWaitTimeForReconnect());
     assertThat(data.getMaxNumReconnectTries()).isEqualTo(config.getMaxNumReconnectTries());
-    assertThat(data.getAsyncDistributionTimeout()).isEqualTo(config.getAsyncDistributionTimeout());
-    assertThat(data.getAsyncMaxQueueSize()).isEqualTo(config.getAsyncMaxQueueSize());
     assertThat(data.getClientConflation()).isEqualTo(config.getClientConflation());
     assertThat(data.getDurableClientId()).isEqualTo(config.getDurableClientId());
     assertThat(data.getDurableClientTimeout()).isEqualTo(config.getDurableClientTimeout());

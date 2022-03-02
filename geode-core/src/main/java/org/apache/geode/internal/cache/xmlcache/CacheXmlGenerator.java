@@ -1911,14 +1911,6 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       }
     }
 
-    if ((!(attrs instanceof RegionAttributesCreation)
-        || ((RegionAttributesCreation) attrs).hasEnableAsyncConflation())) {
-      if (generateDefaults() || attrs.getEnableAsyncConflation()) {
-        atts.addAttribute("", "", ENABLE_ASYNC_CONFLATION, "",
-            String.valueOf(attrs.getEnableAsyncConflation()));
-      }
-    }
-
     if (version.compareTo(CacheXmlVersion.GEMFIRE_5_0) >= 0) {
 
       if ((!(attrs instanceof RegionAttributesCreation)

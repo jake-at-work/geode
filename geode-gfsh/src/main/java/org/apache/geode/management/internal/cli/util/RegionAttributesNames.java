@@ -22,7 +22,6 @@ public class RegionAttributesNames {
 
   public static final String CONCURRENCY_LEVEL = "concurrency-level";
   public static final String DATA_POLICY = "data-policy";
-  public static final String ENABLE_ASYNC_CONFLATION = "enable-async-conflation";
   public static final String ENABLE_GATEWAY = "enable-gateway";
   public static final String ENABLE_SUBSCRIPTION_CONFLATION = "enable-subscription-conflation";
   public static final String IGNORE_JTA = "ignore-jta";

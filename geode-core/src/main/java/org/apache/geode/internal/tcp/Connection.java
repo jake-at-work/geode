@@ -42,9 +42,7 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -62,11 +60,9 @@ import org.apache.geode.SystemFailure;
 import org.apache.geode.alerting.internal.spi.AlertingAction;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.annotations.internal.MakeNotStatic;
-import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.distributed.DistributedSystemDisconnectedException;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.ConflationKey;
 import org.apache.geode.distributed.internal.DMStats;
 import org.apache.geode.distributed.internal.DirectReplyProcessor;
 import org.apache.geode.distributed.internal.DistributionConfig;
@@ -99,7 +95,6 @@ import org.apache.geode.internal.serialization.Version;
 import org.apache.geode.internal.serialization.Versioning;
 import org.apache.geode.internal.serialization.VersioningIO;
 import org.apache.geode.internal.tcp.MsgReader.Header;
-import org.apache.geode.logging.internal.executors.LoggingThread;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -216,56 +211,6 @@ public class Connection implements Runnable {
    */
   private static final ThreadLocal<Integer> dominoCount = withInitial(() -> 0);
 
-  /**
-   * How long to wait if receiver will not accept a message before we go into queue mode.
-   *
-   * @since GemFire 4.2.2
-   */
-  private int asyncDistributionTimeout;
-
-  /**
-   * How long to wait, with the receiver not accepting any messages, before kicking the receiver out
-   * of the distributed system. Ignored if asyncDistributionTimeout is zero.
-   *
-   * @since GemFire 4.2.2
-   */
-  private int asyncQueueTimeout;
-
-  /**
-   * How much queued data we can have, with the receiver not accepting any messages, before kicking
-   * the receiver out of the distributed system. Ignored if asyncDistributionTimeout is zero.
-   * Canonicalized to bytes (property file has it as megabytes
-   *
-   * @since GemFire 4.2.2
-   */
-  private long asyncMaxQueueSize;
-
-  /**
-   * True if an async queue is already being filled.
-   */
-  private volatile boolean asyncQueuingInProgress;
-
-  /**
-   * Maps ConflatedKey instances to ConflatedKey instance. Note that even though the key and value
-   * for an entry is the map will always be "equal" they will not always be "==".
-   */
-  private final Map<ConflationKey, ConflationKey> conflatedKeys = new HashMap<>();
-
-  /**
-   * NOTE: LinkedBlockingQueue has a bug in which removes from the queue
-   * cause future offer to increase the size without adding anything to the queue.
-   * So I've changed from this backport class to a java.util.LinkedList
-   */
-  private final LinkedList<Object> outgoingQueue = new LinkedList<>();
-
-  /**
-   * Number of bytes in the outgoingQueue. Used to control capacity.
-   */
-  private long queuedBytes;
-
-  /** used for async writes */
-  private Thread pusherThread;
-
   /** Set to true once the handshake has been read */
   private volatile boolean handshakeRead;
   private volatile boolean handshakeCancelled;
@@ -361,8 +306,6 @@ public class Connection implements Runnable {
 
   private boolean directAck;
 
-  private boolean asyncMode;
-
   /**
    * Is this connection used for serial message delivery?
    * May be mutated during {@link #readHandshakeForReceiver(DataInput)}
@@ -451,18 +394,6 @@ public class Connection implements Runnable {
    */
   private static final boolean SOCKET_WRITE_DISABLED = Boolean.getBoolean("p2p.disableSocketWrite");
 
-  private final Object pusherSync = new Object();
-
-  private boolean disconnectRequested;
-
-  /**
-   * If true then act as if the socket buffer is full and start async queuing
-   */
-  @MutableForTesting
-  public static volatile boolean FORCE_ASYNC_QUEUE;
-
-  private static final int MAX_WAIT_TIME = 32; // ms (must be a power of 2)
-
   /**
    * stateLock is used to synchronize state changes.
    */
@@ -514,7 +445,6 @@ public class Connection implements Runnable {
     handshakeRead = false;
     handshakeCancelled = false;
     connected = true;
-    asyncMode = false;
 
     try {
       socket.setTcpNoDelay(true);
@@ -733,9 +663,9 @@ public class Connection implements Runnable {
       bb.put((byte) NORMAL_MSG_TYPE);
       bb.putShort(MsgIdGenerator.NO_MSG_ID);
       bb.put(REPLY_CODE_OK_WITH_ASYNC_INFO);
-      bb.putInt(cfg.getAsyncDistributionTimeout());
-      bb.putInt(cfg.getAsyncQueueTimeout());
-      bb.putInt(cfg.getAsyncMaxQueueSize());
+      bb.putInt(0);
+      bb.putInt(0);
+      bb.putInt(0);
       // write own product version
       VersioningIO.writeOrdinal(bb, KnownVersion.CURRENT.ordinal(), true);
       // now set the msg length into position 0
@@ -746,7 +676,7 @@ public class Connection implements Runnable {
       my_okHandshakeBuf = okHandshakeBuf;
     }
     my_okHandshakeBuf.position(0);
-    writeFully(getSocket().getChannel(), my_okHandshakeBuf, false, null);
+    writeFully(getSocket().getChannel(), my_okHandshakeBuf);
   }
 
   /**
@@ -935,7 +865,7 @@ public class Connection implements Runnable {
       // on the receiver to show the cause of reader thread creation
       connectHandshake.setMessageHeader(NORMAL_MSG_TYPE, OperationExecutors.STANDARD_EXECUTOR,
           MsgIdGenerator.NO_MSG_ID);
-      writeFully(getSocket().getChannel(), connectHandshake.getContentBuffer(), false, null);
+      writeFully(getSocket().getChannel(), connectHandshake.getContentBuffer());
     }
   }
 
@@ -1175,7 +1105,6 @@ public class Connection implements Runnable {
     handshakeRead = false;
     handshakeCancelled = false;
     connected = true;
-    asyncMode = false;
 
     uniqueId = ID_COUNTER.getAndIncrement();
 
@@ -1341,25 +1270,6 @@ public class Connection implements Runnable {
       synchronized (this) {
         stopped = true;
         if (connected) {
-          if (asyncQueuingInProgress && pusherThread != Thread.currentThread()) {
-            // We don't need to do this if we are the pusher thread
-            // and we have determined that we need to close the connection.
-            synchronized (outgoingQueue) {
-              // wait for the flusher to complete (it may timeout)
-              while (asyncQueuingInProgress) {
-                boolean interrupted = Thread.interrupted();
-                try {
-                  outgoingQueue.wait(); // spurious wakeup ok
-                } catch (InterruptedException ie) {
-                  interrupted = true;
-                } finally {
-                  if (interrupted) {
-                    Thread.currentThread().interrupt();
-                  }
-                }
-              }
-            }
-          }
           connected = false;
 
           final DMStats stats = owner.getConduit().getStats();
@@ -1515,7 +1425,7 @@ public class Connection implements Runnable {
         asyncClose(false);
         owner.removeAndCloseThreadOwnedSockets();
       } else {
-        if (sharedResource && !asyncMode) {
+        if (sharedResource) {
           asyncClose(false);
         }
       }
@@ -1671,7 +1581,7 @@ public class Connection implements Runnable {
 
             // Once we have read the handshake for unshared connections, the reader can skip
             // processing messages
-            if (!sharedResource || asyncMode) {
+            if (!sharedResource) {
               break;
             } else {
               // not exiting and not a Reader spawned from a ServerSocket.accept(), so
@@ -1734,7 +1644,7 @@ public class Connection implements Runnable {
     } finally {
       threadMonitoring.unregister(threadMonitorExecutor);
       hasResidualReaderThread = false;
-      if (!handshakeHasBeenRead || (sharedResource && !asyncMode)) {
+      if (!handshakeHasBeenRead || sharedResource) {
         synchronized (stateLock) {
           connectionState = STATE_IDLE;
         }
@@ -1961,7 +1871,7 @@ public class Connection implements Runnable {
     socketInUse = true;
     try {
       SocketChannel channel = getSocket().getChannel();
-      writeFully(channel, buffer, false, msg);
+      writeFully(channel, buffer);
       if (cacheContentChanges) {
         messagesSent++;
       }
@@ -2116,589 +2026,34 @@ public class Connection implements Runnable {
     return false;
   }
 
-  private boolean addToQueue(ByteBuffer buffer, DistributionMessage msg, boolean force)
-      throws ConnectionException {
-    final DMStats stats = owner.getConduit().getStats();
-    long start = DistributionStats.getStatTime();
-    try {
-      ConflationKey ck = null;
-      if (msg != null) {
-        ck = msg.getConflationKey();
-      }
-      Object objToQueue = null;
-      // if we can conflate delay the copy to see if we can reuse an already allocated buffer.
-      final int newBytes = buffer.remaining();
-      final int origBufferPos = buffer.position();
-      if (ck == null || !ck.allowsConflation()) {
-        // do this outside of sync for multi thread perf
-        ByteBuffer newbb = ByteBuffer.allocate(newBytes);
-        newbb.put(buffer);
-        newbb.flip();
-        objToQueue = newbb;
-      }
-      synchronized (outgoingQueue) {
-        if (disconnectRequested) {
-          buffer.position(origBufferPos);
-          // we have given up so just drop this message.
-          throw new ConnectionException(format("Forced disconnect sent to %s", remoteMember));
-        }
-        if (!force && !asyncQueuingInProgress) {
-          // reset buffer since we will be sending it
-          buffer.position(origBufferPos);
-          // the pusher emptied the queue so don't add since we are not forced to.
-          return false;
-        }
-        boolean didConflation = false;
-        if (ck != null) {
-          if (ck.allowsConflation()) {
-            objToQueue = ck;
-            ConflationKey oldValue = conflatedKeys.put(ck, ck);
-            if (oldValue != null) {
-              ByteBuffer oldBuffer = oldValue.getBuffer();
-              // need to always do this to allow old buffer to be gc'd
-              oldValue.setBuffer(null);
-
-              // remove the conflated key from current spot in queue
-
-              // Note we no longer remove from the queue because the search
-              // can be expensive on large queues. Instead we just wait for
-              // the queue removal code to find the oldValue and ignore it since
-              // its buffer is null
-
-              // We do a quick check of the last thing in the queue
-              // and if it has the same identity of our last thing then
-              // remove it
-
-              if (outgoingQueue.getLast() == oldValue) {
-                outgoingQueue.removeLast();
-              }
-              int oldBytes = oldBuffer.remaining();
-              queuedBytes -= oldBytes;
-              stats.incAsyncQueueSize(-oldBytes);
-              stats.incAsyncConflatedMsgs();
-              didConflation = true;
-              if (oldBuffer.capacity() >= newBytes) {
-                // copy new buffer into oldBuffer
-                oldBuffer.clear();
-                oldBuffer.put(buffer);
-                oldBuffer.flip();
-                ck.setBuffer(oldBuffer);
-              } else {
-                // old buffer was not large enough
-                ByteBuffer newbb = ByteBuffer.allocate(newBytes);
-                newbb.put(buffer);
-                newbb.flip();
-                ck.setBuffer(newbb);
-              }
-            } else {
-              // no old buffer so need to allocate one
-              ByteBuffer newbb = ByteBuffer.allocate(newBytes);
-              newbb.put(buffer);
-              newbb.flip();
-              ck.setBuffer(newbb);
-            }
-          } else {
-            // just forget about having a conflatable operation
-            conflatedKeys.remove(ck);
-          }
-        }
-
-        long newQueueSize = newBytes + queuedBytes;
-        if (newQueueSize > asyncMaxQueueSize) {
-          logger.warn("Queued bytes {} exceeds max of {}, asking slow receiver {} to disconnect.",
-              newQueueSize, asyncMaxQueueSize, remoteMember);
-          stats.incAsyncQueueSizeExceeded(1);
-          disconnectSlowReceiver();
-          // reset buffer since we will be sending it
-          buffer.position(origBufferPos);
-          return false;
-        }
-
-        outgoingQueue.addLast(objToQueue);
-        queuedBytes += newBytes;
-        stats.incAsyncQueueSize(newBytes);
-        if (!didConflation) {
-          stats.incAsyncQueuedMsgs();
-        }
-        return true;
-      }
-    } finally {
-      if (DistributionStats.enableClockStats) {
-        stats.incAsyncQueueAddTime(DistributionStats.getStatTime() - start);
-      }
-    }
-  }
-
-  /**
-   * Return true if it was able to handle a block write of the given buffer. Return false if it is
-   * still the caller is still responsible for writing it.
-   *
-   * @throws ConnectionException if the conduit has stopped
-   */
-  private boolean handleBlockedWrite(ByteBuffer buffer, DistributionMessage msg)
-      throws ConnectionException {
-    if (!addToQueue(buffer, msg, true)) {
-      return false;
-    }
-    startMessagePusher();
-    return true;
-  }
-
-  private void startMessagePusher() {
-    synchronized (pusherSync) {
-      while (pusherThread != null) {
-        // wait for previous pusher thread to exit
-        boolean interrupted = Thread.interrupted();
-        try {
-          pusherSync.wait(); // spurious wakeup ok
-        } catch (InterruptedException ex) {
-          interrupted = true;
-          owner.getConduit().getCancelCriterion().checkCancelInProgress(ex);
-        } finally {
-          if (interrupted) {
-            Thread.currentThread().interrupt();
-          }
-        }
-      }
-      asyncQueuingInProgress = true;
-      pusherThread =
-          new LoggingThread("P2P async pusher to " + remoteMember, this::runMessagePusher);
-    }
-    pusherThread.start();
-  }
-
-  private ByteBuffer takeFromOutgoingQueue() {
-    final DMStats stats = owner.getConduit().getStats();
-    long start = DistributionStats.getStatTime();
-    try {
-      ByteBuffer result = null;
-      synchronized (outgoingQueue) {
-        if (disconnectRequested) {
-          // don't bother with anymore work since we are done
-          asyncQueuingInProgress = false;
-          outgoingQueue.notifyAll();
-          return null;
-        }
-        do {
-          if (outgoingQueue.isEmpty()) {
-            break;
-          }
-          Object o = outgoingQueue.removeFirst();
-          if (o == null) {
-            break;
-          }
-          if (o instanceof ConflationKey) {
-            result = ((ConflationKey) o).getBuffer();
-            if (result != null) {
-              conflatedKeys.remove(o);
-            } else {
-              // if result is null then this same key will be found later in the
-              // queue so we just need to skip this entry
-              continue;
-            }
-          } else {
-            result = (ByteBuffer) o;
-          }
-          int newBytes = result.remaining();
-          queuedBytes -= newBytes;
-          stats.incAsyncQueueSize(-newBytes);
-          stats.incAsyncDequeuedMsgs();
-        } while (result == null);
-        if (result == null) {
-          asyncQueuingInProgress = false;
-          outgoingQueue.notifyAll();
-        }
-      }
-      return result;
-    } finally {
-      if (DistributionStats.enableClockStats) {
-        stats.incAsyncQueueRemoveTime(DistributionStats.getStatTime() - start);
-      }
-    }
-  }
-
-  /**
-   * @since GemFire 4.2.2
-   */
-  private void disconnectSlowReceiver() {
-    synchronized (outgoingQueue) {
-      if (disconnectRequested) {
-        // only ask once
-        return;
-      }
-      disconnectRequested = true;
-    }
-    DistributionManager dm = owner.getDM();
-    if (dm == null) {
-      owner.removeEndpoint(remoteMember, "no distribution manager");
-      return;
-    }
-    dm.getDistribution().requestMemberRemoval(remoteMember,
-        "Disconnected as a slow-receiver");
-    // Ok, we sent the message, the coordinator should kick the member out
-    // immediately and inform this process with a new view.
-    // Let's wait for that to happen and if it doesn't in X seconds then remove the endpoint.
-    while (dm.getOtherDistributionManagerIds().contains(remoteMember)) {
-      try {
-        Thread.sleep(50);
-      } catch (InterruptedException ie) {
-        Thread.currentThread().interrupt();
-        owner.getConduit().getCancelCriterion().checkCancelInProgress(ie);
-        return;
-      }
-    }
-    owner.removeEndpoint(remoteMember,
-        "Force disconnect timed out");
-    if (dm.getOtherDistributionManagerIds().contains(remoteMember)) {
-      if (logger.isDebugEnabled()) {
-        final int FORCE_TIMEOUT = 3000;
-        logger.debug("Force disconnect timed out after waiting {} seconds", FORCE_TIMEOUT / 1000);
-      }
-    }
-  }
-
-  /**
-   * have the pusher thread check for queue overflow and for idle time exceeded
-   */
-  private void runMessagePusher() {
-    try {
-      final DMStats stats = owner.getConduit().getStats();
-      final long threadStart = stats.startAsyncThread();
-      try {
-        stats.incAsyncQueues(1);
-        stats.incAsyncThreads(1);
-
-        try {
-          int flushId = 0;
-          while (asyncQueuingInProgress && connected) {
-            if (SystemFailure.getFailure() != null) {
-              // Allocate no objects here!
-              Socket s = socket;
-              if (s != null) {
-                try {
-                  logger.debug("closing socket", new Exception("closing socket"));
-                  ioFilter.close(s.getChannel());
-                  s.close();
-                } catch (IOException e) {
-                  // don't care
-                }
-              }
-              getCheckFailure();
-            }
-            if (owner.getConduit().getCancelCriterion().isCancelInProgress()) {
-              break;
-            }
-            flushId++;
-            long flushStart = stats.startAsyncQueueFlush();
-            try {
-              long curQueuedBytes = queuedBytes;
-              if (curQueuedBytes > asyncMaxQueueSize) {
-                logger.warn(
-                    "Queued bytes {} exceeds max of {}, asking slow receiver {} to disconnect.",
-                    curQueuedBytes, asyncMaxQueueSize, remoteMember);
-                stats.incAsyncQueueSizeExceeded(1);
-                disconnectSlowReceiver();
-                return;
-              }
-              SocketChannel channel = getSocket().getChannel();
-              ByteBuffer bb = takeFromOutgoingQueue();
-              if (bb == null) {
-                if (logger.isDebugEnabled() && flushId == 1) {
-                  logger.debug("P2P pusher found empty queue");
-                }
-                return;
-              }
-              writeFully(channel, bb, true, null);
-              // We should not add messagesSent. The counts are increased elsewhere.
-              accessed();
-            } finally {
-              stats.endAsyncQueueFlush(flushStart);
-            }
-          }
-        } finally {
-          // need to force this to false before doing the requestClose calls
-          synchronized (outgoingQueue) {
-            asyncQueuingInProgress = false;
-            outgoingQueue.notifyAll();
-          }
-        }
-      } catch (IOException ex) {
-        String err = format("P2P pusher io exception for %s", this);
-        if (!isSocketClosed()) {
-          if (logger.isDebugEnabled() && !isIgnorableIOException(ex)) {
-            logger.debug(err, ex);
-          }
-        }
-        try {
-          requestClose(err + ": " + ex);
-        } catch (Exception ignore) {
-        }
-      } catch (CancelException ex) {
-        String err = format("P2P pusher %s caught CacheClosedException: %s", this, ex);
-        logger.debug(err);
-        try {
-          requestClose(err);
-        } catch (Exception ignore) {
-        }
-      } catch (Exception ex) {
-        owner.getConduit().getCancelCriterion().checkCancelInProgress(ex);
-        if (!isSocketClosed()) {
-          logger.fatal(format("P2P pusher exception: %s", ex), ex);
-        }
-        try {
-          requestClose(format("P2P pusher exception: %s", ex));
-        } catch (Exception ignore) {
-        }
-      } finally {
-        stats.incAsyncQueueSize(-queuedBytes);
-        queuedBytes = 0;
-        stats.endAsyncThread(threadStart);
-        stats.incAsyncThreads(-1);
-        stats.incAsyncQueues(-1);
-        if (logger.isDebugEnabled()) {
-          logger.debug("runMessagePusher terminated id={} from {}/{}", conduitIdStr, remoteMember,
-              remoteMember);
-        }
-      }
-    } finally {
-      synchronized (pusherSync) {
-        pusherThread = null;
-        pusherSync.notifyAll();
-      }
-    }
-  }
-
-  /**
-   * Return false if socket writes to be done async/nonblocking Return true if socket writes to be
-   * done sync/blocking
-   */
-  private boolean useSyncWrites(boolean forceAsync) {
-    if (forceAsync) {
-      return false;
-    }
-    // only use sync writes if:
-    // we are already queuing
-    if (asyncQueuingInProgress) {
-      // it will just tack this msg onto the outgoing queue
-      return true;
-    }
-    // or we are a receiver
-    if (isReceiver) {
-      return true;
-    }
-    // or we are an unordered connection
-    if (!preserveOrder) {
-      return true;
-    }
-
-    // or the receiver does not allow queuing
-    // OTHERWISE return false and let caller send async
-    return asyncDistributionTimeout == 0;
-  }
-
-  private void writeAsync(SocketChannel channel, ByteBuffer buffer, boolean forceAsync,
-      DistributionMessage p_msg, final DMStats stats) throws IOException {
-    DistributionMessage msg = p_msg;
-    // async/non-blocking
-    boolean socketWriteStarted = false;
-    long startSocketWrite = 0;
-    int retries = 0;
-    int totalAmtWritten = 0;
-    try {
-      synchronized (outLock) {
-        if (!forceAsync) {
-          // check one more time while holding outLock in case a pusher was created
-          if (asyncQueuingInProgress) {
-            if (addToQueue(buffer, msg, false)) {
-              return;
-            }
-            // fall through
-          }
-        }
-        socketWriteStarted = true;
-        startSocketWrite = stats.startSocketWrite(false);
-        long now = System.currentTimeMillis();
-        long distributionTimeoutTarget = 0;
-        // if asyncDistributionTimeout == 1 then we want to start queuing
-        // as soon as we do a non blocking socket write that returns 0
-        if (asyncDistributionTimeout != 1) {
-          distributionTimeoutTarget = now + asyncDistributionTimeout;
-        }
-        long queueTimeoutTarget = now + asyncQueueTimeout;
-        channel.configureBlocking(false);
-        try {
-          try (final ByteBufferSharing outputSharing = ioFilter.wrap(buffer)) {
-            final ByteBuffer wrappedBuffer = outputSharing.getBuffer();
-
-            int waitTime = 1;
-            do {
-              owner.getConduit().getCancelCriterion().checkCancelInProgress(null);
-              retries++;
-              int amtWritten;
-              if (FORCE_ASYNC_QUEUE) {
-                amtWritten = 0;
-              } else {
-                amtWritten = channel.write(wrappedBuffer);
-              }
-              if (amtWritten == 0) {
-                now = System.currentTimeMillis();
-                long timeoutTarget;
-                if (!forceAsync) {
-                  if (now > distributionTimeoutTarget) {
-                    if (logger.isDebugEnabled()) {
-                      if (distributionTimeoutTarget == 0) {
-                        logger.debug(
-                            "Starting async pusher to handle async queue because distribution-timeout is 1 and the last socket write would have blocked.");
-                      } else {
-                        long blockedMs = now - distributionTimeoutTarget;
-                        blockedMs += asyncDistributionTimeout;
-                        logger.debug(
-                            "Blocked for {}ms which is longer than the max of {}ms so starting async pusher to handle async queue.",
-                            blockedMs, asyncDistributionTimeout);
-                      }
-                    }
-                    stats.incAsyncDistributionTimeoutExceeded();
-                    if (totalAmtWritten > 0) {
-                      // we have written part of the msg to the socket buffer
-                      // and we are going to queue the remainder.
-                      // We set msg to null so that will not make
-                      // the partial msg a candidate for conflation.
-                      msg = null;
-                    }
-                    if (handleBlockedWrite(wrappedBuffer, msg)) {
-                      return;
-                    }
-                  }
-                  timeoutTarget = distributionTimeoutTarget;
-                } else {
-                  boolean disconnectNeeded = false;
-                  long curQueuedBytes = queuedBytes;
-                  if (curQueuedBytes > asyncMaxQueueSize) {
-                    logger.warn(
-                        "Queued bytes {} exceeds max of {}, asking slow receiver {} to disconnect.",
-                        curQueuedBytes, asyncMaxQueueSize, remoteMember);
-                    stats.incAsyncQueueSizeExceeded(1);
-                    disconnectNeeded = true;
-                  }
-                  if (now > queueTimeoutTarget) {
-                    // we have waited long enough the pusher has been idle too long!
-                    long blockedMs = now - queueTimeoutTarget;
-                    blockedMs += asyncQueueTimeout;
-                    logger.warn(
-                        "Blocked for {}ms which is longer than the max of {}ms, asking slow receiver {} to disconnect.",
-                        blockedMs,
-                        asyncQueueTimeout, remoteMember);
-                    stats.incAsyncQueueTimeouts(1);
-                    disconnectNeeded = true;
-                  }
-                  if (disconnectNeeded) {
-                    disconnectSlowReceiver();
-                    synchronized (outgoingQueue) {
-                      asyncQueuingInProgress = false;
-                      outgoingQueue.notifyAll();
-                    }
-                    return;
-                  }
-                  timeoutTarget = queueTimeoutTarget;
-                }
-                {
-                  long msToWait = waitTime;
-                  long msRemaining = timeoutTarget - now;
-                  if (msRemaining > 0) {
-                    msRemaining /= 2;
-                  }
-                  if (msRemaining < msToWait) {
-                    msToWait = msRemaining;
-                  }
-                  if (msToWait <= 0) {
-                    Thread.yield();
-                  } else {
-                    boolean interrupted = Thread.interrupted();
-                    try {
-                      Thread.sleep(msToWait);
-                    } catch (InterruptedException ex) {
-                      interrupted = true;
-                      owner.getConduit().getCancelCriterion().checkCancelInProgress(ex);
-                    } finally {
-                      if (interrupted) {
-                        Thread.currentThread().interrupt();
-                      }
-                    }
-                  }
-                }
-                if (waitTime < MAX_WAIT_TIME) {
-                  // double it since it is not yet the max
-                  waitTime <<= 1;
-                }
-              } // amtWritten == 0
-              else {
-                totalAmtWritten += amtWritten;
-                // reset queueTimeoutTarget since we made some progress
-                queueTimeoutTarget = System.currentTimeMillis() + asyncQueueTimeout;
-                waitTime = 1;
-              }
-            } while (wrappedBuffer.remaining() > 0);
-          }
-        } finally {
-          channel.configureBlocking(true);
-        }
-      }
-    } finally {
-      if (socketWriteStarted) {
-        if (retries > 0) {
-          retries--;
-        }
-        stats.endSocketWrite(false, startSocketWrite, totalAmtWritten, retries);
-      }
-    }
-  }
-
   /**
    * writeFully implements a blocking write on a channel that is in non-blocking mode.
    *
-   * @param forceAsync true if we need to force a blocking async write.
    * @throws ConnectionException if the conduit has stopped
    */
   @VisibleForTesting
-  void writeFully(SocketChannel channel, ByteBuffer buffer, boolean forceAsync,
-      DistributionMessage msg) throws IOException, ConnectionException {
+  void writeFully(SocketChannel channel, ByteBuffer buffer)
+      throws IOException, ConnectionException {
     final DMStats stats = owner.getConduit().getStats();
     if (!sharedResource) {
       stats.incTOSentMsg();
     }
-    if (useSyncWrites(forceAsync)) {
-      if (asyncQueuingInProgress) {
-        if (addToQueue(buffer, msg, false)) {
-          return;
-        }
-        // fall through
-      }
-      long startLock = stats.startSocketLock();
-      synchronized (outLock) {
-        stats.endSocketLock(startLock);
-        if (asyncQueuingInProgress) {
-          if (addToQueue(buffer, msg, false)) {
-            return;
-          }
-          // fall through
-        }
-        try (final ByteBufferSharing outputSharing = ioFilter.wrap(buffer)) {
-          final ByteBuffer wrappedBuffer = outputSharing.getBuffer();
+    long startLock = stats.startSocketLock();
+    synchronized (outLock) {
+      stats.endSocketLock(startLock);
+      try (final ByteBufferSharing outputSharing = ioFilter.wrap(buffer)) {
+        final ByteBuffer wrappedBuffer = outputSharing.getBuffer();
 
-          while (wrappedBuffer.remaining() > 0) {
-            int amtWritten = 0;
-            long start = stats.startSocketWrite(true);
-            try {
-              amtWritten = channel.write(wrappedBuffer);
-            } finally {
-              stats.endSocketWrite(true, start, amtWritten, 0);
-            }
+        while (wrappedBuffer.remaining() > 0) {
+          int amtWritten = 0;
+          long start = stats.startSocketWrite(true);
+          try {
+            amtWritten = channel.write(wrappedBuffer);
+          } finally {
+            stats.endSocketWrite(true, start, amtWritten, 0);
           }
-
         }
       }
-    } else {
-      writeAsync(channel, buffer, forceAsync, msg, stats);
     }
   }
 
@@ -3247,11 +2602,11 @@ public class Connection implements Runnable {
           notifyHandshakeWaiter(true);
           return;
         case REPLY_CODE_OK_WITH_ASYNC_INFO:
-          asyncDistributionTimeout = dis.readInt();
-          asyncQueueTimeout = dis.readInt();
-          asyncMaxQueueSize = (long) dis.readInt() * (1024 * 1024);
+          final int asyncDistributionTimeout = dis.readInt();
+          final int asyncQueueTimeout = dis.readInt();
+          final long asyncMaxQueueSize = (long) dis.readInt() * (1024 * 1024);
           if (asyncDistributionTimeout != 0) {
-            logger.info("{} async configuration received {}.", p2pReaderName(),
+            logger.error("{} async configuration received {}.", p2pReaderName(),
                 " asyncDistributionTimeout=" + asyncDistributionTimeout
                     + " asyncQueueTimeout=" + asyncQueueTimeout
                     + " asyncMaxQueueSize=" + asyncMaxQueueSize / (1024 * 1024));
@@ -3263,10 +2618,6 @@ public class Connection implements Runnable {
               null);
           ioFilter.doneReading(peerDataBuffer);
           notifyHandshakeWaiter(true);
-          if (preserveOrder && asyncDistributionTimeout != 0) {
-            asyncMode = true;
-          }
-
           return;
         default:
           String err =
@@ -3520,7 +2871,7 @@ public class Connection implements Runnable {
                 try {
                   sendBatchBuffer.flip();
                   SocketChannel channel = getSocket().getChannel();
-                  writeFully(channel, sendBatchBuffer, false, null);
+                  writeFully(channel, sendBatchBuffer);
                   sendBatchBuffer.clear();
                 } catch (IOException | ConnectionException ex) {
                   logger.fatal("Exception flushing batch send buffer: %s", ex);

@@ -153,7 +153,7 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
   public void createRegionPersistsConfigParams() {
     String regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --name=" + regionName + " --type=PARTITION"
-        + " --enable-statistics=true" + " --enable-async-conflation=true"
+        + " --enable-statistics=true"
         + " --entry-idle-time-expiration=100").statusIsSuccess();
 
     server1.stop();
@@ -176,7 +176,6 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
       RegionAttributesType attr = regionConfig.getRegionAttributes();
       assertThat(attr.isStatisticsEnabled()).isTrue();
-      assertThat(attr.isEnableAsyncConflation()).isTrue();
 
       RegionAttributesType.ExpirationAttributesType entryIdleTimeExp = attr.getEntryIdleTime();
       assertThat(entryIdleTimeExp.getTimeout()).isEqualTo("100");
@@ -186,9 +185,6 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
       Region<?, ?> region = ClusterStartupRule.getCache().getRegion(regionName);
       assertThat(region.getAttributes().getStatisticsEnabled())
           .describedAs("Expecting statistics to be enabled")
-          .isTrue();
-      assertThat(region.getAttributes().getEnableAsyncConflation())
-          .describedAs("Expecting async conflation to be enabled")
           .isTrue();
       assertThat(region.getAttributes().getEntryIdleTimeout().getTimeout())
           .describedAs("Expecting entry idle time exp timeout to be 100")
@@ -205,7 +201,6 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         + " --type=PARTITION"
         + " --cache-listener=" + DummyCacheListener.class.getName()
         + " --enable-statistics=true"
-        + " --enable-async-conflation=true"
         + " --entry-idle-time-expiration=100").statusIsSuccess();
 
     gfsh.executeAndAssertThat(
@@ -226,7 +221,6 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
       RegionAttributesType attr = regionConfig.getRegionAttributes();
       assertThat(attr.isStatisticsEnabled()).isTrue();
-      assertThat(attr.isEnableAsyncConflation()).isTrue();
 
       RegionAttributesType.ExpirationAttributesType entryIdleTimeExp = attr.getEntryIdleTime();
       assertThat(entryIdleTimeExp.getTimeout()).isEqualTo("100");
@@ -243,7 +237,6 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         + " --cache-loader=" + DummyCacheLoader.class.getName()
         + " --cache-writer=" + DummyCacheWriter.class.getName()
         + " --compressor=" + DummyCompressor.class.getName()
-        + " --enable-async-conflation=false"
         + " --enable-concurrency-checks=false"
         + " --enable-multicast=false"
         + " --concurrency-level=1"
@@ -297,10 +290,6 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         assertThat(attr.getCompressor().toString())
             .describedAs("Expecting a DummyCompressor for region " + name)
             .isEqualTo(DummyCompressor.class.getName());
-        assertThat(attr.isEnableAsyncConflation())
-            .describedAs("Expecting async conflation to not be enabled for region "
-                + name)
-            .isFalse();
         assertThat(attr.isConcurrencyChecksEnabled())
             .describedAs("Expecting concurrency checks not to be enabled for region "
                 + name)

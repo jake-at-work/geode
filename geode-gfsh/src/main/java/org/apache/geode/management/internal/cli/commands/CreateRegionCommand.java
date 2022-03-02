@@ -122,9 +122,6 @@ public class CreateRegionCommand extends SingleGfshCommand {
           help = CliStrings.CREATE_REGION__CONCURRENCYLEVEL__HELP) Integer concurrencyLevel,
       @CliOption(key = CliStrings.CREATE_REGION__DISKSTORE,
           help = CliStrings.CREATE_REGION__DISKSTORE__HELP) String diskStore,
-      @CliOption(key = CliStrings.CREATE_REGION__ENABLEASYNCCONFLATION,
-          specifiedDefaultValue = "true",
-          help = CliStrings.CREATE_REGION__ENABLEASYNCCONFLATION__HELP) Boolean enableAsyncConflation,
       @CliOption(key = CliStrings.CREATE_REGION__CLONINGENABLED, specifiedDefaultValue = "true",
           help = CliStrings.CREATE_REGION__CLONINGENABLED__HELP) Boolean cloningEnabled,
       @CliOption(key = CliStrings.CREATE_REGION__CONCURRENCYCHECKSENABLED,
@@ -449,9 +446,6 @@ public class CreateRegionCommand extends SingleGfshCommand {
     }
     if (concurrencyLevel != null) {
       regionAttributes.setConcurrencyLevel(concurrencyLevel.toString());
-    }
-    if (enableAsyncConflation != null) {
-      regionAttributes.setEnableAsyncConflation(enableAsyncConflation);
     }
     if (cloningEnabled != null) {
       regionAttributes.setCloningEnabled(cloningEnabled);

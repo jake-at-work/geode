@@ -108,7 +108,6 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
    *
    * @see AttributesFactory#setPublisher(boolean)
    * @see AttributesFactory#setEnableConflation(boolean)
-   * @see AttributesFactory#setEnableAsyncConflation(boolean)
    */
   public static void createServerCache(Boolean enableWan, Boolean setPublisher,
       Boolean enableConflation, Boolean enableAsyncConflation) throws Exception {
@@ -119,7 +118,6 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
     factory.setDataPolicy(DataPolicy.REPLICATE);
     // factory.setPublisher(setPublisher.booleanValue());
     factory.setEnableConflation(enableConflation);
-    factory.setEnableAsyncConflation(enableAsyncConflation);
     RegionAttributes attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
   }
@@ -161,7 +159,6 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
    *
    * @see AttributesFactory#setPublisher(boolean)
    * @see AttributesFactory#setEnableConflation(boolean)
-   * @see AttributesFactory#setEnableAsyncConflation(boolean)
    */
   @Test
   public void testEntryOperationsWithNewAttributesEnabled() {
@@ -198,7 +195,6 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
     Region region1 = cache.getRegion(SEPARATOR + REGION_NAME);
     // assertTrue(region1.getAttributes().getPublisher());
     assertTrue(region1.getAttributes().getEnableConflation());
-    assertTrue(region1.getAttributes().getEnableAsyncConflation());
   }
 
   /**

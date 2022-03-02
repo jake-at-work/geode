@@ -51,7 +51,6 @@ public class RegionAttributesInfo implements Serializable {
   private int concurrencyLevel = 16;
   private DataPolicy dataPolicy = DataPolicy.DEFAULT;
   private String diskStoreName = "";
-  private boolean enableAsyncConflation = false;
   private boolean enableSubscriptionConflation = false;
   private boolean ignoreJTA = false;
   private boolean indexMaintenanceSynchronous = true;
@@ -99,7 +98,6 @@ public class RegionAttributesInfo implements Serializable {
     concurrencyLevel = ra.getConcurrencyLevel();
     dataPolicy = ra.getDataPolicy();
     diskStoreName = ra.getDiskStoreName();
-    enableAsyncConflation = ra.getEnableAsyncConflation();
     enableSubscriptionConflation = ra.getEnableSubscriptionConflation();
     ignoreJTA = ra.getIgnoreJTA();
     indexMaintenanceSynchronous = ra.getIndexMaintenanceSynchronous();
@@ -252,10 +250,6 @@ public class RegionAttributesInfo implements Serializable {
     return diskStoreName;
   }
 
-  public boolean getEnableSyncConflation() {
-    return enableAsyncConflation;
-  }
-
   public boolean getEnableSubscriptionConflation() {
     return enableSubscriptionConflation;
   }
@@ -384,11 +378,6 @@ public class RegionAttributesInfo implements Serializable {
 
     if (diskStoreName != null && !diskStoreName.equals(RegionAttributesDefault.DISK_STORE_NAME)) {
       nonDefaultAttributes.put(RegionAttributesNames.DISK_STORE_NAME, diskStoreName);
-    }
-
-    if (enableAsyncConflation != RegionAttributesDefault.ENABLE_ASYNC_CONFLATION) {
-      nonDefaultAttributes.put(RegionAttributesNames.ENABLE_ASYNC_CONFLATION,
-          Boolean.toString(enableAsyncConflation));
     }
 
     if (enableSubscriptionConflation != RegionAttributesDefault.ENABLE_SUBSCRIPTION_CONFLATION) {

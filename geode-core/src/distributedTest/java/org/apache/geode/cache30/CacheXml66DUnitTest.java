@@ -3698,21 +3698,6 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   }
 
   /**
-   * Test EnableAsyncConflation region attribute
-   *
-   * @since GemFire 4.2
-   */
-  @Test
-  public void testEnableAsyncConflationAttribute() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
-    attrs.setEnableAsyncConflation(true);
-    cache.createRegion("root", attrs);
-    testXml(cache);
-    assertEquals(true, cache.getRegion("root").getAttributes().getEnableAsyncConflation());
-  }
-
-  /**
    * @since GemFire 4.3
    */
   @Test
