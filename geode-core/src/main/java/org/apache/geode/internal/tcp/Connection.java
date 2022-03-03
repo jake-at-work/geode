@@ -68,7 +68,6 @@ import org.apache.geode.distributed.internal.DirectReplyProcessor;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
-import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.distributed.internal.OperationExecutors;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.ReplyMessage;
@@ -374,27 +373,6 @@ public class Connection implements Runnable {
       Integer.getInteger(GEMFIRE_PREFIX + "RECONNECT_WAIT_TIME", 2000);
 
   /**
-   * Batch sends currently should not be turned on because: 1. They will be used for all sends
-   * (instead of just no-ack) and thus will break messages that wait for a response (or kill perf).
-   * 2. The buffer is not properly flushed and closed on shutdown. The code attempts to do this but
-   * must not be doing it correctly.
-   */
-  private static final boolean BATCH_SENDS = Boolean.getBoolean("p2p.batchSends");
-  private static final int BATCH_BUFFER_SIZE =
-      Integer.getInteger("p2p.batchBufferSize", 1024 * 1024);
-  private static final int BATCH_FLUSH_MS = Integer.getInteger("p2p.batchFlushTime", 50);
-  private final Object batchLock = new Object();
-  private ByteBuffer fillBatchBuffer;
-  private ByteBuffer sendBatchBuffer;
-  private BatchBufferFlusher batchFlusher;
-
-  /**
-   * use to test message prep overhead (no socket write). WARNING: turning this on completely
-   * disables distribution of batched sends
-   */
-  private static final boolean SOCKET_WRITE_DISABLED = Boolean.getBoolean("p2p.disableSocketWrite");
-
-  /**
    * stateLock is used to synchronize state changes.
    */
   private final Object stateLock = new Object();
@@ -652,7 +630,6 @@ public class Connection implements Runnable {
   private void sendOKHandshakeReply() throws IOException, ConnectionException {
     ByteBuffer my_okHandshakeBuf;
     if (isReceiver) {
-      DistributionConfig cfg = owner.getConduit().getConfig();
       ByteBuffer bb;
       if (BufferPool.useDirectBuffers) {
         bb = ByteBuffer.allocateDirect(128);
@@ -1067,9 +1044,6 @@ public class Connection implements Runnable {
       throw new ConnectionException(
           format("Connection: failed construction for peer %s", remoteAddr));
     }
-    if (preserveOrder && BATCH_SENDS) {
-      conn.createBatchSendBuffer();
-    }
     conn.finishedConnecting = true;
     return conn;
   }
@@ -1174,57 +1148,11 @@ public class Connection implements Runnable {
     }
   }
 
-  private void createBatchSendBuffer() {
-    if (BufferPool.useDirectBuffers) {
-      fillBatchBuffer = ByteBuffer.allocateDirect(BATCH_BUFFER_SIZE);
-      sendBatchBuffer = ByteBuffer.allocateDirect(BATCH_BUFFER_SIZE);
-    } else {
-      fillBatchBuffer = ByteBuffer.allocate(BATCH_BUFFER_SIZE);
-      sendBatchBuffer = ByteBuffer.allocate(BATCH_BUFFER_SIZE);
-    }
-    batchFlusher = new BatchBufferFlusher();
-    batchFlusher.start();
-  }
-
   void cleanUpOnIdleTaskCancel() {
     // Make sure receivers are removed from the connection table, this should always be a noop, but
     // is done here as a fail safe.
     if (isReceiver) {
       owner.removeReceiver(this);
-    }
-  }
-
-  private void closeBatchBuffer() {
-    if (batchFlusher != null) {
-      batchFlusher.close();
-    }
-  }
-
-  private void batchSend(ByteBuffer src) {
-    if (SOCKET_WRITE_DISABLED) {
-      return;
-    }
-    final long start = DistributionStats.getStatTime();
-    try {
-      Assert.assertTrue(src.remaining() <= BATCH_BUFFER_SIZE, "Message size(" + src.remaining()
-          + ") exceeded BATCH_BUFFER_SIZE(" + BATCH_BUFFER_SIZE + ")");
-      do {
-        ByteBuffer dst;
-        synchronized (batchLock) {
-          dst = fillBatchBuffer;
-          if (src.remaining() <= dst.remaining()) {
-            final long copyStart = DistributionStats.getStatTime();
-            dst.put(src);
-            owner.getConduit().getStats().incBatchCopyTime(copyStart);
-            return;
-          }
-        }
-        // If we got this far then we do not have room in the current
-        // buffer and need the flusher thread to flush before we can fill it
-        batchFlusher.flushBuffer(dst);
-      } while (true);
-    } finally {
-      owner.getConduit().getStats().incBatchSendTime(start);
     }
   }
 
@@ -1332,7 +1260,6 @@ public class Connection implements Runnable {
         }
       }
 
-      closeBatchBuffer();
       closeAllMsgDestreamers();
     }
     if (cleanupEndpoint) {
@@ -1464,7 +1391,7 @@ public class Connection implements Runnable {
 
   private void readMessages() {
     // take a snapshot of uniqueId to detect reconnect attempts
-    SocketChannel channel;
+    final SocketChannel channel;
     try {
       channel = getSocket().getChannel();
       socket.setSoTimeout(0);
@@ -1853,14 +1780,10 @@ public class Connection implements Runnable {
    *
    * @throws ConnectionException if the conduit has stopped
    */
-  void sendPreserialized(ByteBuffer buffer, boolean cacheContentChanges,
-      DistributionMessage msg) throws IOException, ConnectionException {
+  void sendPreserialized(ByteBuffer buffer, boolean cacheContentChanges)
+      throws IOException, ConnectionException {
     if (!connected) {
       throw new ConnectionException(format("Not connected to %s", remoteMember));
-    }
-    if (batchFlusher != null) {
-      batchSend(buffer);
-      return;
     }
     final boolean origSocketInUse = socketInUse;
     byte originalState;
@@ -1870,8 +1793,7 @@ public class Connection implements Runnable {
     }
     socketInUse = true;
     try {
-      SocketChannel channel = getSocket().getChannel();
-      writeFully(channel, buffer);
+      writeFully(getSocket().getChannel(), buffer);
       if (cacheContentChanges) {
         messagesSent++;
       }
@@ -2032,13 +1954,13 @@ public class Connection implements Runnable {
    * @throws ConnectionException if the conduit has stopped
    */
   @VisibleForTesting
-  void writeFully(SocketChannel channel, ByteBuffer buffer)
+  void writeFully(final SocketChannel channel, final ByteBuffer buffer)
       throws IOException, ConnectionException {
     final DMStats stats = owner.getConduit().getStats();
     if (!sharedResource) {
       stats.incTOSentMsg();
     }
-    long startLock = stats.startSocketLock();
+    final long startLock = stats.startSocketLock();
     synchronized (outLock) {
       stats.endSocketLock(startLock);
       try (final ByteBufferSharing outputSharing = ioFilter.wrap(buffer)) {
@@ -2046,7 +1968,7 @@ public class Connection implements Runnable {
 
         while (wrappedBuffer.remaining() > 0) {
           int amtWritten = 0;
-          long start = stats.startSocketWrite(true);
+          final long start = stats.startSocketWrite(true);
           try {
             amtWritten = channel.write(wrappedBuffer);
           } finally {
@@ -2697,12 +2619,11 @@ public class Connection implements Runnable {
     return conduit;
   }
 
-  protected Socket getSocket() throws SocketException {
-    Socket result = socket;
-    if (result == null) {
+  Socket getSocket() throws SocketException {
+    if (socket == null) {
       throw new SocketException("socket has been closed");
     }
-    return result;
+    return socket;
   }
 
   boolean isSocketClosed() {
@@ -2790,105 +2711,4 @@ public class Connection implements Runnable {
     return messagesSent;
   }
 
-  private class BatchBufferFlusher extends Thread {
-
-    private volatile boolean flushNeeded;
-    private volatile boolean timeToStop;
-    private final DMStats stats;
-
-    BatchBufferFlusher() {
-      setDaemon(true);
-      stats = owner.getConduit().getStats();
-    }
-
-    /**
-     * Called when a message writer needs the current fillBatchBuffer flushed
-     */
-    void flushBuffer(ByteBuffer bb) {
-      final long start = DistributionStats.getStatTime();
-      try {
-        synchronized (this) {
-          synchronized (batchLock) {
-            if (bb != fillBatchBuffer) {
-              // it must have already been flushed. So just return and use the new fillBatchBuffer
-              return;
-            }
-          }
-          flushNeeded = true;
-          notifyAll();
-        }
-        synchronized (batchLock) {
-          // Wait for the flusher thread
-          while (bb == fillBatchBuffer) {
-            owner.getConduit().getCancelCriterion().checkCancelInProgress(null);
-            boolean interrupted = Thread.interrupted();
-            try {
-              batchLock.wait(); // spurious wakeup ok
-            } catch (InterruptedException ex) {
-              interrupted = true;
-            } finally {
-              if (interrupted) {
-                Thread.currentThread().interrupt();
-              }
-            }
-          }
-        }
-      } finally {
-        owner.getConduit().getStats().incBatchWaitTime(start);
-      }
-    }
-
-    public void close() {
-      synchronized (this) {
-        timeToStop = true;
-        flushNeeded = true;
-        notifyAll();
-      }
-    }
-
-    @Override
-    public void run() {
-      try {
-        synchronized (this) {
-          while (!timeToStop) {
-            if (!flushNeeded && fillBatchBuffer.position() <= BATCH_BUFFER_SIZE / 2) {
-              wait(BATCH_FLUSH_MS); // spurious wakeup ok
-            }
-            if (flushNeeded || fillBatchBuffer.position() > BATCH_BUFFER_SIZE / 2) {
-              final long start = DistributionStats.getStatTime();
-              synchronized (batchLock) {
-                // This is the only block of code that will swap the buffer references
-                flushNeeded = false;
-                ByteBuffer tmp = fillBatchBuffer;
-                fillBatchBuffer = sendBatchBuffer;
-                sendBatchBuffer = tmp;
-                batchLock.notifyAll();
-              }
-              // We now own the sendBatchBuffer
-              if (sendBatchBuffer.position() > 0) {
-                final boolean origSocketInUse = socketInUse;
-                socketInUse = true;
-                try {
-                  sendBatchBuffer.flip();
-                  SocketChannel channel = getSocket().getChannel();
-                  writeFully(channel, sendBatchBuffer);
-                  sendBatchBuffer.clear();
-                } catch (IOException | ConnectionException ex) {
-                  logger.fatal("Exception flushing batch send buffer: %s", ex);
-                  readerShuttingDown = true;
-                  requestClose(format("Exception flushing batch send buffer: %s", ex));
-                } finally {
-                  accessed();
-                  socketInUse = origSocketInUse;
-                }
-              }
-              stats.incBatchFlushTime(start);
-            }
-          }
-        }
-      } catch (InterruptedException ex) {
-        // time for this thread to shutdown
-      }
-    }
-  }
 }

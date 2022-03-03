@@ -17,6 +17,7 @@ package org.apache.geode.internal.tcp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -72,7 +73,7 @@ public class MsgStreamerTest {
     // if the first streamer throws an exception while writing the message we should still only
     // release two buffers (one for each streamer)
     doThrow(new SSLException("")).when(connection1).sendPreserialized(any(ByteBuffer.class),
-        any(Boolean.class), any(DistributionMessage.class));
+        anyBoolean());
     msgStreamer.writeMessage();
     verify(pool, times(2)).releaseSenderBuffer(isA(ByteBuffer.class));
   }

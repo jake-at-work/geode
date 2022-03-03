@@ -193,10 +193,6 @@ DistributionConfigImpl constructor prepends `gemfire.` to each valid attribute n
 | org.apache.geode.internal.net.ssl.config | String | | See `org.apache.geode.management.internal.ContextAwareSSLRMIClientSocketFactory#createSocket()`<p>In gfsh the ssl config is stored within the `org.apache.geode.internal.net.ssl.config` system property|
 | osStatsDisabled | Boolean | `false` | See `org.apache.geode.internal.HostStatSampler#osStatsDisabled`.|
 | p2p.backlog | Integer | `1000` (but limited by OS somaxconn setting) | See `org.apache.geode.distributed.internal.tcpserver.TcpServer#p2pBacklog`.<p>backlog is the TCP/IP "accept" backlog configuration parameter for cluster communications|
-| p2p.batchBufferSize | Integer | `1024 * 1024` | See `org.apache.geode.internal.tcp.Connection#BATCH_BUFFER_SIZE`.|
-| p2p.batchFlushTime | Integer | `50` | See `org.apache.geode.internal.tcp.Connection#BATCH_FLUSH_MS`.<p>Max number of milliseconds until queued messages are sent. Messages are sent when max_bundle_size or max_bundle_timeout has been exceeded (whichever occurs faster)|
-| p2p.batchSends | Boolean | `false` | See `org.apache.geode.internal.tcp.Connection#BATCH_SENDS`.|
-| p2p.disableSocketWrite | Boolean | `false` | See `org.apache.geode.internal.tcp.Connection#SOCKET_WRITE_DISABLED`.<p>Use to test message prep overhead (no socket write).<br>WARNING: turning this on completely disables distribution of batched sends|
 | p2p.disconnectDelay | Integer | `3000` | See `org.apache.geode.distributed.internal.DistributionImpl#destroyMember`.<p>Workaround for bug 34010: small pause inserted before closing reader threads for a departed member.<p>Units are milliseconds.|
 | p2p.handshakeTimeoutMs | Integer | `59000` | See `org.apache.geode.internal.tcp.Connection#HANDSHAKE_TIMEOUT_MS`.|
 | p2p.joinTimeout | Long | `60000` for a server and `24000` for a locator | See `org.apache.geode.distributed.internal.membership.adapter.ServiceConfig` constructor.<p>Establishes the timeout for waiting for a join response when connecting to the cluster. Units are in milliseconds.|

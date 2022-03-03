@@ -308,7 +308,7 @@ public class MsgStreamer extends OutputStream
       final Connection connection = it.next();
       try {
         connection.sendPreserialized(buffer,
-            lastFlushForMessage && msg.containsRegionContentChange(), conflationMsg);
+            lastFlushForMessage && msg.containsRegionContentChange());
       } catch (IOException ex) {
         it.remove();
         if (connectExceptions == null) {
