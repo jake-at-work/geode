@@ -17,7 +17,9 @@ package org.apache.geode.internal.net;
 import static javax.net.ssl.SSLEngineResult.HandshakeStatus.FINISHED;
 import static javax.net.ssl.SSLEngineResult.HandshakeStatus.NEED_TASK;
 import static javax.net.ssl.SSLEngineResult.HandshakeStatus.NEED_UNWRAP;
+import static javax.net.ssl.SSLEngineResult.HandshakeStatus.NOT_HANDSHAKING;
 import static javax.net.ssl.SSLEngineResult.Status.BUFFER_OVERFLOW;
+import static javax.net.ssl.SSLEngineResult.Status.BUFFER_UNDERFLOW;
 import static javax.net.ssl.SSLEngineResult.Status.OK;
 import static org.apache.geode.internal.net.BufferPool.BufferType.TRACKED_RECEIVER;
 import static org.apache.geode.internal.net.BufferPool.BufferType.TRACKED_SENDER;
@@ -119,7 +121,7 @@ public class NioSslEngine implements NioFilter {
 
     // Process handshaking message
     while (status != FINISHED &&
-        status != SSLEngineResult.HandshakeStatus.NOT_HANDSHAKING) {
+        status != NOT_HANDSHAKING) {
       if (socketChannel.socket().isClosed()) {
         logger.info("Handshake terminated because socket is closed");
         throw new SocketException("handshake terminated - socket is closed");
@@ -277,7 +279,7 @@ public class NioSslEngine implements NioFilter {
       peerAppData.limit(peerAppData.capacity());
       boolean stopDecryption = false;
       while (wrappedBuffer.hasRemaining() && !stopDecryption) {
-        SSLEngineResult unwrapResult = engine.unwrap(wrappedBuffer, peerAppData);
+        SSLEngineResult unwrapResult = unwrap(wrappedBuffer, peerAppData);
         switch (unwrapResult.getStatus()) {
           case BUFFER_OVERFLOW:
             // buffer overflow expand and try again - double the available decryption space
@@ -307,6 +309,40 @@ public class NioSslEngine implements NioFilter {
       wrappedBuffer.clear();
       return inputBufferVendor.open();
     }
+  }
+
+  private SSLEngineResult unwrap(final ByteBuffer wrappedBuffer, final ByteBuffer peerAppData) throws SSLException {
+    final int readableBytes = wrappedBuffer.remaining();
+//    logger.info("XXX: readableBytes={}", readableBytes);
+    if (readableBytes < SslUtils.SSL_RECORD_HEADER_LENGTH) {
+//      logger.info("XXX: BUFFER_UNDERFLOW on header");
+      return new SSLEngineResult(BUFFER_UNDERFLOW, NOT_HANDSHAKING, 0, 0);
+    }
+    int packetLength = SslUtils.getEncryptedPacketLength(wrappedBuffer);
+//    logger.info("XXX: packetLength={}", packetLength);
+    if (packetLength == SslUtils.NOT_ENCRYPTED) {
+      throw new SSLException("Not encrypted");
+    }
+    if (packetLength > readableBytes) {
+//      logger.info("XXX: BUFFER_UNDERFLOW on readable");
+      return new SSLEngineResult(BUFFER_UNDERFLOW, NOT_HANDSHAKING, 0, 0);
+    }
+
+    final ByteBuffer packet = wrappedBuffer.slice();
+    packet.limit(packetLength);
+
+//    logger.info("XXX: wrappedBuffer={}, packet={}", wrappedBuffer, packet);
+    final SSLEngineResult sslEngineResult = engine.unwrap(packet, peerAppData);
+    final int bytesConsumed = sslEngineResult.bytesConsumed();
+    if (bytesConsumed > 0) {
+      wrappedBuffer.position(wrappedBuffer.position() + bytesConsumed);
+      if (bytesConsumed != packetLength) {
+        throw new IllegalStateException("Failed to consume all the bytes in the packet. packetLength=" + packetLength + ", bytesConsumed=" + bytesConsumed);
+      }
+    }
+//    logger.info("XXX: sslEngineResult={}, wrappedBuffer={}, packet={}, peerAppData={}", sslEngineResult, wrappedBuffer, packet, peerAppData);
+
+    return sslEngineResult;
   }
 
   @Override
