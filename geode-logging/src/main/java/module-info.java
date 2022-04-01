@@ -5,4 +5,5 @@ module org.apache.geode.logging {
   requires org.apache.geode.common;
 
   exports org.apache.geode.logging.internal.log4j.api; // TODO to org.apache.geode.core;
+  exports org.apache.geode.logging.internal.executors; // TODO to org.apache.geode.core;
 }
