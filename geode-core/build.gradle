@@ -425,3 +425,8 @@ configure([
 }
 
 rootProject.generate.dependsOn(generateGrammarSource)
+
+tasks.withType(JavaCompile).configureEach {
+  sourceCompatibility = 17
+  options.compilerArgs << '--add-exports' << 'java.management/com.sun.jmx.remote.security=org.apache.geode.core'
+}
