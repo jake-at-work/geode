@@ -197,7 +197,7 @@ public class OSProcess {
       throw new IOException(String.format("the executable %s does not exist",
           cmd.getPath()));
     }
-    SecurityManager security = System.getSecurityManager();
+    @SuppressWarnings("removal") SecurityManager security = System.getSecurityManager();
     if (security != null) {
       security.checkExec(cmdarray[0]);
     }
