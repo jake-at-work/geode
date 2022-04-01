@@ -340,7 +340,7 @@ public class DSFIDSerializerImpl implements DSFIDSerializer {
     try {
       Constructor<?> cons = fixedIdClass.getConstructor((Class<Object>[]) null);
       cons.setAccessible(true);
-      if (!cons.isAccessible()) {
+      if (!cons.canAccess(null)) {
         throw new IllegalArgumentException(
             "default constructor not accessible " + "for DSFID=" + fixedId + ": " + fixedIdClass);
       }
