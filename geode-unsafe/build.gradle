@@ -39,8 +39,10 @@ dependencies {
 
 tasks.withType(JavaCompile).configureEach {
   javaCompiler.set(provider { null } as Provider<? extends JavaCompiler>)
-  options.forkOptions.executable = javaToolchains.compilerFor(java8Toolchain).get().executablePath.asFile.absolutePath
+  options.forkOptions.executable = javaToolchains.compilerFor(java17Toolchain).get().executablePath.asFile.absolutePath
   options.compilerArgs << '-XDignore.symbol.file'
+  options.compilerArgs << '--add-exports' << 'java.management/com.sun.jmx.remote.security=geode.geode.unsafe.main'
+  options.compilerArgs << '--add-exports' << 'java.base/sun.nio.ch=geode.geode.unsafe.main'
 }
 
 ext.moduleName = group + '.unsafe'
